@@ -4,6 +4,8 @@ using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 
+// TODO
+// REFACTOR code into smaller chunks
 // Class that handles what happens when any button is pressed
 public class ButtonHandler : MonoBehaviour
 {
@@ -17,6 +19,7 @@ public class ButtonHandler : MonoBehaviour
         MakingGame,
         MakingPiece,
         MakingBoard,
+        PaintingBoard,
         Playing
     }
 
@@ -39,10 +42,13 @@ public class ButtonHandler : MonoBehaviour
     public Game gameBeingMade;
 
 
-    // Items for choosing a custom game to play
+    // Items for choosing a custom game to play or edit
     public Button gameButtonTemplate; // prefab button, used as template 
+    public Button deleteAllGamesButton; // be very careful! 
+    public byte numTimesDeleteAllGamesClickedSinceDeletion;
     public Canvas chooseGameCanvas;
     public ScrollRect chooseGameScrView;
+    public Text areYouSureText;
 
 
     // Items for playing a custom game
@@ -112,6 +118,8 @@ public class ButtonHandler : MonoBehaviour
         useTheseDimsButton.onClick.AddListener(UseTheseDims);
         doneGameButton.onClick.AddListener(DoneGame);
 
+        deleteAllGamesButton.onClick.AddListener(DeleteAllGames);
+
         makeBoardButton.onClick.AddListener(MakeBoard);
         removePieceButton.onClick.AddListener(RemovePiece);
         doneBoardButton.onClick.AddListener(DoneBoard);
@@ -143,10 +151,20 @@ public class ButtonHandler : MonoBehaviour
         chooseGameCanvas.gameObject.SetActive(true);
 
 
+        // TODO replace this with unified method
+
         // ensures games folder exists
         //  will not create/overwrite if folder already exists
         Directory.CreateDirectory(gamesFolderPath);
 
+        // clear previous list of games 
+        foreach (Button b in chooseGameScrView.content.GetComponentsInChildren<Button>())
+        {
+            if (!b.Equals(gameButtonTemplate)) 
+            {
+                Destroy(b.gameObject);
+            }
+        }
 
         // populates list of playable games with clickable buttons
         IEnumerable<string> gameNames = Directory.EnumerateFiles(gamesFolderPath, "*.gam");
@@ -225,7 +243,8 @@ public class ButtonHandler : MonoBehaviour
 
             // index of the associated piece 
             //  index should not be used directly, as it *will* change
-            //  after this iteration of the loop ends, (like Lua upvalues)
+            //  after this iteration of the loop ends
+            // indexAssocPiece is kind of like an upvalue in Lua
             byte indexAssocPiece = index;
             PieceInfo pce = gameBeingMade.info.pieces[index];
 
@@ -242,6 +261,9 @@ public class ButtonHandler : MonoBehaviour
                     {
                         b.GetComponent<Image>().color = Color.white;
                     }
+
+                    // change colour of remove piece button
+                    removePieceButton.GetComponent<Image>().color = Color.white;
 
 
 
@@ -406,6 +428,43 @@ public class ButtonHandler : MonoBehaviour
                 });
     }
 
+
+    // DELETE EVERY GAME STORED INSIDE OF THE GAMES FOLDER
+    //  THAT IS WHERE ALL GAMES ARE LOCATED WHEN CREATED WITH THIS PROGRAM!
+    public void DeleteAllGames() 
+    {
+        if (numTimesDeleteAllGamesClickedSinceDeletion > 0) 
+        {
+            // deletes all games, and resets the content of the scroll view
+            Utility.DeleteAllSavedGames();
+
+            // hide warning text
+            areYouSureText.text = "";
+
+            // reset num of times it has been clicked since last deletion
+            numTimesDeleteAllGamesClickedSinceDeletion = 0;
+
+            // change warning text back
+            deleteAllGamesButton.GetComponentInChildren<Text>().text = 
+                "DELETE ALL GAMES";
+
+            // updates game state
+            currentProgramState = ProgramState.Intro;
+
+            // switches canvas back to main/intro canvas 
+            //  (there's no game to choose to play anymore, why stay there?)
+            chooseGameCanvas.gameObject.SetActive(false);
+            introCanvas.gameObject.SetActive(true);
+        } 
+        else 
+        {
+            // asks, if has not asked already
+            areYouSureText.text = "ARE YOU SURE?";
+            deleteAllGamesButton.GetComponentInChildren<Text>().text = "YES!!!";
+
+            numTimesDeleteAllGamesClickedSinceDeletion++; //increment count
+        }
+    }
 
 
     // appends information about game just created to a file which 

@@ -29,7 +29,7 @@ public class GameHandler : MonoBehaviour
         Utility.TileAct(start, bh.pieceSpawningSlot, spawnSlotSize,
             gmInf.numOfRows, gmInf.numOfCols, gmInf.pieceResolution,
             gmInf.boardAtStart.sizeOfGap,
-            (slot, boardC, boardR, pieceC, pieceR) =>
+            (slot, boardR, boardC, pieceR, pieceC) =>
             {
                 // assigns variables
                 PieceSpawningSlot spawnSlotScr =

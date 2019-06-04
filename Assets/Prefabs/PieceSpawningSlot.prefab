@@ -105,6 +105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba3322be3dc514b14b159efc663e845a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pieceCube: {fileID: 0}
   rowPos: 0
   colPos: 0
   pieceCubePlayMode: {fileID: 6511393422982208164, guid: cab573fd646b042d59a3483c51cf17da,
