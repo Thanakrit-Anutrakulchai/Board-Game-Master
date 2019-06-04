@@ -79,4 +79,24 @@ public class BoardInfo
 
         return board;
     }
+
+
+
+
+    /*** INSTANCE METHODS ***/
+    // returns true and assign piece at position r,c to 'piece'
+    //  OR return false if unsuccessful, e.g. index out of bound
+    public bool TryGetPiece(byte r, byte c, out byte piece) 
+    { 
+        try 
+        {
+            piece = this.boardStateRepresentation[r, c];
+            return true;
+        }  
+        catch 
+        {
+            piece = 0; // piece must be assigned, unfortunately
+            return false;
+        }
+    }
 }
