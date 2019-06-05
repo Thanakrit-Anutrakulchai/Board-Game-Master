@@ -162,7 +162,7 @@ public class ButtonHandler : MonoBehaviour
         {
             if (!b.Equals(gameButtonTemplate)) 
             {
-                Destroy(b.gameObject);
+                Destroy(b);
             }
         }
 
@@ -234,6 +234,15 @@ public class ButtonHandler : MonoBehaviour
         // switches displayed canvas to appropriate one
         makeGameCanvas.gameObject.SetActive(false);
         makeBoardCanvas.gameObject.SetActive(true);
+
+        // clears all old buttons on the scroll view
+        foreach (Button b in selectPieceScrView.GetComponentsInChildren<Button>()) 
+        { 
+            if (!b.Equals(pieceButtonTemplate)) 
+            {
+                Destroy(b.gameObject);
+            }
+        }
 
         // populates the scroll view with buttons labeled with piece names
         for (byte index = 0; index < gameBeingMade.info.pieces.Count; index++)
