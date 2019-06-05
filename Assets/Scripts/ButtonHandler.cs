@@ -3,6 +3,7 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
+using System;
 
 // TODO
 // REFACTOR code into smaller chunks
@@ -21,6 +22,9 @@ public class ButtonHandler : MonoBehaviour
         MakingPiece,
         MakingBoard,
         PaintingBoard,
+        ChoosingRuleAreaAffeted,
+        MakingRelRule,
+        MakingWinCond,
         Playing
     }
 
@@ -89,6 +93,24 @@ public class ButtonHandler : MonoBehaviour
     public BoardCreationPanel boardCreationPanel;
     public float boardSquareSize = 1f;
 
+    // items for starting the rule creation process
+    public Button makeRuleButton;
+    public RuleCreationPanel ruleCreationPanel;
+
+    // items for specifying the area affected by a rule
+    public Button activatePieceClickedButton;
+    public InputField InputAreaAffected;
+    public InputField InputPlayersTurn;
+    public Canvas chooseRuleArea;
+
+    // items for creation a relative rule, triggers upon clicking piece/board
+    public Button setTriggerPieceButton;
+    public Button relRuleDoneButton;
+    public Button relRuleRemovePieceButton;
+    public Button relRuleSelectPieceButtonTemplate;
+    public ScrollRect relRuleSelectPieceScrView;
+    public Canvas makeRelRuleCanvas;
+
     // Items from the board dimensions setup screen 
     public Button useTheseDimsButton;
     public InputField numRowsInputField;
@@ -129,14 +151,17 @@ public class ButtonHandler : MonoBehaviour
 
         makePieceButton.onClick.AddListener(MakePiece);
         donePieceButton.onClick.AddListener(DonePiece);
+
+        makeRuleButton.onClick.AddListener(MakeRule);
+        activatePieceClickedButton.onClick.AddListener(MakeRelRule);
+        setTriggerPieceButton.onClick.AddListener(SetTriggerPiece);
+        relRuleDoneButton.onClick.AddListener(DoneRelRule);
     }
 
 
 
 
-
-
-    /*** INSTANCE METHODS ***/ 
+    /*** INSTANCE METHODS ***/
     // Most of these are functions that activates on button press //
 
     // Choose a custom game to play 
@@ -438,6 +463,127 @@ public class ButtonHandler : MonoBehaviour
                     slot.GetComponent<PieceBuildingSlot>().slotId = tempId;
                     tempId++;
                 });
+    }
+
+
+    // TODO TEMP. allow creation of non-relative rules
+    // starts process of creating a rule, currently only supports relative rules
+    public void MakeRule() 
+    {
+        // update state
+        currentProgramState = ProgramState.ChoosingRuleAreaAffeted;
+
+        // switches canvas
+        makeGameCanvas.gameObject.SetActive(false);
+        chooseRuleArea.gameObject.SetActive(true);
+    }
+
+
+    // starts process of making a "relative" rule 
+    //   which triggers when a piece or the board is clicked
+    public void MakeRelRule() 
+    {
+        // update state
+        currentProgramState = ProgramState.MakingRelRule;
+
+        // switches canvas
+        chooseRuleArea.gameObject.SetActive(false);
+        makeRelRuleCanvas.gameObject.SetActive(true);
+
+        // TODO
+        // recover information about player's turn and size of area affected 
+        bool parsedArea = Byte.TryParse(InputAreaAffected.text, out byte areaAffected);
+        // do this -> bool parsedPlayer =
+
+        // TODO generalize this code and the one in makeboard
+
+        // clears all old buttons on the scroll view
+        relRuleSelectPieceScrView.Clear(relRuleSelectPieceButtonTemplate);
+
+        // populates the scroll view with buttons labeled with piece names
+        for (byte index = 0; index < gameBeingMade.info.pieces.Count; index++)
+        {
+            // when clicked change colours of buttons
+            //  and assigns piece associated to be current piece selected
+
+            // index of the associated piece 
+            //  index should not be used directly, as it *will* change
+            //  after this iteration of the loop ends
+            // indexAssocPiece is kind of like an upvalue in Lua
+            byte indexAssocPiece = index;
+            PieceInfo pce = gameBeingMade.info.pieces[index];
+
+            Button pceButton =
+                Utility.CreateButton(pieceButtonTemplate, relRuleSelectPieceScrView.content,
+                pce.pieceName,
+                (btn) => delegate
+                {
+                    // retrieve all buttons under the piece selection scrollview
+                    Button[] buttons =
+                        relRuleSelectPieceScrView.content.GetComponentsInChildren<Button>();
+                    // changes colour of all piece selection buttons back
+                    foreach (Button b in buttons)
+                    {
+                        b.GetComponent<Image>().color = Color.white;
+                    }
+
+                    // change colour of remove piece button
+                    removePieceButton.GetComponent<Image>().color = Color.white;
+
+                    // change colour of set trigger button
+                    setTriggerPieceButton.GetComponent<Image>().color = Color.white;
+
+
+                    // TODO 
+                    // TEMP
+                    // DEBUG
+                    // index of piece selected
+                    Debug.Log("INDEX OF PIECE SELECTED: " + indexAssocPiece);
+
+
+                    // changes piece selected
+                    ruleCreationPanel.pieceSelected = indexAssocPiece;
+
+                    // changes this button's colour
+                    btn.GetComponent<Image>().color =
+                        RuleCreationPanel.selectedPieceColour;
+                });
+        }
+
+    }
+
+
+    // assigns the next piece clicked to be the 'trigger piece' 
+    public void SetTriggerPiece() 
+    {
+        // notes that in process of assigning trigger piece
+        ruleCreationPanel.selectingTriggerPiece = true;
+
+        // un-highlights all other buttons 
+        Button[] buttons =
+            relRuleSelectPieceScrView.GetComponentsInChildren<Button>();
+        foreach (Button b in buttons) 
+        {
+            b.GetComponent<Image>().color = Color.white;
+        }
+        relRuleRemovePieceButton.GetComponent<Image>().color = Color.white;
+
+        // highlights the select trigger piece button
+        setTriggerPieceButton.GetComponent<Image>().color =
+            RuleCreationPanel.selectedPieceColour;
+    }
+
+
+    // finishes process of making a custom, relative on-click rule 
+    public void DoneRelRule() 
+    {
+        // adds relative rule made to the game 
+        RuleInfo ruleMade = ruleCreationPanel.ruleBeingMade;
+        byte triggerPiece = ruleMade.triggerPiece;
+        gameBeingMade.info.rules[triggerPiece].Add(ruleMade);
+
+        // update state 
+        
     }
 
 

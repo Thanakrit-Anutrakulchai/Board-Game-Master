@@ -101,7 +101,7 @@ public class GameHandler : MonoBehaviour
         else // list all of the winners 
         {
             // TODO 
-            congratulatoryText = 
+            congratulatoryText.text = 
                 "The game has ended! Multiple people won!";
         }
     }

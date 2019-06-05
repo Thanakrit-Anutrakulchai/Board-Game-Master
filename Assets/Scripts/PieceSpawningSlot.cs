@@ -89,7 +89,7 @@ public class PieceSpawningSlot : PieceSlot
                     Utility.CreateButton
                     (
                         bh.selectRuleButtonTemplate,
-                        bh.selectRuleScrView, rule.name,
+                        bh.selectRuleScrView.content, rule.name,
                         (btn) => delegate
                         {
                             //TODO TEMP.
