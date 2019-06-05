@@ -17,4 +17,14 @@ public class PieceSlot : MonoBehaviour
     //  is associated with, i.e. position inside a board's square
     public byte rowPos;
     public byte colPos;
+
+
+
+    /*** CONSTRUCTORS ***/
+    public PieceSlot() { }
+    public PieceSlot(byte r, byte c) 
+    {
+        rowPos = r;
+        colPos = c;
+    }
 }

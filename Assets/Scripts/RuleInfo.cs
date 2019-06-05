@@ -25,6 +25,15 @@ public class RuleInfo
             // NOTE: This program currently only supports one piece here
             public byte pieceChangedTo;
         }
+
+        // returns a square matrix representing area of size specified
+        //   all squares considered unaffected
+        public static SquareChange[,] GetDefaultAreaAffected(byte size) 
+        {
+            SquareChange[,] area = new Unaffected[size, size];
+            area.Initialize();
+            return area;
+        }
     }
 
     /*** INSTANCE VARIABLES ***/

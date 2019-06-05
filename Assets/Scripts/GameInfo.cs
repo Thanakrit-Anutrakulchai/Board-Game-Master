@@ -52,6 +52,18 @@ public class GameInfo
 
 
 
+    /*** INSTANCE PROPERTIES ***/
+    // size of the piece spawning slots used for tiling this 
+    public float spawnSlotSize
+    {
+        get
+        {
+            return boardAtStart.squareSize / pieceResolution;
+        }
+    }
+
+
+
 
 
     /*** CONSTRUCTORS ***/

@@ -8582,6 +8582,18 @@ MonoBehaviour:
   gapBetweenSlider: {fileID: 1522572178}
   boardCreationPanel: {fileID: 1448092643}
   boardSquareSize: 2
+  makeRuleButton: {fileID: 0}
+  ruleCreationPanel: {fileID: 0}
+  activatePieceClickedButton: {fileID: 0}
+  InputAreaAffected: {fileID: 0}
+  InputPlayersTurn: {fileID: 0}
+  chooseRuleArea: {fileID: 0}
+  setTriggerPieceButton: {fileID: 0}
+  relRuleDoneButton: {fileID: 0}
+  relRuleRemovePieceButton: {fileID: 0}
+  relRuleSelectPieceButtonTemplate: {fileID: 0}
+  relRuleSelectPieceScrView: {fileID: 0}
+  makeRelRuleCanvas: {fileID: 0}
   useTheseDimsButton: {fileID: 303999594}
   numRowsInputField: {fileID: 678648891}
   numColsInputField: {fileID: 1258184853}

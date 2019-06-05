@@ -39,12 +39,14 @@ public class ButtonHandler : MonoBehaviour
 
     /*** INSTANCE VARIABLES ***/
 
-    // Important items (objects, variables, etc.) that will be affected
+    // Important items (objects, variables, etc.)
     public Canvas introCanvas;
     // corresponding script on this object
     public GameHandler gameHandler;
     // the game currently being made, null if not in process of creation
     public Game gameBeingMade;
+    // y-distance (height) of board from the plane at y=0
+    public float heightOfBoard;
 
 
     // Items for choosing a custom game to play or edit
@@ -91,7 +93,8 @@ public class ButtonHandler : MonoBehaviour
     public Canvas makeBoardCanvas;
     public Slider gapBetweenSlider;
     public BoardCreationPanel boardCreationPanel;
-    public float boardSquareSize = 1f;
+    public float assignedBoardSquareSize = 1f;
+    public float BoardSquareSize { get { return assignedBoardSquareSize * 10; } }
 
     // items for starting the rule creation process
     public Button makeRuleButton;
@@ -108,6 +111,8 @@ public class ButtonHandler : MonoBehaviour
     public Button relRuleDoneButton;
     public Button relRuleRemovePieceButton;
     public Button relRuleSelectPieceButtonTemplate;
+    public Button relRuleSwitchToButton;
+    public Button relRuleCurStateText;
     public ScrollRect relRuleSelectPieceScrView;
     public Canvas makeRelRuleCanvas;
 
@@ -155,6 +160,7 @@ public class ButtonHandler : MonoBehaviour
         makeRuleButton.onClick.AddListener(MakeRule);
         activatePieceClickedButton.onClick.AddListener(MakeRelRule);
         setTriggerPieceButton.onClick.AddListener(SetTriggerPiece);
+        relRuleSwitchToButton.onClick.AddListener(RelRuleSwitchTo);
         relRuleDoneButton.onClick.AddListener(DoneRelRule);
     }
 
@@ -328,10 +334,10 @@ public class ButtonHandler : MonoBehaviour
         // retrieves game info, finds position to start tiling
         GameInfo gmInf = gameBeingMade.info;
         BoardInfo startBoard = gmInf.boardAtStart;
-        Vector3 start = new Vector3(-startBoard.width/2, 10, -startBoard.height/2);
+        Vector3 start = new Vector3(-startBoard.width/2, heightOfBoard, -startBoard.height/2);
 
         // tiles and assigns appropriate variables to piece spawning slots
-        float spawnSlotSize = boardSquareSize / gmInf.pieceResolution;
+        float spawnSlotSize = (BoardSquareSize/10) / gmInf.pieceResolution;
         Utility.TileAct(start, pieceSpawningSlot, spawnSlotSize,
             gmInf.numOfRows, gmInf.numOfCols, gmInf.pieceResolution,
             gapBetweenSlider.value,
@@ -393,7 +399,7 @@ public class ButtonHandler : MonoBehaviour
 
             // gets numRows x numCols board with no pieces coloured 0x000000
             BoardInfo defBoard = BoardInfo.DefaultBoard(numRows, numCols,
-                boardSquareSize, gapBetweenSlider.value, new PosInfo.RGBData(0, 0, 0));
+                BoardSquareSize, gapBetweenSlider.value, new PosInfo.RGBData(0, 0, 0));
 
             // sets up a skeleton for the game being created 
             gameBeingMade = new Game(defBoard, new List<PieceInfo>());
@@ -440,7 +446,7 @@ public class ButtonHandler : MonoBehaviour
         // reminder: planes in Unity are 10 units by 10 units
         float sideLength = pceRes * buildSlotSize * 10 + // size of slots
             (pceRes - 1) * buildSlotSize; //(* 0.1f * 10) // size of gaps
-        Vector3 start = new Vector3(-sideLength / 2, 10, -sideLength / 2);
+        Vector3 start = new Vector3(-sideLength / 2, heightOfBoard, -sideLength / 2);
 
         // tiles temporary "board" representing square to place piece on
         Utility.TileAct(start, pieceBuildingSlot, buildSlotSize, 
@@ -490,10 +496,27 @@ public class ButtonHandler : MonoBehaviour
         chooseRuleArea.gameObject.SetActive(false);
         makeRelRuleCanvas.gameObject.SetActive(true);
 
-        // TODO
+        // clear values for use
+        ruleCreationPanel.ClearOldValues();
+
+        // TODO add checks
         // recover information about player's turn and size of area affected 
         bool parsedArea = Byte.TryParse(InputAreaAffected.text, out byte areaAffected);
         // do this -> bool parsedPlayer =
+
+        // TODO do something if area not succesfully parsed
+        if (!parsedArea) 
+        { 
+            // add code here
+        }
+
+
+        // generate rule, and area to be affected
+        ruleCreationPanel.ruleBeingMade = new RuleInfo();
+        ruleCreationPanel.ruleBeingMade.relChanges =
+            RuleInfo.SquareChange.GetDefaultAreaAffected(areaAffected);
+
+
 
         // TODO generalize this code and the one in makeboard
 
@@ -550,12 +573,58 @@ public class ButtonHandler : MonoBehaviour
                 });
         }
 
+
+        // tiles area to be affected 
+        // calculates width and height of area 
+        int numRows = ruleCreationPanel.ruleBeingMade.relChanges.GetLength(0);
+        int numCols = ruleCreationPanel.ruleBeingMade.relChanges.GetLength(1);
+        float height = numRows * BoardSquareSize + 
+            (numRows - 1)*BoardSquareSize*gameBeingMade.boardState.sizeOfGap;
+        float width = numCols * BoardSquareSize +
+            (numCols - 1) * BoardSquareSize * gameBeingMade.boardState.sizeOfGap;
+
+        //calculates start of tiling 
+        Vector3 tilingStart = new Vector3(-width / 2, heightOfBoard, -height / 2);
+
+        // tiles the area
+        Utility.TileAct(tilingStart, pieceSpawningSlot,
+                        gameBeingMade.info.spawnSlotSize,
+                        (byte) numRows, (byte) numCols, 
+                        gameBeingMade.info.pieceResolution,
+                        gameBeingMade.info.boardAtStart.sizeOfGap,
+                        (slot, boardR, boardC, pieceR, pieceC) =>
+                        {
+                            // assigns variables
+                            PieceSpawningSlot spawnSlotScr =
+                                slot.GetComponent<PieceSpawningSlot>();
+                            spawnSlotScr.game = gameBeingMade;
+                            spawnSlotScr.rowPos = pieceR;
+                            spawnSlotScr.colPos = pieceC;
+                            spawnSlotScr.boardRow = boardR;
+                            spawnSlotScr.boardCol = boardC;
+
+                            // notes that this spawning slot is currently used
+                            gameBeingMade.spawningsSlots[boardR, boardC].Add(spawnSlotScr);
+
+                            // spawns cube at the corresponding position relative to the piece
+                            spawnSlotScr.Spawn();
+
+                            // adds object to list of item to destroy after creation process
+                            Utility.objsToDelete.Add(slot);
+                        });
     }
 
 
     // assigns the next piece clicked to be the 'trigger piece' 
     public void SetTriggerPiece() 
     {
+        // TODO make this more clear to the user
+        // button may not be used while setting the resulting state of the area
+        if (ruleCreationPanel.settingBoardAfter) 
+        {
+            return;
+        }
+
         // notes that in process of assigning trigger piece
         ruleCreationPanel.selectingTriggerPiece = true;
 
@@ -571,6 +640,13 @@ public class ButtonHandler : MonoBehaviour
         // highlights the select trigger piece button
         setTriggerPieceButton.GetComponent<Image>().color =
             RuleCreationPanel.selectedPieceColour;
+    }
+
+
+    // switches betweewn making a board before and after 
+    public void RelRuleSwitchTo() 
+    { 
+        // TODO
     }
 
 

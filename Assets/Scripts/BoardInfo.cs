@@ -7,10 +7,7 @@ public class BoardInfo
     // board sizes in number of squares (which can have full pieces on top)
     public byte numOfRows;
     public byte numOfCols;
-
-    // dimensions of the board in Unity's units
-    public float height; // based on number of rows
-    public float width; // based on number of columns
+    public float squareSize; // size of the board square 
 
     // relative size of gaps between large squares, 
     //   e.g. 1 means gaps are as large as the squares
@@ -27,6 +24,27 @@ public class BoardInfo
 
 
 
+    /*** INSTANCE PROPERTIES ***/
+    // dimensions of the board in Unity's units
+    public float Height
+    {
+        get
+        {
+            return numOfRows * squareSize + // space taken by squares
+                   (numOfRows - 1) * sizeOfGap * squareSize; // taken by gaps 
+        }
+    }
+    public float Width
+    {
+        get
+        {
+            return numOfCols * squareSize + // space taken by squares
+                   (numOfCols - 1) * sizeOfGap * squareSize; // taken by gaps
+        }
+    }
+
+
+
     /*** CONSTRUCTORS ***/
     // hidden default constructor
     private BoardInfo() { }
@@ -34,7 +52,7 @@ public class BoardInfo
     // generates board of numRows x numCols size without any pieces
     //  with large squares of size specified, and gaps of size specified
     private BoardInfo(byte numRows, byte numCols, 
-                      float squareSizeAsScale, float gapSize) 
+                      float sqSize, float gapSize) 
     {
         // TODO
         // TEMP. debug messages
@@ -45,17 +63,9 @@ public class BoardInfo
         this.numOfRows = numRows;
         this.numOfCols = numCols;
         this.sizeOfGap = gapSize;
+        this.squareSize = sqSize;
         this.boardShapeRepresentation = PosInfo.NothingMatrix(numRows,numCols);
         this.boardStateRepresentation = new byte[numRows, numCols];
-
-        // calculate and assign dimensions,
-        // NOTE: reminder, planes start off 10 units by 10 units
-        float squareSize = squareSizeAsScale * 10;
-        this.height = numOfRows * squareSize + // space taken by squares
-            (numOfRows - 1) * sizeOfGap * squareSize; // taken by gaps
-
-        this.width = numOfCols * squareSize + // space taken by squares
-            (numOfCols - 1) * sizeOfGap * squareSize;
     }
 
 
@@ -95,8 +105,7 @@ public class BoardInfo
         BoardInfo result = new BoardInfo();
         result.numOfRows = this.numOfRows;
         result.numOfCols = this.numOfCols;
-        result.height = this.height;
-        result.width = this.width;
+        result.squareSize = this.squareSize;
         result.sizeOfGap = this.sizeOfGap;
         result.boardShapeRepresentation = this.boardShapeRepresentation; //same ref
 

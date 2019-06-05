@@ -3,7 +3,6 @@
 // Behaviour for slots used for making custom game pieces
 public class PieceBuildingSlot : PieceSlot
 {
-
     /*** INSTANCE VARIABLES ***/
     // link to panel, which has array representation of piece being built
     public PieceCreationPanel associatedPanel;

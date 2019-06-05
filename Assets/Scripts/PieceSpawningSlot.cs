@@ -14,7 +14,7 @@ public class PieceSpawningSlot : PieceSlot
     // cubes to be spawned above these in play mode, which make up pieces
     public GameObject pieceCubePlayMode;
 
-    // custom game currently being played, featuring this spawning slot
+    // custom game, featuring this spawning slot
     public Game game;
 
     // co-ordinates of the square of the board this smaller slot is in
@@ -23,8 +23,20 @@ public class PieceSpawningSlot : PieceSlot
 
 
 
+    /*** CONSTRUCTORS ***/
+    public PieceSpawningSlot(Game gm, byte boardR, byte boardC, byte pieceR, byte pieceC) 
+        : base(pieceR, pieceC) // this calls the parent constructor
+    {
+        game = gm;
+        boardRow = boardR;
+        boardCol = boardC;
+    }
+
+
 
     /*** INSTANCE METHODS ***/
+
+    // Decides what to do when clicked based on current game state
     // If in process of making board, place selected piece on board
     // While playing a game, checks and applies rules which trigger 
     //   when the piece at this location is clicked
@@ -58,7 +70,8 @@ public class PieceSpawningSlot : PieceSlot
                 {
                     slot.Spawn();
                 });
-        }
+        } // making board
+
         else if (bh.currentProgramState == ButtonHandler.ProgramState.Playing) 
         {
             // recover piece above this spawning slot
@@ -101,7 +114,12 @@ public class PieceSpawningSlot : PieceSlot
                         }
                     );
             }
-        } 
+        } // playing
+
+        else if (bh.currentProgramState == ButtonHandler.ProgramState.MakingRelRule) 
+        { 
+            //
+        } // making relative/on-click rule
 
     }
 
