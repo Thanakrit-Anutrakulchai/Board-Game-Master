@@ -86,17 +86,17 @@ public class RuleInfo
                 if (gotPce) // if it exists
                 {
                     SquareChange change = relChanges[rRel, cRel];
-                    if (change is SquareChange.Changed) 
+                    switch (change) 
                     {
-                        SquareChange.Changed sqChng =
-                            change as SquareChange.Changed;
-
-                        if (!sqChng.pieceChangedFrom.Contains(pce)) 
-                        {
-                            // piece here is incompatible with rule
-                            // -> rule cannot be applied -> no resulting state
-                            return new List<Game>();
-                        }
+                        // only activates if change is a SquareChange.Changed
+                        case SquareChange.Changed sqChng: 
+                            if (!sqChng.pieceChangedFrom.Contains(pce)) 
+                            {
+                                // piece here is incompatible with rule
+                                // -> rule cannot be applied -> no resulting state
+                                return new List<Game>();
+                            }
+                            break;
                     } // don't worry about pieces that are unaffected
                       //  even if they would normally be 'out of board'
                 }

@@ -7,7 +7,7 @@ public class GameHandler : MonoBehaviour
 {
     /*** INSTANCE VARIABLES ***/
     // the game currently being played 
-    public Game game;
+    public Game gameBeingPlayed;
 
 
     /*** INSTANCE METHODS ***/
@@ -16,7 +16,7 @@ public class GameHandler : MonoBehaviour
         // TODO
 
         // retrievs game info, calculate where to start tiling
-        GameInfo gmInf = game.info;
+        GameInfo gmInf = gameBeingPlayed.info;
         BoardInfo startBoard = gmInf.boardAtStart;
         Vector3 start = new Vector3(-startBoard.width / 2, 10, -startBoard.height / 2);
 
@@ -34,7 +34,7 @@ public class GameHandler : MonoBehaviour
                 // assigns variables
                 PieceSpawningSlot spawnSlotScr =
                     slot.GetComponent<PieceSpawningSlot>();
-                spawnSlotScr.game = game;
+                spawnSlotScr.game = gameBeingPlayed;
                 spawnSlotScr.rowPos = pieceR;
                 spawnSlotScr.colPos = pieceC;
                 spawnSlotScr.boardRow = boardR;

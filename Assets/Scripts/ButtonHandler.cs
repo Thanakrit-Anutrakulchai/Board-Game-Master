@@ -6,10 +6,11 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 // TODO
 // REFACTOR code into smaller chunks
+
 // Class that handles what happens when any button is pressed
 public class ButtonHandler : MonoBehaviour
 {
-    /*** PRIVATE TYPES ***/
+    /*** INNER TYPES ***/
     // describes the current state of the program
     public enum ProgramState
     {
@@ -53,6 +54,8 @@ public class ButtonHandler : MonoBehaviour
 
     // Items for playing a custom game
     public Button playGameButton;
+    public Button selectRuleButtonTemplate;
+    public ScrollRect selectRuleScrView;
     public Canvas playGameCanvas;
     public GameObject pieceSpawningSlot;
 
@@ -196,7 +199,7 @@ public class ButtonHandler : MonoBehaviour
 
 
                     // assign and start the game
-                    gameHandler.game = new Game(gmInfo);
+                    gameHandler.gameBeingPlayed = new Game(gmInfo);
                     gameHandler.Play();
                 });
 

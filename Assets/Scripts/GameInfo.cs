@@ -39,8 +39,8 @@ public class GameInfo
     // NOTE: This should be used instead of pieces.length
     public byte numOfPieces;
 
-    // the rules of the game
-    public List<RuleInfo> rules;
+    // the rules of the game which triggers when a piece is clicked
+    public Dictionary<byte, List<RuleInfo>> rules;
 
 
 

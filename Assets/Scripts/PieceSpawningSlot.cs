@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 // class which controls behaviour of PieceSpawningSlot game objects
 //   if pieces in the game are of size/resolution n by n 
@@ -24,6 +26,8 @@ public class PieceSpawningSlot : PieceSlot
 
     /*** INSTANCE METHODS ***/
     // If in process of making board, place selected piece on board
+    // While playing a game, checks and applies rules which trigger 
+    //   when the piece at this location is clicked
     public void OnMouseDown()
     {
         // TODO
@@ -31,7 +35,10 @@ public class PieceSpawningSlot : PieceSlot
         Debug.Log("ROW POS. OF SQUARE CLICKED: " + boardRow);
         Debug.Log("COLUMN POS. OF SQUARE CLICKED: " + boardCol);
 
+        // access current program state
         ButtonHandler bh = Camera.main.GetComponent<ButtonHandler>();
+        GameHandler gh = Camera.main.GetComponent<GameHandler>();
+
         if (bh.currentProgramState == ButtonHandler.ProgramState.MakingBoard) 
         {
             // recover information about piece chosen
@@ -52,7 +59,53 @@ public class PieceSpawningSlot : PieceSlot
                     slot.Spawn();
                 });
         }
+        else if (bh.currentProgramState == ButtonHandler.ProgramState.Playing) 
+        {
+            // recover piece above this spawning slot
+            byte pieceAbove = 
+                game.boardState.boardStateRepresentation[boardRow, boardCol];
+
+            // sees all rules which can be triggered upon pressing this piece
+            //   (or the board if set to no piece)
+            List<RuleInfo> rulesTriggerable = game.info.rules[pieceAbove];
+
+            // clear all previously displayed button on the rule selection scroll view
+            bh.selectRuleScrView.Clear<Button>(bh.selectRuleButtonTemplate);
+
+            foreach (RuleInfo rule in rulesTriggerable) 
+            {
+                // looks at possible next states
+                List<Game> possibleStates = rule.Apply(game, boardRow, boardCol);
+
+                // if the rule is not applicable (no future states), 
+                //   don't make a button for it!
+                if (possibleStates.Count == 0) 
+                {
+                    continue;
+                }
+
+                // otherwise make a button which applies the rule when clicked
+                Button button =
+                    Utility.CreateButton
+                    (
+                        bh.selectRuleButtonTemplate,
+                        bh.selectRuleScrView, rule.name,
+                        (btn) => delegate
+                        {
+                            //TODO TEMP.
+                            // for now, choose first state
+                            gh.gameBeingPlayed = possibleStates[0];
+
+                            // clears scroll view for future use
+                            bh.selectRuleScrView.Clear(bh.selectRuleScrView);
+                        }
+                    );
+            }
+        } 
+
     }
+
+
 
 
 
