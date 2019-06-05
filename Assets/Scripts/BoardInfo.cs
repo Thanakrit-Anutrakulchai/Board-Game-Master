@@ -28,6 +28,9 @@ public class BoardInfo
 
 
     /*** CONSTRUCTORS ***/
+    // hidden default constructor
+    private BoardInfo() { }
+
     // generates board of numRows x numCols size without any pieces
     //  with large squares of size specified, and gaps of size specified
     private BoardInfo(byte numRows, byte numCols, 
@@ -84,13 +87,43 @@ public class BoardInfo
 
 
     /*** INSTANCE METHODS ***/
+    // CAREFUL! Returns by-value copy BUT with same pointer for ShapeRepresentation
+    //  i.e. result.boardShapeRepresentation == this.boardShapeRepresentation still
+    public BoardInfo GetCopy() 
+    {
+        // assigns all variables 
+        BoardInfo result = new BoardInfo();
+        result.numOfRows = this.numOfRows;
+        result.numOfCols = this.numOfCols;
+        result.height = this.height;
+        result.width = this.width;
+        result.sizeOfGap = this.sizeOfGap;
+        result.boardShapeRepresentation = this.boardShapeRepresentation; //same ref
+
+        // copies state representation by value
+        result.boardStateRepresentation = 
+            this.boardStateRepresentation.Clone() as byte[,];
+
+        return result;
+    }
+
     // returns true and assign piece at position r,c to 'piece'
     //  OR return false if unsuccessful, e.g. index out of bound
+    //  Note that even if indexing succeeds, this may still return false,
+    //   due to the lack of a board square at that index
     public bool TryGetPiece(byte r, byte c, out byte piece) 
     { 
         try 
         {
-            piece = this.boardStateRepresentation[r, c];
+            PosInfo pieceRep = boardShapeRepresentation[r, c];
+            piece = boardStateRepresentation[r, c];
+
+            // guards against case where there is no board square there
+            if (pieceRep is PosInfo.Nothing) 
+            {
+                return false;
+            }
+
             return true;
         }  
         catch 
