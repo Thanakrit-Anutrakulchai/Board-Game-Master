@@ -8554,6 +8554,8 @@ MonoBehaviour:
   chooseGameScrView: {fileID: 2136644247}
   areYouSureText: {fileID: 113389513}
   playGameButton: {fileID: 2017071315}
+  selectRuleButtonTemplate: {fileID: 0}
+  selectRuleScrView: {fileID: 0}
   playGameCanvas: {fileID: 1659554421}
   pieceSpawningSlot: {fileID: 1207568491217683276, guid: cb17549d19bf446729641b0e5e63c01e,
     type: 3}

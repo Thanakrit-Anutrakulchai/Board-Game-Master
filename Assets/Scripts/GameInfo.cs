@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 
 /* CURRENT LIST OF CONSTRAINTS ON A GAME
  *  BOARD SIZE: 256 x 256 max, at least 1 by 1
@@ -21,6 +22,9 @@ public class GameInfo
 
 
     /*** INSTANCE VARIABLES ***/
+    // number of players
+    public byte NumberOfPlayers { get; set; }
+
     // state of the board at the start of the game
     public BoardInfo boardAtStart;
 
@@ -42,6 +46,10 @@ public class GameInfo
     // the rules of the game which triggers when a piece is clicked
     public Dictionary<byte, List<RuleInfo>> rules;
 
+    // absolute win conditions, game states where a player wins 
+    //  the tagged byte represents the player who wins 
+    public List<Tuple<Game, byte>> absoluteWinConditions;
+
 
 
 
@@ -53,6 +61,12 @@ public class GameInfo
         this.pieces = pcs;
         this.numOfRows = brdStrt.numOfRows;
         this.numOfCols = brdStrt.numOfCols;
+
+        // starts off with no rules specified
+        this.rules = new Dictionary<byte, List<RuleInfo>>();
+
+        // starts off with no specified win conditions 
+        this.absoluteWinConditions = new List<Tuple<Game, byte>>();
     }
 
 
@@ -98,7 +112,5 @@ public class GameInfo
             return false;
         }
     }
-    
-
 
 }

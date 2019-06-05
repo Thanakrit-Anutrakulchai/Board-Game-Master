@@ -6,6 +6,8 @@
 public class Game
 {
     /*** INSTANCE VARIABLES ***/
+    // the current player during this turn 
+    public byte currentPlayer;
 
     // information about (setting up) the game
     public GameInfo info;
@@ -54,5 +56,37 @@ public class Game
                     info.pieceResolution * info.pieceResolution);
             }
         }
+    }
+
+
+    /*** INSTANCE METHODS ***/
+    // TODO TEMP: turn this into full-blown evaluation function for AI?
+    // true iff. this and the otherGame has same board state and current player
+    //   note that the colouring of the boards are ignored
+    public bool SameStateAs(Game otherGame)
+    {
+        // ensure board states are the same
+        // first, ensure sizes are the same
+        if ((boardState.numOfRows != otherGame.boardState.numOfRows) ||
+            (boardState.numOfCols != otherGame.boardState.numOfCols))
+        {
+            return false; // otherwise, they clearly are not the same
+        }
+        // check board states equality, square/piece-wise 
+        for (byte r = 0; r < boardState.numOfRows; r++) 
+        { 
+            for (byte c = 0; c < boardState.numOfCols; c++) 
+            { 
+                if (boardState.boardStateRepresentation[r, c] != 
+                    otherGame.boardState.boardStateRepresentation[r, c]) 
+                {
+                    return false; // false if a single piece/square mismatched
+                }
+            }
+        }
+
+
+        // if boards are same, true iff. current players are the same, also
+        return (currentPlayer == otherGame.currentPlayer);
     }
 }

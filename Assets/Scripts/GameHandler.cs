@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 
 // This script manages custom games in play mode, 
@@ -6,11 +9,15 @@
 public class GameHandler : MonoBehaviour
 {
     /*** INSTANCE VARIABLES ***/
+    // congratulatory text for the winner(s) 
+    public Text congratulatoryText;
+
     // the game currently being played 
     public Game gameBeingPlayed;
 
 
     /*** INSTANCE METHODS ***/
+    // starts the game
     public void Play() 
     {
         // TODO
@@ -47,4 +54,55 @@ public class GameHandler : MonoBehaviour
     }
 
 
+
+    // moves onto the next turn of the game
+    public void NextTurn() 
+    {
+        //TODO 
+
+        // check if game has been won 
+        foreach ((Game state, byte winner) in gameBeingPlayed.info.absoluteWinConditions)
+        { 
+            if (gameBeingPlayed.SameStateAs(state)) 
+            {
+                // TODO
+                GameEnded(new List<byte>(new byte[] { winner }));
+                return;
+            }
+        }
+    }
+
+
+
+    // announces that game has been won and ends the game
+    public void GameEnded(List<byte> winners) 
+    {
+        // TODO 
+        // VERY TEMP.
+        Debug.Log("List of Winners:");
+        foreach (byte winner in winners) 
+        {
+            Debug.Log("\tPlayer No." + winner);
+        }
+
+
+        // TODO add custom text
+        // declare that no one has won... if no one has won
+        if (winners.Count == 0) 
+        {
+            congratulatoryText.text = 
+                "Oh no! No one has won!";
+        } 
+        else if (winners.Count == 1) // if there is 1 clear winner, annouce it
+        {
+            congratulatoryText.text = 
+                "The game has ended! The winner is: Player No." + winners[0];
+        }
+        else // list all of the winners 
+        {
+            // TODO 
+            congratulatoryText = 
+                "The game has ended! Multiple people won!";
+        }
+    }
 }
