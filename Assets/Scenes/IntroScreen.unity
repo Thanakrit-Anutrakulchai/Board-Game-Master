@@ -1801,7 +1801,7 @@ GameObject:
   - component: {fileID: 299102939}
   - component: {fileID: 299102938}
   m_Layer: 5
-  m_Name: ChooseMove
+  m_Name: ChooseMoveText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3984,7 +3984,7 @@ GameObject:
   - component: {fileID: 614222552}
   - component: {fileID: 614222551}
   m_Layer: 5
-  m_Name: Scroll View
+  m_Name: ChooseMoveScrView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8548,6 +8548,7 @@ MonoBehaviour:
   currentProgramState: 0
   introCanvas: {fileID: 2052324070}
   gameHandler: {fileID: 1448092640}
+  heightOfBoard: 10
   gameButtonTemplate: {fileID: 792774667}
   deleteAllGamesButton: {fileID: 474671234}
   numTimesDeleteAllGamesClickedSinceDeletion: 0
@@ -8572,7 +8573,6 @@ MonoBehaviour:
   selectPieceScrView: {fileID: 943846216}
   pieceBuildingSlot: {fileID: 5421340450592182171, guid: 8ea54f4b305cf40fbbf77e071ef8cfd3,
     type: 3}
-  pieceCreationPanel: {fileID: 1448092642}
   buildSlotSize: 1
   makeBoardButton: {fileID: 1577755944}
   doneBoardButton: {fileID: 1111424622}
@@ -8580,10 +8580,8 @@ MonoBehaviour:
   removePieceButton: {fileID: 2079016643}
   makeBoardCanvas: {fileID: 869882131}
   gapBetweenSlider: {fileID: 1522572178}
-  boardCreationPanel: {fileID: 1448092643}
-  boardSquareSize: 2
+  assignedBoardSquareSize: 1
   makeRuleButton: {fileID: 0}
-  ruleCreationPanel: {fileID: 0}
   activatePieceClickedButton: {fileID: 0}
   InputAreaAffected: {fileID: 0}
   InputPlayersTurn: {fileID: 0}
@@ -8592,6 +8590,8 @@ MonoBehaviour:
   relRuleDoneButton: {fileID: 0}
   relRuleRemovePieceButton: {fileID: 0}
   relRuleSelectPieceButtonTemplate: {fileID: 0}
+  relRuleSwitchToButton: {fileID: 0}
+  relRuleCurStateText: {fileID: 0}
   relRuleSelectPieceScrView: {fileID: 0}
   makeRelRuleCanvas: {fileID: 0}
   useTheseDimsButton: {fileID: 303999594}
@@ -8627,8 +8627,7 @@ MonoBehaviour:
   boardInfo:
     numOfRows: 0
     numOfCols: 0
-    height: 0
-    width: 0
+    squareSize: 0
     sizeOfGap: 0
   pieceSelected: 0
 --- !u!1 &1449290545
