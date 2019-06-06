@@ -49,7 +49,7 @@ public class PieceSpawningSlot : PieceSlot
 
         // access current program state
         SetupHandler bh = Camera.main.GetComponent<SetupHandler>();
-        GameHandler gh = Camera.main.GetComponent<GameHandler>();
+        GamePlayHandler gh = Camera.main.GetComponent<GamePlayHandler>();
 
         if (bh.currentProgramState == SetupHandler.ProgramState.MakingBoard) 
         {

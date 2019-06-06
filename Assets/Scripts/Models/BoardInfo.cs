@@ -1,5 +1,6 @@
-﻿// class representing information about the state of a board
+﻿using UnityEngine;
 
+// class representing information about the state of a board
 [System.Serializable]
 public class BoardInfo
 {
@@ -37,6 +38,15 @@ public class BoardInfo
         {
             return NumOfCols * SquareSize + // space taken by squares
                    (NumOfCols - 1) * SizeOfGap * SquareSize; // taken by gaps
+        }
+    }
+
+    // bottom left corner of the board
+    public Vector3 BottomLeft 
+    { 
+        get 
+        {
+            return new Vector3(-Width/2, SpatialConfigs.heightOfBoard, -Height/2);
         }
     }
 

@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 // Items displayed on the MakeGame canvas 
-internal sealed class MakeGame : IAssociatedState
+internal sealed class MakeGame : IAssociatedState<Object, Object>
 {
     [SerializeField] internal Canvas canvas;
 
@@ -17,5 +17,15 @@ internal sealed class MakeGame : IAssociatedState
     public ProgramData.State GetAssociatedState()
     {
         return ProgramData.State.MakeGame;
+    }
+
+    public void OnEnterState(Object args)
+    {
+        // TODO
+    }
+    public Object OnLeaveState()
+    {
+        // TODO
+        return null;
     }
 }

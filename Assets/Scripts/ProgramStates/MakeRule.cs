@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 // items for the rule creation process
-internal sealed class MakeRule : IAssociatedState
+internal sealed class MakeRule : IAssociatedState<Object, Object>
 {
     [SerializeField] internal Canvas canvas;
     //TODO
@@ -11,5 +11,15 @@ internal sealed class MakeRule : IAssociatedState
     public ProgramData.State GetAssociatedState()
     {
         return ProgramData.State.MakeRule;
+    }
+
+    public void OnEnterState(Object args)
+    {
+        // TODO
+    }
+    public Object OnLeaveState()
+    {
+        // TODO
+        return null;
     }
 }

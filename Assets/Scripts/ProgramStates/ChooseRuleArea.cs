@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 // Items associated with specifying size of area affected by rule and player's turn
-internal sealed class ChooseRuleArea : IAssociatedState
+internal sealed class ChooseRuleArea : IAssociatedState<Object, Object>
 {
     [SerializeField] internal Canvas canvas;
 
@@ -13,5 +13,15 @@ internal sealed class ChooseRuleArea : IAssociatedState
     public ProgramData.State GetAssociatedState()
     {
         return ProgramData.State.ChooseRuleArea;
+    }
+
+    public void OnEnterState(Object args)
+    {
+        // TODO
+    }
+    public Object OnLeaveState()
+    {
+        // TODO
+        return null;
     }
 }

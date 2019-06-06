@@ -38,24 +38,59 @@ public class TransitionHandler
     /*** INSTANCE METHODS ***/
     internal void AddListenersToButtons() 
     {
-        // Add handlers to buttons   
-        playGameButton.onClick.AddListener(PlayGame);
+        // Add handlers to buttons which transitions between states 
+        Intro.playGameButton.onClick.AddListener
+            (
+                () => Transition(Intro, PlayGame)
+            );
+
+        Intro.makeGameButton.onClick.AddListener
+            (
+                () => Transition(Intro, ChooseBoardDim)
+            );
+
+        ChooseBoardDim.useDimsButton.onClick.AddListener
+            (
+                () => Transition(ChooseBoardDim, MakeGame)
+            );
+
+        MakeGame.doneButton.onClick.AddListener
+            (
+                () => Transition(MakeGame, Intro)
+            );
+
+        MakeGame.makeBoardButton.onClick.AddListener
+            (
+                () => Transition(MakeGame, MakeBoard)
+            );
+
+        MakeGame.makePieceButton.onClick.AddListener
+            (
+                () => Transition(MakeGame, MakePiece)
+            );
+
+        MakeGame.makeRuleButton.onClick.AddListener
+            (
+                () => Transition(MakeGame, ChooseRuleArea) // TODO to change
+            );
+
+        MakeBoard.doneButton.onClick.AddListener
+            (
+                () => Transition(MakeBoard, MakeGame)
+            );
+
+        MakePiece.doneButton.onClick.AddListener
+            (
+                () => Transition(MakePiece, MakeGame)
+            );
 
 
-        makeGameButton.onClick.AddListener(MakeGame);
-        useTheseDimsButton.onClick.AddListener(UseTheseDims);
-        doneGameButton.onClick.AddListener(DoneGame);
 
+        // TODO
         deleteAllGamesButton.onClick.AddListener(DeleteAllGames);
 
-        makeBoardButton.onClick.AddListener(MakeBoard);
         removePieceButton.onClick.AddListener(RemovePiece);
-        doneBoardButton.onClick.AddListener(DoneBoard);
 
-        makePieceButton.onClick.AddListener(MakePiece);
-        donePieceButton.onClick.AddListener(DonePiece);
-
-        makeRuleButton.onClick.AddListener(MakeRule);
         activatePieceClickedButton.onClick.AddListener(MakeRelRule);
         setTriggerPieceButton.onClick.AddListener(SetTriggerPiece);
         relRuleSwitchToButton.onClick.AddListener(RelRuleSwitchTo);
@@ -64,13 +99,49 @@ public class TransitionHandler
 
 
 
-    private void Transition(IAssociatedState prev, IAssociatedState next) 
+    // TODO
+    // assigns action to all scroll views when chosen item is changed
+    internal void SetupScrollViews() 
+    {
+        MakeBoard.selectPieceScrView.WhenChosenChanges
+            ((scrView) => delegate
+                {
+                    // selects all non-highlighted buttons background to white
+                    scrView.ForEach<Button>(
+                        (b) => b.GetComponent<Image>().color = Color.white);
+
+                    // including remove piece button
+                    MakeBoard.removePieceButton.GetComponent<Image>().color = 
+                        Color.white;
+
+                    // highlights chosen button
+                    if (scrView.GetChosenItem<Button>(out Button chosen) && 
+                        chosen != null) 
+                    {
+                        chosen.GetComponent<Image>().color = 
+                            BoardCreationHandler.selectedPieceColour;
+                    }
+                }
+            );
+    }
+
+
+
+    // transition states: switch canvas, update states, calls OnEnter/OnLeave methods
+    private void Transition<S, T, R>(IAssociatedState<S, T> prev, IAssociatedState<T, R> next) 
     {
         // update state
         ProgramData.currentState = next.GetAssociatedState();
 
+        // call the corresponding method before leaving state
+        T args = prev.OnLeaveState();
+
         // switch canvas
         prev.GetCanvas().gameObject.SetActive(false);
         next.GetCanvas().gameObject.SetActive(true);
+
+        // call corresponding method upon entering state, 
+        //   passes arguments returned from previous state
+        next.OnEnterState(args);
     }
 }

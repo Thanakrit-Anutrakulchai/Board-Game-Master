@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 // Items associated with the ChooseGame canvas
-internal sealed class ChooseGame : IAssociatedState
+internal sealed class ChooseGame : IAssociatedState<Object, Object>
 {
     [SerializeField] internal Canvas canvas;
 
@@ -14,5 +14,15 @@ internal sealed class ChooseGame : IAssociatedState
     public ProgramData.State GetAssociatedState()
     {
         return ProgramData.State.ChooseGame;
+    }
+
+    public void OnEnterState(Object args)
+    {
+        // TODO
+    }
+    public Object OnLeaveState()
+    {
+        // TODO
+        return null;
     }
 }

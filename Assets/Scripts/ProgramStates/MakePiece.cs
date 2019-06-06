@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 // Items for piece creation process
-internal sealed class MakePiece : IAssociatedState
+internal sealed class MakePiece : IAssociatedState<Object, Object>
 {
     [SerializeField] internal Canvas canvas;
 
@@ -13,5 +13,15 @@ internal sealed class MakePiece : IAssociatedState
     public ProgramData.State GetAssociatedState()
     {
         return ProgramData.State.MakePiece;
+    }
+
+    public void OnEnterState(Object args)
+    {
+        // TODO
+    }
+    public Object OnLeaveState()
+    {
+        // TODO
+        return null;
     }
 }

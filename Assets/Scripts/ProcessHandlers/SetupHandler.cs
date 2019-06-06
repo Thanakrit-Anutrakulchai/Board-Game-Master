@@ -29,105 +29,22 @@ public class SetupHandler : MonoBehaviour
     // assigns handler to every single button
     private void Start()
     {
+        // some setup is done in TransitionHandler, which has access
+        //   to most (if not all) UI elements
         TransitionHandler th = Camera.main.GetComponent<TransitionHandler>();
         th.AddListenersToButtons();
+
+
     }
 
 
 
 
     /*** INSTANCE METHODS ***/
-    // Most of these are functions that activates on button press //
-
-    
-
-
-
-    // enters process of creating a custom game
-    // Note that the MakeGame button takes users to the choosing dimension canvas
-    public void MakeGame()
-    {
-        // updates state
-        currentProgramState = ProgramData.ChoosingDim;
-
-        // switches displayed canvas to appropriate one
-        introCanvas.gameObject.SetActive(false);
-        chooseDimCanvas.gameObject.SetActive(true);
-    }
-
-
 
     // enters the process of creation a custom board
     public void MakeBoard()
     {
-        // updates the current program state
-        currentProgramState = ProgramData.MakingBoard;
-
-        // switches displayed canvas to appropriate one
-        makeGameCanvas.gameObject.SetActive(false);
-        makeBoardCanvas.gameObject.SetActive(true);
-
-        // clears all old buttons on the scroll view
-        foreach (Button b in selectPieceScrView.GetComponentsInChildren<Button>()) 
-        { 
-            if (!b.Equals(pieceButtonTemplate)) 
-            {
-                Destroy(b.gameObject);
-            }
-        }
-
-        // populates the scroll view with buttons labeled with piece names
-        for (byte index = 0; index < gameBeingMade.info.pieces.Count; index++)
-        {
-            // when clicked change colours of buttons
-            //  and assigns piece associated to be current piece selected
-
-            // index of the associated piece 
-            //  index should not be used directly, as it *will* change
-            //  after this iteration of the loop ends
-            // indexAssocPiece is kind of like an upvalue in Lua
-            byte indexAssocPiece = index;
-            PieceInfo pce = gameBeingMade.info.pieces[index];
-
-            Button pceButton = 
-                Utility.CreateButton(pieceButtonTemplate, selectPieceScrView.content, 
-                pce.pieceName, 
-                (btn) => delegate 
-                {
-                    // retrieve all buttons under the piece selection scrollview
-                    Button[] buttons =
-                        selectPieceScrView.content.GetComponentsInChildren<Button>();
-                    // changes colour of all piece selection buttons back
-                    foreach (Button b in buttons)
-                    {
-                        b.GetComponent<Image>().color = Color.white;
-                    }
-
-                    // change colour of remove piece button
-                    removePieceButton.GetComponent<Image>().color = Color.white;
-
-
-
-                    // TODO 
-                    // TEMP
-                    // DEBUG
-                    // index of piece selected
-                    Debug.Log("INDEX OF PIECE SELECTED: " + indexAssocPiece);
-
-
-                    // changes piece selected
-                    boardCreationPanel.pieceSelected = indexAssocPiece;
-
-                    // changes this button's colour
-                    btn.GetComponent<Image>().color =
-                        BoardCreationHandler.selectedPieceColour;
-                });
-        }
-
-        // default 'piece (to be placed) selected' is 'no piece'
-        //   (due to possibility of there being, well, no pieces made)
-        boardCreationPanel.pieceSelected = PosInfo.noPiece;
-
 
         // retrieves game info, finds position to start tiling
         GameInfo gmInf = gameBeingMade.info;

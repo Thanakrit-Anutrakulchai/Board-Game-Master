@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 // This script manages custom games in play mode, 
 //  deals with what happens when user interacts with pieces and boards 
-public class GameHandler : MonoBehaviour
+public class GamePlayHandler : MonoBehaviour
 {
     /*** STATIC VARIABLES ***/
     // the position of the camera at the start of a custom game

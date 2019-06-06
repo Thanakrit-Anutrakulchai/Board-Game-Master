@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 
 // Items displayed during the relative rule creation process
-internal sealed class RelativeRule : IAssociatedState
+internal sealed class RelativeRule : IAssociatedState<Object, Object>
 {
     [SerializeField] internal Canvas canvas;
 
@@ -15,5 +15,15 @@ internal sealed class RelativeRule : IAssociatedState
     public ProgramData.State GetAssociatedState()
     {
         return ProgramData.State.RelativeRule;
+    }
+
+    public void OnEnterState(Object args)
+    {
+        // TODO
+    }
+    public Object OnLeaveState()
+    {
+        // TODO
+        return null;
     }
 }

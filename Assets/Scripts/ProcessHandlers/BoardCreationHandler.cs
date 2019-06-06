@@ -13,12 +13,42 @@ public class BoardCreationHandler
 
     /*** INSTANCE VARIABLES ***/
     // size of board transform's scale 
-    internal float assignedBoardSquareSize = 1f;
+    [SerializeField] internal float assignedBoardSquareSize = 1f;
     internal float BoardSquareSize { get { return assignedBoardSquareSize * 10; } }
+    
     // information on board being created
-    public BoardInfo boardInfo;
+    private BoardInfo boardBeingMade;
 
     // information on the piece currently selected to be placed 
     //  (or if 'no piece' selected)
-    public byte pieceSelected;
+    private byte pieceSelected;
+
+
+
+
+
+    /*** INSTANCE PROPERTIES ***/
+    internal byte PieceSelected { set => pieceSelected = value; }
+
+
+
+
+
+    /*** STATIC METHODS ***/
+    internal static BoardCreationHandler GetHandler()
+    {
+        return Camera.main.GetComponent<BoardCreationHandler>();
+    }
+
+
+
+
+
+    /*** INSTANCE METHODS ***/
+    // clears all stored information and prepares to make new board
+    internal void StartNewBoard() 
+    {
+        pieceSelected = PieceInfo.noPiece;
+
+    }
 }
