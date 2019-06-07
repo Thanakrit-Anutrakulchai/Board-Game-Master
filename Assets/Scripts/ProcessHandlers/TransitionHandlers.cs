@@ -86,10 +86,10 @@ public class TransitionHandler
 
 
 
-        // TODO
-        deleteAllGamesButton.onClick.AddListener(DeleteAllGames);
+        // TODO Move these to the ProgramStates classes
 
-        removePieceButton.onClick.AddListener(RemovePiece);
+
+        deleteAllGamesButton.onClick.AddListener(DeleteAllGames);
 
         activatePieceClickedButton.onClick.AddListener(MakeRelRule);
         setTriggerPieceButton.onClick.AddListener(SetTriggerPiece);
@@ -134,14 +134,17 @@ public class TransitionHandler
         ProgramData.currentState = next.GetAssociatedState();
 
         // call the corresponding method before leaving state
-        T args = prev.OnLeaveState();
+        T args = prev.OnLeaveState(next);
 
         // switch canvas
         prev.GetCanvas().gameObject.SetActive(false);
         next.GetCanvas().gameObject.SetActive(true);
 
+        // move the camera to the pre-specified location
+        Camera.main.transform.position = SpatialConfigs.commonCameraPosition;
+
         // call corresponding method upon entering state, 
         //   passes arguments returned from previous state
-        next.OnEnterState(args);
+        next.OnEnterState(prev, args);
     }
 }

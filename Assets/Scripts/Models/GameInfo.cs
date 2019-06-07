@@ -26,14 +26,10 @@ public class GameInfo
     public byte NumberOfPlayers { get; set; }
 
     // state of the board at the start of the game
-    public BoardInfo boardAtStart;
-
-    // board sizes in number of squares (which can have full pieces on top)
-    public byte numOfRows;
-    public byte numOfCols;
+    public readonly BoardInfo boardAtStart;
 
     // pieces of the game, with indexes used as a sort of identifier
-    public List<PieceInfo> pieces;
+    public readonly List<PieceInfo> pieces;
 
     // the "resolution in cubes" of the piece 
     //  would be 'n' for pieces made on an n x n grid

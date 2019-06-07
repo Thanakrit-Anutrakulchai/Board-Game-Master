@@ -1,14 +1,19 @@
 ﻿using UnityEngine;
 
-// script which controls the behaviour of the piece customization panel 
-//  in the piece creation process 
+// script which controls the behaviour of the piece creation process 
 public class PieceCreationHandler
 {
     /*** INSTANCE VARIABLES ***/
-    // a template for spawning piece building slots
-    internal GameObject pieceBuildingSlot;
     // size of build slots
-    internal float buildSlotSize = 1;
+    internal float buildSlotSize = 1f;
     // name and representation of piece being created
-    internal PieceInfo pieceInfo;
+    internal PieceInfo pieceBeingMade;
+
+
+
+
+
+    /*** INSTANCE PROPERTIES ***/
+    // virtual board used in the creation of this piece 
+    internal VirtualBoard<PieceBuildingSlot> VirtualBoardUsed { get; set; }
 }

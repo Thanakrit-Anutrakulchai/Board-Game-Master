@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PieceSlot : MonoBehaviour
+public abstract class PieceSlot : MonoBehaviour
 {
     // fixed variables determining size and position of cube spawned
     protected static Vector3 spawnOffset = new Vector3(0, 0, 0);
@@ -12,16 +12,30 @@ public class PieceSlot : MonoBehaviour
     /***  INSTANCE VARIABLES ***/
     // co-ordinates corresponding to vis.rep. indexes this object 
     //  is associated with, i.e. position inside a board's square
-    internal byte rowPos;
-    internal byte colPos;
+    internal byte pieceRow;
+    internal byte pieceCol;
+
+    // co-ordinates of the square of the board this smaller slot is in
+    internal byte boardRow;
+    internal byte boardCol;
 
 
 
     /*** CONSTRUCTORS ***/
     internal PieceSlot() { }
-    internal PieceSlot(byte r, byte c) 
+    internal PieceSlot(byte pr, byte pc, byte br, byte bc) 
     {
-        rowPos = r;
-        colPos = c;
+        pieceRow = pr;
+        pieceCol = pc;
+        boardRow = br;
+        boardCol = bc;
     }
+
+
+
+
+
+    /*** INSTANCE METHODS ***/
+    // method to be called upon creation of PieceSlot game object
+    internal abstract void OnCreate();
 }

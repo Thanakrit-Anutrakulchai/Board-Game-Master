@@ -11,6 +11,8 @@ internal class PieceBuildingSlot : PieceSlot
     internal PieceCubeBuildMode pieceCubeBuildMode;
 
     /*** METHODS ***/
+    internal override void OnCreate() { }
+
     // spawns cube and update visual rep. array when clicked
     private void OnMouseDown()
     {
@@ -26,8 +28,8 @@ internal class PieceBuildingSlot : PieceSlot
             = Instantiate(pieceCubeBuildMode.gameObject, posToSpawn, Quaternion.identity);
         PieceCubeBuildMode cubeMadeScript = 
             cubeMade.GetComponent<PieceCubeBuildMode>();
-        cubeMadeScript.rowPos = this.rowPos;
-        cubeMadeScript.colPos = this.colPos;
+        cubeMadeScript.rowPos = this.pieceRow;
+        cubeMadeScript.colPos = this.pieceCol;
         cubeMadeScript.AssociatedHandler
             = this.associatedPanel;
 
@@ -37,7 +39,7 @@ internal class PieceBuildingSlot : PieceSlot
         // adds information about the piece to the rep. array
         // TODO
         //  TEMP: stores colour info as (0 0 0) for now
-        this.associatedPanel.pieceInfo.visualRepresentation[rowPos, colPos]
+        this.associatedPanel.pieceInfo.visualRepresentation[pieceRow, pieceCol]
             = new PosInfo.RGBData(0, 0, 0);
     }
 

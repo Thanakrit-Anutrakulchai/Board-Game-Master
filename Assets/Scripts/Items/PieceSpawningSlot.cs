@@ -14,27 +14,22 @@ public class PieceSpawningSlot : PieceSlot
     // cubes to be spawned above these in play mode, which make up pieces
     internal PieceCubePlayMode pieceCubePlayMode;
 
-    // custom game, featuring this spawning slot
-    internal Game game;
-
-    // co-ordinates of the square of the board this smaller slot is in
-    internal byte boardRow;
-    internal byte boardCol;
-
 
 
     /*** CONSTRUCTORS ***/
-    internal PieceSpawningSlot(Game gm, byte boardR, byte boardC, byte pieceR, byte pieceC) 
-        : base(pieceR, pieceC) // this calls the parent constructor
+    internal PieceSpawningSlot(byte pieceR, byte pieceC, byte boardR, byte boardC) 
+        : base(pieceR, pieceC, boardR, boardC) // this calls the parent constructor
     {
-        game = gm;
-        boardRow = boardR;
-        boardCol = boardC;
+
     }
 
 
 
     /*** INSTANCE METHODS ***/
+    internal override void OnCreate() 
+    {
+        Spawn();
+    }
 
     // Decides what to do when clicked based on current game state
     // If in process of making board, place selected piece on board
@@ -150,7 +145,7 @@ public class PieceSpawningSlot : PieceSlot
         else
         {
             PieceInfo pieceInfo = game.info.pieces[pieceHere];
-            posInfo = pieceInfo.visualRepresentation[rowPos, colPos];
+            posInfo = pieceInfo.visualRepresentation[pieceRow, pieceCol];
         }
 
 
@@ -174,8 +169,8 @@ public class PieceSpawningSlot : PieceSlot
                 = Instantiate(pieceCubePlayMode, posToSpawn, Quaternion.identity);
             PieceCubePlayMode cubeMadeScript =
                 cubeMade.GetComponent<PieceCubePlayMode>();
-            cubeMadeScript.rowPos = this.rowPos;
-            cubeMadeScript.colPos = this.colPos;
+            cubeMadeScript.rowPos = this.pieceRow;
+            cubeMadeScript.colPos = this.pieceCol;
 
             // change the colour of the cube to the appropriate one
 

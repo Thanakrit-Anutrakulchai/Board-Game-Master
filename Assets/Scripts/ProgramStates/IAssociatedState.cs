@@ -23,10 +23,10 @@ internal interface IAssociatedState<T, R>
     /// Method to be called when state is switched over to this one
     /// </summary>
     /// <param name="args">arguments passed on from previous state</param>
-    void OnEnterState(T args);
+    void OnEnterState<G>(IAssociatedState<G, T> previousState, T args);
     /// <summary>
     /// Method ot be called upon switching over from this state
     /// </summary>
     /// <returns>Parameters to pass onto next state</returns>
-    R OnLeaveState();
+    R OnLeaveState<G>(IAssociatedState<R, G> nextState);
 }

@@ -12,6 +12,8 @@ public class PieceCubeBuildMode : PieceCube
 
 
     /*** METHODS ***/
+    private void OnCreate() { }
+
     // delete object when clicked, both from representation and from game world
     private void OnMouseDown()
     {

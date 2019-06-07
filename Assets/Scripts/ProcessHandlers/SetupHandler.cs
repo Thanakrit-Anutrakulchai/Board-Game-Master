@@ -33,119 +33,19 @@ public class SetupHandler : MonoBehaviour
         //   to most (if not all) UI elements
         TransitionHandler th = Camera.main.GetComponent<TransitionHandler>();
         th.AddListenersToButtons();
-
-
     }
+
 
 
 
 
     /*** INSTANCE METHODS ***/
-
-    // enters the process of creation a custom board
-    public void MakeBoard()
-    {
-
-        // retrieves game info, finds position to start tiling
-        GameInfo gmInf = gameBeingMade.info;
-        BoardInfo startBoard = gmInf.boardAtStart;
-        Vector3 start = new Vector3(-startBoard.Width/2, heightOfBoard, -startBoard.Height/2);
-
-        // tiles and assigns appropriate variables to piece spawning slots
-        float spawnSlotSize = (BoardSquareSize/10) / gmInf.pieceResolution;
-        Utility.TileAct(start, pieceSpawningSlot, spawnSlotSize,
-            gmInf.numOfRows, gmInf.numOfCols, gmInf.pieceResolution,
-            gapBetweenSlider.value,
-            (slot, boardR, boardC, pieceR, pieceC) =>
-            { 
-                // assigns variables
-                PieceSpawningSlot spawnSlotScr =
-                    slot.GetComponent<PieceSpawningSlot>();
-                spawnSlotScr.game = gameBeingMade;
-                spawnSlotScr.rowPos = pieceR;
-                spawnSlotScr.colPos = pieceC;
-                spawnSlotScr.boardRow = boardR;
-                spawnSlotScr.boardCol = boardC;
-
-                // notes that this spawning slot is currently used
-                gameBeingMade.spawningsSlots[boardR, boardC].Add(spawnSlotScr); 
-
-                // spawns cube at the corresponding position relative to the piece
-                spawnSlotScr.Spawn();
-
-                // adds object to list of item to destroy after creation process
-                Utility.objsToDelete.Add(slot); 
-            });
-    }
-
-
-    // change piece selected to 'No Piece' (and also change button colours)
-    //   This is clickable during the board creation process
-    public void RemovePiece() 
-    {
-        // sets piece selected to no piece
-        boardCreationPanel.pieceSelected = PosInfo.noPiece;
-
-        // changes the backgrounds of all the other piece buttons to white
-        Button[] buttons =
-            selectPieceScrView.content.GetComponentsInChildren<Button>();
-        foreach (Button b in buttons)
-        {
-            b.GetComponent<Image>().color = Color.white;
-        }
-
-        // make the 'no piece' button change colour
-        removePieceButton.GetComponent<Image>().color =
-            BoardCreationHandler.selectedPieceColour;
-    }
-
-
     // generates a board of size numOfRows x numOfCols with no pieces
     //  centers camera 100 units above origin, then enters creation process
-    public void UseTheseDims()
-    {
-        // NOTE: variables can be declared right as they are used in C#
-        //   so byte b; f(b); ~ f(byte b);    That's pretty neat
-        //   also, 'out' just means the variable is passed/returned by reference
-        if (byte.TryParse(numRowsInputField.text, out byte numRows) &&
-            byte.TryParse(numColsInputField.text, out byte numCols) &&
-            byte.TryParse(pceResField.text, out byte pceRes))
-        {
-
-            // gets numRows x numCols board with no pieces coloured 0x000000
-            BoardInfo defBoard = BoardInfo.DefaultBoard(numRows, numCols,
-                BoardSquareSize, gapBetweenSlider.value, new PosInfo.RGBData(0, 0, 0));
-
-            // sets up a skeleton for the game being created 
-            gameBeingMade = new Game(defBoard, new List<PieceInfo>());
-
-            // assigns specified piece resolution
-            gameBeingMade.info.pieceResolution = pceRes;
-
-            // updates state
-            currentProgramState = ProgramData.MakingGame;
-
-            // enters creation process
-            chooseDimCanvas.gameObject.SetActive(false);
-            makeGameCanvas.gameObject.SetActive(true);
-
-            // centers camera 100 units above origin
-            Camera.main.transform.position = new Vector3(0, 100, 0);
-        }
-    }
-
-
 
     // enters the process of creating a custom piece
     public void MakePiece()
     {
-        // updates state
-        currentProgramState = ProgramData.MakingPiece;
-
-        // switch to appropriate canvas
-        makeGameCanvas.gameObject.SetActive(false);
-        makePieceCanvas.gameObject.SetActive(true);
-
         byte pceRes = gameBeingMade.info.pieceResolution;
         // 2D array to store information about piece 
         PosInfo[,] pieceVisRep = PosInfo.NothingMatrix(pceRes, pceRes);
@@ -154,7 +54,7 @@ public class SetupHandler : MonoBehaviour
         pieceCreationPanel.pieceInfo = new PieceInfo("UNNAMED", pieceVisRep);
 
         // scale slot to correct size
-        pieceBuildingSlot.transform.localScale = 
+        pieceBuildingSlot.transform.localScale =
             new Vector3(buildSlotSize, buildSlotSize, buildSlotSize);
 
         // calculate start position
@@ -164,7 +64,7 @@ public class SetupHandler : MonoBehaviour
         Vector3 start = new Vector3(-sideLength / 2, heightOfBoard, -sideLength / 2);
 
         // tiles temporary "board" representing square to place piece on
-        Utility.TileAct(start, pieceBuildingSlot, buildSlotSize, 
+        Utility.TileAct(start, pieceBuildingSlot, buildSlotSize,
                         pceRes, pceRes, 1,
                         buildSlotSize * 0.1f,
                 (slot, pieceR, pieceC, _, _1) =>
@@ -174,8 +74,8 @@ public class SetupHandler : MonoBehaviour
                     //  in the array"
                     slot.GetComponent<PieceBuildingSlot>().associatedPanel =
                         pieceCreationPanel;
-                    slot.GetComponent<PieceBuildingSlot>().rowPos = pieceR;
-                    slot.GetComponent<PieceBuildingSlot>().colPos = pieceC;
+                    slot.GetComponent<PieceBuildingSlot>().pieceRow = pieceR;
+                    slot.GetComponent<PieceBuildingSlot>().pieceCol = pieceC;
 
                     // add to list of building slots used for building the piece
                     Utility.objsToDelete.Add(slot);
@@ -313,8 +213,8 @@ public class SetupHandler : MonoBehaviour
                             PieceSpawningSlot spawnSlotScr =
                                 slot.GetComponent<PieceSpawningSlot>();
                             spawnSlotScr.game = gameBeingMade;
-                            spawnSlotScr.rowPos = pieceR;
-                            spawnSlotScr.colPos = pieceC;
+                            spawnSlotScr.pieceRow = pieceR;
+                            spawnSlotScr.pieceCol = pieceC;
                             spawnSlotScr.boardRow = boardR;
                             spawnSlotScr.boardCol = boardC;
 
@@ -490,23 +390,4 @@ public class SetupHandler : MonoBehaviour
         makePieceCanvas.gameObject.SetActive(false);
         makeGameCanvas.gameObject.SetActive(true);
     }
-
-
-    // finishes board creation process and returns to game creation screen
-    public void DoneBoard() 
-    {
-        // delete used objects
-        Utility.DeleteQueuedObjects();
-
-        // update state
-        currentProgramState = ProgramData.MakingGame;
-
-        // switch canvas
-        makeBoardCanvas.gameObject.SetActive(false);
-        makeGameCanvas.gameObject.SetActive(true);
-    }
-
-
-
-
 }
