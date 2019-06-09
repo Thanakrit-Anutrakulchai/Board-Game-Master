@@ -2,24 +2,34 @@
 using UnityEngine.UI;
 
 // Items associated with making a win condition
-internal sealed class MakeWinCond : IAssociatedState<Object, Object>
+internal sealed class MakeWinCond : Process<MakeWinCond>, IAssociatedState<Object, Object>
 {
-    [SerializeField] internal Canvas canvas;
+    /*** INSTANCE VARIABLES ***/
+    [SerializeField] internal readonly Canvas canvas;
     //TODO
 
+        
+
+
+
+    /*** INSTANCE METHODS ***/
     public Canvas GetCanvas() { return canvas; }
     public ProgramData.State GetAssociatedState()
     {
         return ProgramData.State.MakeWinCond;
     }
 
-    public void OnEnterState(Object args)
+
+
+    public void OnEnterState(IAssociatedStateLeave<Object> previousState, Object args)
     {
-        // TODO
+        throw new System.NotImplementedException();
     }
-    public Object OnLeaveState()
+
+
+
+    public Object OnLeaveState(IAssociatedStateEnter<Object> nextState)
     {
-        // TODO
-        return null;
+        throw new System.NotImplementedException();
     }
 }

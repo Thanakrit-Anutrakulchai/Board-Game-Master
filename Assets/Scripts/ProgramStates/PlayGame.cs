@@ -2,26 +2,38 @@
 using UnityEngine.UI;
 
 // Items displayed while playing a custom game
-internal sealed class PlayGame : IAssociatedState<Object, Object>
+internal sealed class PlayGame : Process<PlayGame>, IAssociatedState<Game, Object>
 {
-    [SerializeField] internal Canvas canvas;
+    /*** INSTANCE VARIABLES ***/
+    [SerializeField] internal readonly Canvas canvas;
 
-    [SerializeField] internal Text curPlayerText;
-    [SerializeField] internal ScrollRect movesScrView;
+    [SerializeField] internal readonly Text curPlayerText;
+    [SerializeField] internal readonly ScrollRect movesScrView;
 
+
+
+
+
+    /*** INSTANCE METHODS ***/
     public Canvas GetCanvas() { return canvas; }
     public ProgramData.State GetAssociatedState()
     {
         return ProgramData.State.PlayGame;
     }
 
-    public void OnEnterState(Object args)
+
+
+    public void OnEnterState(IAssociatedStateLeave<Game> previousState, Game args)
     {
         // TODO
+        throw new System.NotImplementedException();
     }
-    public Object OnLeaveState()
+
+
+
+    public Object OnLeaveState(IAssociatedStateEnter<Object> nextState)
     {
         // TODO
-        return null;
+        throw new System.NotImplementedException();
     }
 }

@@ -8,6 +8,7 @@ using UnityEngine.Events;
 /// </summary>
 public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
 {
+    // TODO remove unnecessary variables and use handlers (later)
     /*** INSTANCE VARIABLES ***/
     /// <summary>
     /// The PieceSlots used to tile this board <para />
@@ -24,8 +25,12 @@ public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
     /// <summary>
     /// provides information about the board 
     /// </summary>
-    private BoardInfo info;
+    internal readonly BoardInfo info;
+    internal readonly List<PieceInfo> pieces; // pieces that may be placed on this
     private byte slotsPerSide; // normally this would correspond to pieceResolution
+
+    // other objects on the board (e.g. piece cubes)
+    internal List<Object> otherObjsOnBoard; 
 
     /// <summary>
     /// Handler which is called whenever a board square is clicked.
@@ -46,10 +51,11 @@ public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
 
 
     /*** CONSTRUCTOR ***/
-    internal VirtualBoard(BoardInfo startBoard, byte subsq, Slot template,
-                          UnityAction<VirtualBoard<Slot>, byte, byte> handler) 
+    internal VirtualBoard(BoardInfo startBoard, List<PieceInfo> pces, byte subsq, 
+                          Slot template, UnityAction<VirtualBoard<Slot>, byte, byte> handler) 
     {
         info = startBoard;
+        pieces = pces;
         slotsPerSide = subsq;
         slotTemplate = template;
         onClickHandler = handler;
@@ -68,7 +74,7 @@ public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
     /// <param name="col">column the square is in</param>
     internal void RefreshSquare(byte row, byte col)
     {
-        slots[row, col].ForEach((s) => s.OnCreate());
+        slots[row, col].ForEach((s) => s.OnUpdate());
     }
 
 
@@ -86,7 +92,7 @@ public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
         float slotSize = (info.SquareSize / 10) / slotsPerSide;
         Utility.TileAct(start, slotTemplate.gameObject, slotSize,
             info.NumOfRows, info.NumOfCols, slotsPerSide,
-            info.SizeOfGap,
+            info.GapSize,
             (slot, boardR, boardC, pieceR, pieceC) =>
             {
                 // assigns variables
@@ -96,27 +102,48 @@ public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
                 slotScr.pieceCol = pieceC;
                 slotScr.boardRow = boardR;
                 slotScr.boardCol = boardC;
+                slotScr.SetVirtualBoard(this);
+
+                
 
                 // notes that this spawning slot is currently used
                 slots[boardR, boardC].Add(slotScr);
 
                 // spawns cube at the corresponding position relative to the piece
-                slotScr.OnCreate();
-
-                // adds object to list of item to destroy after creation process
-                Utility.objsToDelete.Add(slot);
+                slotScr.OnUpdate();
             });
     }
 
 
     /// <summary>
-    /// Destroy all of the piece slots used in this board
+    /// Calls handler when a board square is clicked with position of square
+    /// and passes in this VirtualBoard. <para />
+    /// Also notifies slot that it has been clicked and updates it
+    /// </summary>
+    internal void OnSquareClicked(byte rowPos, byte colPos) 
+    {
+        onClickHandler(this, rowPos, colPos);
+        RefreshSquare(rowPos, colPos);
+    }
+
+
+    /// <summary>
+    /// Destroy all of the piece slots used in this board,
+    ///  as well as any other objects placed on it
     /// </summary>
     internal void DestroyBoard() 
     { 
         foreach (List<Slot> sq in slots) 
         {
             sq.ForEach((obj) => Destroy(obj.gameObject));
+        }
+
+        foreach (Object obj in otherObjsOnBoard) 
+        { 
+            if (obj != null) // guard against objects already destroyed
+            {
+                Destroy(obj);
+            }
         }
     }
 }

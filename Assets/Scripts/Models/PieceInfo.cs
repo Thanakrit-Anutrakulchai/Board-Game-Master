@@ -17,15 +17,23 @@ public class PieceInfo
 
     /*** INSTANCE VARIABLES ***/
     // 2D array representing the piece
-    public PosInfo[,] visualRepresentation; 
+    internal readonly PosInfo[,] visualRepresentation; 
     // name of piece
-    public string pieceName;
-    
-    public PieceInfo(string name, PosInfo[,] visRep)  
+    public readonly string pieceName;
+
+    internal PieceInfo(string name, PosInfo[,] visRep)  
     {
         this.pieceName = name;
         this.visualRepresentation = visRep;
     }
 
 
+
+
+
+    /*** INSTANCE METHODS ***/
+    public PosInfo GetColourAt(int r, int c) 
+    {
+        return visualRepresentation[r, c];
+    }
 }

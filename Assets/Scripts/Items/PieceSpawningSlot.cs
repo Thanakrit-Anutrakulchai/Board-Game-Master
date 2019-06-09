@@ -10,12 +10,6 @@ using System.Collections.Generic;
 //   an entire piece
 public class PieceSpawningSlot : PieceSlot
 {
-    /*** INSTANCE VARIABLES ***/
-    // cubes to be spawned above these in play mode, which make up pieces
-    internal PieceCubePlayMode pieceCubePlayMode;
-
-
-
     /*** CONSTRUCTORS ***/
     internal PieceSpawningSlot(byte pieceR, byte pieceC, byte boardR, byte boardC) 
         : base(pieceR, pieceC, boardR, boardC) // this calls the parent constructor
@@ -26,7 +20,7 @@ public class PieceSpawningSlot : PieceSlot
 
 
     /*** INSTANCE METHODS ***/
-    internal override void OnCreate() 
+    internal override void OnUpdate() 
     {
         Spawn();
     }
@@ -42,31 +36,10 @@ public class PieceSpawningSlot : PieceSlot
         Debug.Log("ROW POS. OF SQUARE CLICKED: " + boardRow);
         Debug.Log("COLUMN POS. OF SQUARE CLICKED: " + boardCol);
 
-        // access current program state
-        SetupHandler bh = Camera.main.GetComponent<SetupHandler>();
-        GamePlayHandler gh = Camera.main.GetComponent<GamePlayHandler>();
+        GetVirtualBoard<PieceSpawningSlot>().OnSquareClicked(boardRow, boardCol);
 
-        if (bh.currentProgramState == SetupHandler.ProgramState.MakingBoard) 
-        {
-            // recover information about piece chosen
-            byte indexPieceChosen = bh.boardCreationPanel.pieceSelected;
 
-            // TODO
-            // TEMP debug messages
-            Debug.Log("PIECE TO BE PLACED: " + indexPieceChosen);
-
-            // reassigns piece at that slot 
-            game.Info.boardAtStart.boardStateRepresentation[boardRow, boardCol] = 
-                indexPieceChosen;
-
-            // respawns the piece on the large board square clicked
-            game.spawningsSlots[boardRow, boardCol].ForEach(
-                (slot) =>
-                {
-                    slot.Spawn();
-                });
-        } // making board
-
+        /*
         else if (bh.currentProgramState == SetupHandler.ProgramState.Playing) 
         {
             // recover piece above this spawning slot
@@ -115,78 +88,119 @@ public class PieceSpawningSlot : PieceSlot
         { 
             //
         } // making relative/on-click rule
+        */
 
     }
 
 
 
 
-
     // spawns the cube above this slot, if there should be one, 
-    //  coloured according to pieceVisualRepresentation
-    internal void Spawn() 
+    //  coloured according to visRep (visual representation) provided
+    //  returns true iff. a (new) piece cube is spawned
+    internal bool Spawn(PosInfo[,] visRep, out PieceCubePlayMode made) 
     {
+        // TODO check on visRep dimenssions/size ?
+
+        PieceCubePlayMode pieceCubePlayMode = Prefabs.GetPrefabs().pieceCubePlayMode;
+
         // destroys old cube above this slot to clear room for new cube
         // checks that it exists
         if (pieceCube != null && pieceCube.gameObject != null)
         {
-            Destroy(pieceCube.gameObject); //destroys
+            Destroy(pieceCube.gameObject); 
         }
+
+        // get information about colour of cube above this slot, 
+        //  and whether there's even one or not
+        PosInfo posInfo = visRep[pieceRow, pieceCol];
+
+        // spawns cube above if it exists accord to PosInfo specified
+        switch (posInfo) 
+        {
+            case PosInfo.RGBData colourData: // retrives data and spawns cube
+                // gets alpha
+                float alpha;
+                switch (colourData) 
+                {
+                    case PosInfo.RGBWithAlpha withAlpha:
+                        alpha = withAlpha.alpha / 255f;
+                        break;
+                    default:
+                        alpha = 1f;
+                        break;
+                }
+
+                // scale and position cube based on plane's scale and position
+                pieceCubePlayMode.transform.localScale =
+                    transform.localScale * relScale;
+                Vector3 posToSpawn = transform.position + spawnOffset;
+                posToSpawn.y += pieceCubePlayMode.transform.localScale.y / 2;
+
+                // creates the piece cube and instantiates its variables
+                GameObject cubeMade
+                    = Instantiate(pieceCubePlayMode.gameObject, posToSpawn, Quaternion.identity);
+                PieceCubePlayMode cubeMadeScript =
+                    cubeMade.GetComponent<PieceCubePlayMode>();
+                cubeMadeScript.rowPos = pieceRow;
+                cubeMadeScript.colPos = pieceCol;
+
+                // change the colour of the cube to the appropriate one
+                cubeMade.GetComponent<Renderer>().material.color =
+                    new Color(colourData.red / 255f,
+                              colourData.green / 255f,
+                              colourData.blue / 255f,
+                              alpha);
+
+                // associates new cube with spawning slot
+                pieceCube = cubeMadeScript;
+
+                // returns true and assigns piece cube made
+                made = cubeMadeScript;
+                return true;
+            case PosInfo.Nothing nothing: // no need to do anything much
+                made = null;
+                return false;
+            default:
+                throw new System.ArgumentException("PosInfo is of form unaccounted for");
+        }
+    }
+
+
+
+    // spawns the cube above this slot, if there should be one, 
+    //  coloured according to pieceVisualRepresentation of piece on virtual board
+    internal void Spawn() 
+    {
+        VirtualBoard<PieceSpawningSlot> vBoard = GetVirtualBoard<PieceSpawningSlot>();
 
         // get information about piece above this slot, 
         //  and whether there's even one or not
-        PosInfo posInfo;
-        byte pieceHere = 
-            game.boardState.boardStateRepresentation[boardRow, boardCol];
-        if (pieceHere == PosInfo.noPiece) 
+        byte pieceHere = vBoard.info.BoardStateRepresentation[boardRow, boardCol];
+
+        // only destroy cube above if there's no piece to spawn
+        if (pieceHere == PieceInfo.noPiece) 
         {
-            posInfo = new PosInfo.Nothing(); 
+            // destroys old cube above this slot to clear room for new cube
+            // checks that it exists
+            if (pieceCube != null && pieceCube.gameObject != null)
+            {
+                Destroy(pieceCube.gameObject); 
+            }
         } 
         else
         {
-            PieceInfo pieceInfo = game.info.pieces[pieceHere];
-            posInfo = pieceInfo.visualRepresentation[pieceRow, pieceCol];
+            // see piece cube above
+            PieceInfo pieceInfo = vBoard.pieces[pieceHere];
+            PosInfo[,] posInfos = pieceInfo.visualRepresentation;
+
+            // spawns it 
+            if (Spawn(posInfos, out PieceCubePlayMode cubeMadeScr)) 
+            {
+                // note that this object should be destroyed later
+                vBoard.otherObjsOnBoard.Add(cubeMadeScr.gameObject);
+            }
         }
-
-
-        if (posInfo is PosInfo.RGBData)
-        {
-            // spawns piece if there is one to be spawned
-
-            // extract (cast) information about colour of piece
-            PosInfo.RGBData rgbData =
-                (posInfo as PosInfo.RGBData);
-
-            // scale and position cube based on plane's scale and position
-            pieceCubePlayMode.transform.localScale =
-                this.transform.localScale * relScale;
-            Vector3 posToSpawn = this.transform.position + spawnOffset;
-            posToSpawn.y += pieceCubePlayMode.transform.localScale.y / 2;
-
-
-            // creates the piece cube and instantiates its variables
-            GameObject cubeMade
-                = Instantiate(pieceCubePlayMode, posToSpawn, Quaternion.identity);
-            PieceCubePlayMode cubeMadeScript =
-                cubeMade.GetComponent<PieceCubePlayMode>();
-            cubeMadeScript.rowPos = this.pieceRow;
-            cubeMadeScript.colPos = this.pieceCol;
-
-            // change the colour of the cube to the appropriate one
-
-            cubeMade.GetComponent<Renderer>().material.color =
-                new Color(rgbData.red / 255f,
-                          rgbData.green / 255f,
-                          rgbData.blue / 255f);
-
-            // associates new cube with spawning slot
-            pieceCube = cubeMadeScript;
-
-            // add cube to list of objects to destroy after session
-            Utility.objsToDelete.Add(cubeMade);
-
-        }
-        // otherwise, don't do anything
     }
 
 }

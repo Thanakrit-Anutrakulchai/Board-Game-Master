@@ -37,17 +37,25 @@ public class RuleInfo
     }
 
     /*** INSTANCE VARIABLES ***/
-    // the name of this rule 
-    public string name;
-
     // the 'relative changes' of the area affected
-    public SquareChange[,] relChanges;
+    internal readonly SquareChange[,] relChanges; //TODO make indexing not mutate?
+
+    // the name of this rule 
+    public readonly string name;
+
+    // rule can only be activated on this player's turn (represented with a byte)
+    public readonly byte usableOn;
+
+    // the player playing the next turn
+    public readonly byte nextPlayer;
 
     // index and location of the trigger piece in relChange
     //  the trigger piece is the one which activates the rule when clicked
-    public byte triggerPiece;
-    public byte triggerRow;
-    public byte triggerCol;  
+    //  PieceInfo.noPiece for a rule that activates upon clicking an empty square
+    //  PieceInfo.noSquare for panel rules (activated from scroll view during play)
+    public readonly byte triggerPiece;
+    public readonly byte triggerRow;
+    public readonly byte triggerCol;  
 
 
 
@@ -122,7 +130,7 @@ public class RuleInfo
         // if function has not yet returned, then rule is applicable
 
         // prepares new Game if rule may succesfully be applied
-        Game resGame = new Game(gm.boardState.GetCopy(), gm.info.pieces);
+        Game resGame = new Game(gm.Info, gm.boardState.GetCopy(), nextPlayer);
 
         // loop through resGame's board, setting all pieces to after rule is applied
         //  2 loops are used in case copying the boardstate was unnecessary
@@ -149,7 +157,7 @@ public class RuleInfo
                 switch (relChanges[rRel, cRel]) 
                 {
                     case SquareChange.Changed changed:
-                        resGame.boardState.boardStateRepresentation[rAbs, cAbs] = 
+                        resGame.boardState.BoardStateRepresentation[rAbs, cAbs] = 
                             changed.pieceChangedTo;
                         break;
                 }

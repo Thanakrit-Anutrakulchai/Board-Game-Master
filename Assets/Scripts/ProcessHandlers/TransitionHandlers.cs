@@ -1,8 +1,13 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
+// type alias, (# of players, # of rows, # of cols, piece resolution)
+using DimensionsData = System.Tuple<byte, byte, byte, byte>;
+
+
 // class which handles the transitions between different processes and canvases
-public class TransitionHandler
+public class TransitionHandler : ProcessHandler<TransitionHandler>
 {
     /*** STATIC VARIABLES ***/
     // the state of the program 
@@ -26,7 +31,6 @@ public class TransitionHandler
     private readonly PaintBoard PaintBoard = Camera.main.GetComponent<PaintBoard>();
     private readonly PanelRule PanelRule = Camera.main.GetComponent<PanelRule>();
     private readonly PlayGame PlayGame = Camera.main.GetComponent<PlayGame>();
-    private readonly RelativeRule RelativeRule = Camera.main.GetComponent<RelativeRule>();
 
     /* Et Cetera */
     private byte numTimesDeleteAllGamesClickedSinceDeletion;
@@ -35,13 +39,15 @@ public class TransitionHandler
 
 
 
+ 
     /*** INSTANCE METHODS ***/
     internal void AddListenersToButtons() 
     {
         // Add handlers to buttons which transitions between states 
+        // NOTE: This really shows C#'s powerful type (inference) system
         Intro.playGameButton.onClick.AddListener
             (
-                () => Transition(Intro, PlayGame)
+                () => Transition(Intro, ChooseGame)
             );
 
         Intro.makeGameButton.onClick.AddListener
@@ -71,7 +77,7 @@ public class TransitionHandler
 
         MakeGame.makeRuleButton.onClick.AddListener
             (
-                () => Transition(MakeGame, ChooseRuleArea) // TODO to change
+                () => Transition(MakeGame, ChooseRuleArea) 
             );
 
         MakeBoard.doneButton.onClick.AddListener
@@ -84,51 +90,82 @@ public class TransitionHandler
                 () => Transition(MakePiece, MakeGame)
             );
 
+        ChooseRuleArea.startMakingRuleButton.onClick.AddListener
+            (
+                () => Transition(MakePiece, MakeGame)
+            );
+
 
 
         // TODO Move these to the ProgramStates classes
 
-
+        /*
         deleteAllGamesButton.onClick.AddListener(DeleteAllGames);
 
         activatePieceClickedButton.onClick.AddListener(MakeRelRule);
         setTriggerPieceButton.onClick.AddListener(SetTriggerPiece);
         relRuleSwitchToButton.onClick.AddListener(RelRuleSwitchTo);
         relRuleDoneButton.onClick.AddListener(DoneRelRule);
+        */      
+    }
+
+
+    // gets the canvas associated with this state 
+    private Canvas CanvasOf(ProgramData.State state) 
+    { 
+        switch (state) 
+        {
+            case ProgramData.State.ChooseBoardDim:
+                return ChooseBoardDim.GetCanvas();
+            case ProgramData.State.ChooseGame:
+                return ChooseGame.GetCanvas();
+            case ProgramData.State.ChooseRuleArea:
+                return ChooseRuleArea.GetCanvas();
+            case ProgramData.State.Intro:
+                return Intro.GetCanvas();
+            case ProgramData.State.MakeBoard:
+                return MakeBoard.GetCanvas();
+            case ProgramData.State.MakeGame:
+                return MakeGame.GetCanvas();
+            case ProgramData.State.MakePiece:
+                return MakePiece.GetCanvas();
+            case ProgramData.State.MakeRule:
+                return MakeRule.GetCanvas();
+            case ProgramData.State.MakeWinCond:
+                return MakeWinCond.GetCanvas();
+            case ProgramData.State.PaintBoard:
+                return PaintBoard.GetCanvas();
+            case ProgramData.State.PanelRule:
+                return PanelRule.GetCanvas();
+            case ProgramData.State.PlayGame:
+                return PlayGame.GetCanvas();
+            default:
+                throw new System.Exception("Received unaccountedfor state");
+        }
     }
 
 
 
-    // TODO
-    // assigns action to all scroll views when chosen item is changed
-    internal void SetupScrollViews() 
+    // creates a button which transitions between canvases and processes when clicked
+    //   after applying the action specified
+    internal void CreateTransitionButton<S, T, R>(Button template, Component location,
+                                                  string text,
+                                                  IAssociatedState<S, T> from,
+                                                  IAssociatedState<T, R> to,
+                                                  UnityAction actBeforeTransition) 
     {
-        MakeBoard.selectPieceScrView.WhenChosenChanges
-            ((scrView) => delegate
-                {
-                    // selects all non-highlighted buttons background to white
-                    scrView.ForEach<Button>(
-                        (b) => b.GetComponent<Image>().color = Color.white);
-
-                    // including remove piece button
-                    MakeBoard.removePieceButton.GetComponent<Image>().color = 
-                        Color.white;
-
-                    // highlights chosen button
-                    if (scrView.GetChosenItem<Button>(out Button chosen) && 
-                        chosen != null) 
-                    {
-                        chosen.GetComponent<Image>().color = 
-                            BoardCreationHandler.selectedPieceColour;
-                    }
-                }
-            );
+        Button button = Utility.CreateButton(template, location, text, 
+            delegate 
+            {
+                actBeforeTransition();
+                Transition(from, to);
+            });
     }
 
 
 
     // transition states: switch canvas, update states, calls OnEnter/OnLeave methods
-    private void Transition<S, T, R>(IAssociatedState<S, T> prev, IAssociatedState<T, R> next) 
+    private void Transition<T>(IAssociatedStateLeave<T> prev, IAssociatedStateEnter<T> next) 
     {
         // update state
         ProgramData.currentState = next.GetAssociatedState();

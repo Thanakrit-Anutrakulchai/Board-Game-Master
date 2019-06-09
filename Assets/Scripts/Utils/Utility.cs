@@ -11,10 +11,6 @@ using System.Collections.Generic;
 public class Utility : MonoBehaviour
 {
     /*** STATIC VARIABLES ***/
-    // games folder, where all files containing data about games are stored
-    private static readonly string gamesFolderPath =
-        Application.persistentDataPath + "/games";
-
     // all the game objects to delete after a (creation/play) session
     public static List<GameObject> objsToDelete = new List<GameObject>();
 
@@ -81,13 +77,6 @@ public class Utility : MonoBehaviour
     {
         //TODO
         return true;
-    }
-
-
-    //TODO TEMP
-    public static T Identity<T>(T value)
-    {
-        return value;
     }
 
 

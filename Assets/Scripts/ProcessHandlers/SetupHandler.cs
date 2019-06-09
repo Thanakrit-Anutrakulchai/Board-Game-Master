@@ -9,7 +9,7 @@ using System;
 // REFACTOR code into smaller chunks
 
 // Class that handles what happens when the program starts
-public class SetupHandler : MonoBehaviour
+public class SetupHandler : ProcessHandler<SetupHandler>
 {
     /*** AWAKE - CALLED BEFORE START ***/
     private void Awake()
@@ -33,86 +33,22 @@ public class SetupHandler : MonoBehaviour
         //   to most (if not all) UI elements
         TransitionHandler th = Camera.main.GetComponent<TransitionHandler>();
         th.AddListenersToButtons();
+
+        // creates games folder if it does not exist yet
+        Directory.CreateDirectory(ProgramData.gamesFolderPath);
     }
+
 
 
 
 
 
     /*** INSTANCE METHODS ***/
-    // generates a board of size numOfRows x numOfCols with no pieces
-    //  centers camera 100 units above origin, then enters creation process
-
-    // enters the process of creating a custom piece
-    public void MakePiece()
-    {
-        byte pceRes = gameBeingMade.info.pieceResolution;
-        // 2D array to store information about piece 
-        PosInfo[,] pieceVisRep = PosInfo.NothingMatrix(pceRes, pceRes);
-
-        // store information about piece
-        pieceCreationPanel.pieceInfo = new PieceInfo("UNNAMED", pieceVisRep);
-
-        // scale slot to correct size
-        pieceBuildingSlot.transform.localScale =
-            new Vector3(buildSlotSize, buildSlotSize, buildSlotSize);
-
-        // calculate start position
-        // reminder: planes in Unity are 10 units by 10 units
-        float sideLength = pceRes * buildSlotSize * 10 + // size of slots
-            (pceRes - 1) * buildSlotSize; //(* 0.1f * 10) // size of gaps
-        Vector3 start = new Vector3(-sideLength / 2, heightOfBoard, -sideLength / 2);
-
-        // tiles temporary "board" representing square to place piece on
-        Utility.TileAct(start, pieceBuildingSlot, buildSlotSize,
-                        pceRes, pceRes, 1,
-                        buildSlotSize * 0.1f,
-                (slot, pieceR, pieceC, _, _1) =>
-                {
-                    // associates panel with slot,
-                    //  and assigns co-ordinates to slot corresponding to its "position 
-                    //  in the array"
-                    slot.GetComponent<PieceBuildingSlot>().associatedPanel =
-                        pieceCreationPanel;
-                    slot.GetComponent<PieceBuildingSlot>().pieceRow = pieceR;
-                    slot.GetComponent<PieceBuildingSlot>().pieceCol = pieceC;
-
-                    // add to list of building slots used for building the piece
-                    Utility.objsToDelete.Add(slot);
-
-                    // temp. debug variable
-                    slot.GetComponent<PieceBuildingSlot>().slotId = tempId;
-                    tempId++;
-                });
-    }
-
-
-    // TODO TEMP. allow creation of non-relative rules
-    // starts process of creating a rule, currently only supports relative rules
-    public void MakeRule() 
-    {
-        // update state
-        currentProgramState = ProgramData.ChoosingRuleAreaAffeted;
-
-        // switches canvas
-        makeGameCanvas.gameObject.SetActive(false);
-        chooseRuleArea.gameObject.SetActive(true);
-    }
-
 
     // starts process of making a "relative" rule 
     //   which triggers when a piece or the board is clicked
     public void MakeRelRule() 
     {
-        // update state
-        currentProgramState = ProgramData.MakingRelRule;
-
-        // switches canvas
-        chooseRuleArea.gameObject.SetActive(false);
-        makeRelRuleCanvas.gameObject.SetActive(true);
-
-        // clear values for use
-        ruleCreationPanel.ClearOldValues();
 
         // TODO add checks
         // recover information about player's turn and size of area affected 
@@ -361,33 +297,5 @@ public class SetupHandler : MonoBehaviour
         makeGameCanvas.gameObject.SetActive(false);
         introCanvas.gameObject.SetActive(true);
 
-    }
-
-
-    // ends the procree of creating a custom piece
-    public void DonePiece() 
-    {
-
-        // get name from input field
-        // TODO: add check, ensure name is alphanumeric, prevent name clashes
-        //       make sure name not empty string
-        string pceName = enterPieceNameInputField.text;
-        enterPieceNameInputField.text = ""; // resets text field
-
-        pieceCreationPanel.pieceInfo.pieceName = pceName;
-
-        // add created piece to game
-        GameInfo gmInf = gameBeingMade.info;
-        gmInf.AddPiece(pieceCreationPanel.pieceInfo);
-
-        // destroy all game objects generated for creating piece
-        Utility.DeleteQueuedObjects();
-
-        // update state
-        currentProgramState = ProgramData.MakingGame;
-
-        // switch back to makeGame screen
-        makePieceCanvas.gameObject.SetActive(false);
-        makeGameCanvas.gameObject.SetActive(true);
     }
 }

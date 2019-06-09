@@ -2,26 +2,39 @@
 using UnityEngine.UI;
 
 // Items displayed on the Intro canvas
-internal sealed class Intro : IAssociatedState<Object, Object>
+internal sealed class Intro : Process<Intro>, IAssociatedState<GameInfo, Object>
 {
-    [SerializeField] internal Canvas canvas;
+    /*** INSTANCE VARIABLES ***/
+    [SerializeField] internal readonly Canvas canvas;
 
-    [SerializeField] internal Button playGameButton;
-    [SerializeField] internal Button makeGameButton;
+    [SerializeField] internal readonly Button playGameButton;
+    [SerializeField] internal readonly Button makeGameButton;
 
+
+
+
+
+
+    /*** INSTANCE METHODS ***/
     public Canvas GetCanvas() { return canvas; }
     public ProgramData.State GetAssociatedState()
     {
         return ProgramData.State.Intro;
     }
 
-    public void OnEnterState(Object args)
+
+
+    public void OnEnterState(IAssociatedStateLeave<GameInfo> previousState, GameInfo args)
     {
         // TODO
+        throw new System.NotImplementedException();
     }
-    public Object OnLeaveState()
+
+
+
+    public Object OnLeaveState(IAssociatedStateEnter<Object> nextState)
     {
         // TODO
-        return null;
+        throw new System.NotImplementedException();
     }
 }

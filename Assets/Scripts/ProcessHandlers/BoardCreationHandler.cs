@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 // script which controls the behaviour of the board creation process 
-public class BoardCreationHandler
+public class BoardCreationHandler : ProcessHandler<BoardCreationHandler>
 {
     /*** STATIC VARIABLES ***/
     // default colour of the piece button currently selected
@@ -41,19 +41,10 @@ public class BoardCreationHandler
 
 
 
-    /*** STATIC METHODS ***/
-    internal static BoardCreationHandler GetHandler()
-    {
-        return Camera.main.GetComponent<BoardCreationHandler>();
-    }
-
-
-
-
 
     /*** INSTANCE METHODS ***/
     // ends board creation process, and returns completed board info
-    internal BoardInfo FinishBoard() 
+    internal BoardInfo FinalizeBoard() 
     {
         // destroys all piece slots used
         VirtualBoardUsed.DestroyBoard();
@@ -83,6 +74,31 @@ public class BoardCreationHandler
         {
             boardBeingMade.BoardStateRepresentation[row, col] = pieceSelected;
             return true;
+        }
+        catch 
+        {
+            return false;
+        }
+    }
+
+
+
+    // sets piece unless if piece selected is already there - in that case, remove it
+    // true iff. successful
+    internal bool TogglePiece(byte row, byte col) 
+    { 
+        try 
+        {
+            byte pce = boardBeingMade.BoardStateRepresentation[row, col];
+            if (pce == pieceSelected) 
+            {
+                boardBeingMade.BoardStateRepresentation[row, col] = PieceInfo.noPiece;
+                return true;
+            }
+            else 
+            {
+                return SetPiece(row, col);
+            }
         }
         catch 
         {

@@ -4,43 +4,57 @@
 internal class PieceBuildingSlot : PieceSlot
 {
     /*** INSTANCE VARIABLES ***/
-    // link to panel, which has array representation of piece being built
-    internal PieceCreationHandler associatedPanel;
+    // denotes whether there is a piece cube currently above this slot
+    //   "incorrectly" starts off true so it is toggled to false upon first OnUpdate call
+    [SerializeField] private bool hasPieceAbove = true;
 
-    // cube which makes up pieces, in build mode 
-    internal PieceCubeBuildMode pieceCubeBuildMode;
 
-    /*** METHODS ***/
-    internal override void OnCreate() { }
+
+
+
+    /*** INSTANCE METHODS ***/
+    internal override void OnUpdate() 
+    { 
+        // clears piece above it if there was one
+        if (pieceCube != null && pieceCube.gameObject != null) 
+        {
+            Destroy(pieceCube.gameObject);
+        }
+
+        // sets piece above if there was none 
+        if (!hasPieceAbove) 
+        {
+            // TODO add colours based on repreesntation in PieceCreationHandler
+            PieceCubeBuildMode pieceCubeBuildMode = Prefabs.GetPrefabs().pieceCubeBuildMode;
+
+            // scale and position cube based on plane's scale and position
+            pieceCubeBuildMode.transform.localScale =
+                transform.localScale * relScale;
+            Vector3 posToSpawn = transform.position + spawnOffset;
+            posToSpawn.y += pieceCubeBuildMode.transform.localScale.y / 2;
+
+            // creates the piece cube and instantiates its variables
+            GameObject cubeMade
+                = Instantiate(pieceCubeBuildMode.gameObject, posToSpawn, Quaternion.identity);
+            PieceCubeBuildMode cubeMadeScript =
+                cubeMade.GetComponent<PieceCubeBuildMode>();
+            cubeMadeScript.rowPos = boardRow; // the 'board' is the square this 
+            cubeMadeScript.colPos = boardCol; //   piece is being created on
+
+            // assign piece cube to slot, and note that it is on the board
+            pieceCube = cubeMadeScript;
+            GetVirtualBoard<PieceBuildingSlot>().otherObjsOnBoard.Add(cubeMade);
+        }
+
+        // toggles indicator variable
+        hasPieceAbove = !hasPieceAbove;
+    }
 
     // spawns cube and update visual rep. array when clicked
     private void OnMouseDown()
     {
-        // scale and position cube based on plane's scale and position
-        pieceCubeBuildMode.transform.localScale = 
-            this.transform.localScale * relScale;
-        Vector3 posToSpawn = this.transform.position + spawnOffset;
-        posToSpawn.y += pieceCubeBuildMode.transform.localScale.y / 2;
-
-
-        // creates the piece cube and instantiates its variables
-        GameObject cubeMade 
-            = Instantiate(pieceCubeBuildMode.gameObject, posToSpawn, Quaternion.identity);
-        PieceCubeBuildMode cubeMadeScript = 
-            cubeMade.GetComponent<PieceCubeBuildMode>();
-        cubeMadeScript.rowPos = this.pieceRow;
-        cubeMadeScript.colPos = this.pieceCol;
-        cubeMadeScript.AssociatedHandler
-            = this.associatedPanel;
-
-        // will delete cube after creation of piece
-        Utility.objsToDelete.Add(cubeMade);
-
-        // adds information about the piece to the rep. array
-        // TODO
-        //  TEMP: stores colour info as (0 0 0) for now
-        this.associatedPanel.pieceInfo.visualRepresentation[pieceRow, pieceCol]
-            = new PosInfo.RGBData(0, 0, 0);
+        VirtualBoard<PieceBuildingSlot> vboard = GetVirtualBoard<PieceBuildingSlot>();
+        vboard.OnSquareClicked(boardRow, boardCol);
     }
 
 

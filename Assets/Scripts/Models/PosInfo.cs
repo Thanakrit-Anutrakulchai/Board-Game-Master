@@ -22,17 +22,29 @@ public abstract class PosInfo
     }
 
     // at each position, there is either nothing,
-    //  or something of a specific RGB colour
+    //  or something of a specific colour
     [System.Serializable]
     public class Nothing : PosInfo {}
     [System.Serializable]
     public class RGBData : PosInfo
     {
-        public RGBData(byte r, byte g, byte b)
-        { this.red = r; this.green = g; this.blue = b; }
         // uses 3 one-byte integers for R, G, B values of colours
         public byte red;
         public byte green;
         public byte blue;
+
+        public RGBData(byte r, byte g, byte b)
+        { this.red = r; this.green = g; this.blue = b; }
+    }
+    // RGB colour with alpha value (for opacity)
+    [System.Serializable]
+    public class RGBWithAlpha : PosInfo.RGBData
+    {
+        public byte alpha; // alpha is stored as byte for consistency
+
+        public RGBWithAlpha(byte r, byte g, byte b, byte a) : base(r, g, b)
+        {
+            alpha = a;
+        }
     }
 }

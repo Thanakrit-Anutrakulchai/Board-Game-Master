@@ -1,8 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class ProcessHandler : MonoBehaviour
+// class which represents handlers controlling what happens during a process
+public abstract class ProcessHandler<H> : MonoBehaviour where H : ProcessHandler<H>
 {
-    //TODO ?
+    /*** STATIC METHODS ***/
+    internal static H GetHandler()
+    {
+        return Camera.main.GetComponent<H>();
+    }
 }

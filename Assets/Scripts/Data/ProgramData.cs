@@ -28,7 +28,7 @@ public class ProgramData
     /*** STATIC VARIABLES ***/
     // path to folder where all games made with/used in this program can be found
     //   (files with .gam extensions)
-    internal static string gamesFolderPath;
+    internal static string gamesFolderPath; //assigned in SetupHandler
 
     // current state of the program
     internal static State currentState;

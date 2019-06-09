@@ -1,108 +1,52 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 
 // This script manages custom games in play mode, 
 //  deals with what happens when user interacts with pieces and boards 
-public class GamePlayHandler : MonoBehaviour
+public class GamePlayHandler : ProcessHandler<GamePlayHandler>
 {
     /*** STATIC VARIABLES ***/
     // the position of the camera at the start of a custom game
-    private static Vector3 cameraStartPosition =
+    private static readonly Vector3 cameraStartPosition =
         new Vector3(0, 100, 0);
-
-    // a link to the current program state 
-    private static ProgramData programState =
-        Camera.main.GetComponent<ProgramData>();
+        
 
 
 
 
     /*** INSTANCE VARIABLES ***/
     // congratulatory text for the winner(s) 
-    public Text congratulatoryText;
+    private Text congratulatoryText;
 
     // the game currently being played 
-    public Game gameBeingPlayed;
+    internal Game gameBeingPlayed;
+
+
+
+
+
+
+    /*** INSTANCE PROPERTIES ***/
+    // virtual board encoding data about game board
+    VirtualBoard<PieceSpawningSlot> VirtualBoardUsed { get; set; }
+
+
+
 
 
     /*** INSTANCE METHODS ***/
     // starts the process of playing a custom game 
-    public void ProcessStart()
+    internal void StartGame()
     {
-        // centers camera 100 units above origin
-        Camera.main.transform.position = cameraStartPosition;
-
-        // updates state
-        programState.CurrentState = ProgramData.State.ChoosingGame;
-        
-        // switch canvas to the 'choose a game' canvas
-        introCanvas.gameObject.SetActive(false);
-        chooseGameCanvas.gameObject.SetActive(true);
-
-
-        // TODO replace this with unified method
-
-        // ensures games folder exists
-        //  will not create/overwrite if folder already exists
-        Directory.CreateDirectory(gamesFolderPath);
-
-        // clear previous list of games 
-        foreach (Button b in chooseGameScrView.content.GetComponentsInChildren<Button>())
-        {
-            if (!b.Equals(gameButtonTemplate))
-            {
-                Destroy(b);
-            }
-        }
-
-        // populates list of playable games with clickable buttons
-        IEnumerable<string> gameNames = Directory.EnumerateFiles(gamesFolderPath, "*.gam");
-        foreach (string gmPath in gameNames)
-        {
-            // recover name from path
-            int nameStart = gmPath.LastIndexOf('/') + 1;
-            int nameEnd =
-                gmPath.IndexOf(".gam", System.StringComparison.Ordinal);
-            string gmName = gmPath.Substring(nameStart, nameEnd - nameStart);
-            // recover display name (player inputted) by putting spaces back in
-            gmName = gmName.Replace('_', ' ');
-
-            // puts a button with the game's name under the displayed scroll view
-            // switch canvas and starts game when button is clicked
-            Button gameButton =
-                Utility.CreateButton(gameButtonTemplate, chooseGameScrView.content, gmName,
-                delegate
-                {
-                    // switch canvas 
-                    chooseGameCanvas.gameObject.SetActive(false);
-                    playGameCanvas.gameObject.SetActive(true);
-
-                    // retrieve game information from games folder
-                    BinaryFormatter bf = new BinaryFormatter();
-                    FileStream gameFile = File.Open(gmPath, FileMode.Open);
-                    GameInfo gmInfo = (GameInfo)(bf.Deserialize(gameFile));
-                    gameFile.Close();
-
-
-                    // assign and start the game
-                    gameHandler.gameBeingPlayed = new Game(gmInfo);
-                    gameHandler.Play();
-                });
-
-
-        }
-
-
-
-
         // TODO
     }
 
 
     // starts the game
-    public void Play() 
+    internal void Play() 
     {
         // TODO
 
@@ -144,22 +88,25 @@ public class GamePlayHandler : MonoBehaviour
     {
         //TODO 
 
+        List<byte> winners = new List<byte>();
         // check if game has been won 
-        foreach ((Game state, byte winner) in gameBeingPlayed.info.absoluteWinConditions)
-        { 
-            if (gameBeingPlayed.SameStateAs(state)) 
+        foreach ((byte[,] state, byte winner) in gameBeingPlayed.Info.winConditions)
+        {
+            // player has won if there is a sub-structure of that type
+            if (state.IsSubMatrixOf(gameBeingPlayed.boardState.BoardStateRepresentation)) 
             {
-                // TODO
-                GameEnded(new List<byte>(new byte[] { winner }));
-                return;
+                winners.Add(winner);
             }
         }
+
+        // TODO ask whether multiple winners is a TIE or all wins or what
+        GameEnded(winners);
     }
 
 
 
     // announces that game has been won and ends the game
-    public void GameEnded(List<byte> winners) 
+    private void GameEnded(List<byte> winners) 
     {
         // TODO 
         // VERY TEMP.

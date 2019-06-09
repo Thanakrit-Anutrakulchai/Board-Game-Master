@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-// type alias
-using GameData = System.Tuple<byte, byte, byte, float, System.Collections.Generic.List<PieceInfo>>;
+
 
 // Items for the board creation process
-internal sealed class MakeBoard : IAssociatedState<GameData, BoardInfo>
+internal sealed class MakeBoard : Process<MakeBoard>, IAssociatedState<GameCreationHandler, BoardInfo>
 {
     /*** INSTANCE VARIABLES ***/
-    [SerializeField] internal Canvas canvas;
+    [SerializeField] internal readonly Canvas canvas;
 
-    [SerializeField] internal Button doneButton;
-    [SerializeField] internal Button pieceButtonTemplate;
-    [SerializeField] internal Button removePieceButton;
-    [SerializeField] internal ScrollRect selectPieceScrView;
-    [SerializeField] internal Slider zoomSlider;
+    [SerializeField] internal readonly Button doneButton;
+    [SerializeField] internal readonly Button pieceButtonTemplate;
+    [SerializeField] internal readonly Button removePieceButton;
+    [SerializeField] internal readonly ScrollRect selectPieceScrView;
+    [SerializeField] internal readonly Slider zoomSlider;
+
 
 
 
@@ -37,7 +36,7 @@ internal sealed class MakeBoard : IAssociatedState<GameData, BoardInfo>
     /// </summary>
     /// <param name="gamedata">tuple containing (# of rows, # of columns,  
     /// piece resolution, relative size of gap between squares) </param>
-    public void OnEnterState<G>(IAssociatedState<G, GameData> _, GameData gamedata)
+    public void OnEnterState(IAssociatedStateLeave<GameCreationHandler> _,GameCreationHandler gamedata)
     {
         // get link to board handler
         BoardCreationHandler bh = BoardCreationHandler.GetHandler();
@@ -46,7 +45,11 @@ internal sealed class MakeBoard : IAssociatedState<GameData, BoardInfo>
         SetupUIs(bh);
 
         // unpacks information
-        var (numRows, numCols, pceRes, gapSize, pieces) = gamedata;
+        byte numRows = gamedata.NumOfRows;
+        byte numCols = gamedata.NumOfCols;
+        byte pceRes = gamedata.pieceResolution;
+        float gapSize = gamedata.SizeOfGap;
+        List<PieceInfo> pieces = gamedata.pieces;
 
         // clear old states and starts new board
         BoardInfo boardBeingMade = bh.StartNewBoard(numRows, numCols, gapSize);
@@ -86,10 +89,14 @@ internal sealed class MakeBoard : IAssociatedState<GameData, BoardInfo>
         VirtualBoard<PieceSpawningSlot> virBoard = new VirtualBoard<PieceSpawningSlot>
             (
                 boardBeingMade,
+                pieces,
                 pceRes,
                 Prefabs.GetPrefabs().pieceSpawningSlot,
-                (brd, r, c) => { bh.SetPiece(r, c); brd.RefreshSquare(r, c); }
+                (brd, r, c) => bh.TogglePiece(r, c)
             );
+
+        bh.VirtualBoardUsed = virBoard;
+        virBoard.SpawnBoard(SpatialConfigs.commonBoardSpawn);
     }
 
 
@@ -101,10 +108,12 @@ internal sealed class MakeBoard : IAssociatedState<GameData, BoardInfo>
     /// <returns>The board created</returns>
     /// <param name="_">unused - next state (MakeGame)</param>
     /// <typeparam name="G">Dummy type variable</typeparam>
-    public BoardInfo OnLeaveState<G>(IAssociatedState<BoardInfo, G> _)
+    public BoardInfo OnLeaveState(IAssociatedStateEnter<BoardInfo> _)
     {
         // finish board creation
-        BoardInfo createdBoard = BoardCreationHandler.GetHandler().FinishBoard();
+        BoardCreationHandler bh = BoardCreationHandler.GetHandler();
+        bh.VirtualBoardUsed.DestroyBoard();
+        BoardInfo createdBoard = bh.FinalizeBoard();
         return createdBoard;
     }
 
@@ -116,6 +125,7 @@ internal sealed class MakeBoard : IAssociatedState<GameData, BoardInfo>
     /// <param name="bh">Associated BoardCreationHandler</param>
     private void SetupUIs(BoardCreationHandler bh) 
     {
+        // 
         removePieceButton.onClick.AddListener(
             delegate
             {
@@ -132,5 +142,27 @@ internal sealed class MakeBoard : IAssociatedState<GameData, BoardInfo>
                 removePieceButton.GetComponent<Image>().color =
                     BoardCreationHandler.selectedPieceColour;
             });
+
+        // highlights button clicked on scroll view while resetting all others
+        selectPieceScrView.WhenChosenChanges
+            ((scrView) => delegate
+            {
+                // selects all non-highlighted buttons background to white
+                scrView.ForEach<Button>(
+                    (b) => b.GetComponent<Image>().color = Color.white);
+
+                // including remove piece button
+                removePieceButton.GetComponent<Image>().color =
+                    Color.white;
+
+                // highlights chosen button
+                if (scrView.GetChosenItem<Button>(out Button chosen) &&
+                    chosen != null)
+                {
+                    chosen.GetComponent<Image>().color =
+                        BoardCreationHandler.selectedPieceColour;
+                }
+            }
+            );
     }
 }

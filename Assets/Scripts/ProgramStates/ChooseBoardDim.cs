@@ -4,19 +4,25 @@ using UnityEngine.UI;
 using DimensionsData = System.Tuple<byte, byte, byte, byte>;
 
 // Items for entering the dimensions (of board) specification process
-internal sealed class ChooseBoardDim : IAssociatedState<Object, DimensionsData>
+internal sealed class ChooseBoardDim : Process<ChooseBoardDim>, 
+    IAssociatedState<UnityEngine.Object, DimensionsData>
 {
-    [SerializeField] internal Canvas canvas;
+    /*** INSTANCE VARIABLES ***/
+    [SerializeField] internal readonly Canvas canvas;
 
-    [SerializeField] internal Button useDimsButton;
-    [SerializeField] internal InputField numPlayersInput;
-    [SerializeField] internal InputField numRowsInput;
-    [SerializeField] internal InputField numColsInput;
-    [SerializeField] internal InputField pceResInput;
-    [SerializeField] internal Slider gapSlider; // moved from MakeBoard 
+    [SerializeField] internal readonly Button useDimsButton;
+    [SerializeField] internal readonly InputField numPlayersInput;
+    [SerializeField] internal readonly InputField numRowsInput;
+    [SerializeField] internal readonly InputField numColsInput;
+    [SerializeField] internal readonly InputField pceResInput;
+    [SerializeField] internal readonly Slider gapSlider; // moved from MakeBoard 
 
 
 
+
+
+
+    /*** INSTANCE METHODS ***/
     public Canvas GetCanvas() { return canvas; }
     public ProgramData.State GetAssociatedState()
     {
@@ -24,17 +30,18 @@ internal sealed class ChooseBoardDim : IAssociatedState<Object, DimensionsData>
     }
 
 
-    public void OnEnterState<G>(IAssociatedState<G, Object> prev, Object args) 
-    { 
-        // TODO
+    public void OnEnterState(IAssociatedStateLeave<UnityEngine.Object> prev, UnityEngine.Object args) 
+    {
+        SetupUIs();
     }
+
 
 
     /// <summary>
     /// pass user input to Make Game process
     /// </summary>
     /// <returns>user input information</returns>
-    public DimensionsData OnLeaveState<G>(IAssociatedState<DimensionsData, G> _) 
+    public DimensionsData OnLeaveState(IAssociatedStateEnter<DimensionsData> _) 
     {
         // NOTE: variables can be declared right as they are used in C#
         //   so byte b; f(b); ~ f(byte b);    That's pretty neat
@@ -54,5 +61,16 @@ internal sealed class ChooseBoardDim : IAssociatedState<Object, DimensionsData>
             // TODO Add checks -> keep going until success
             return null;
         }
+    }
+
+
+
+    // clears old data in input fields
+    private void SetupUIs()
+    {
+        numPlayersInput.text = "";
+        numRowsInput.text = "";
+        numColsInput.text = "";
+        pceResInput.text = "";
     }
 }

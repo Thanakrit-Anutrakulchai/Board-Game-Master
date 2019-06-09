@@ -23,7 +23,10 @@ public class GameInfo
 
     /*** INSTANCE VARIABLES ***/
     // number of players
-    public byte NumberOfPlayers { get; set; }
+    public readonly byte numberOfPlayers;
+
+    // player who gets to play at the start of the game
+    public readonly byte startingPlayer;
 
     // state of the board at the start of the game
     public readonly BoardInfo boardAtStart;
@@ -33,28 +36,46 @@ public class GameInfo
 
     // the "resolution in cubes" of the piece 
     //  would be 'n' for pieces made on an n x n grid
-    public byte pieceResolution;
+    public readonly byte pieceResolution;
 
     // number of pieces declared so far;
     // NOTE: This should be used instead of pieces.length
-    public byte numOfPieces;
+    public readonly byte numOfPieces;
 
-    // the rules of the game which triggers when a piece is clicked
-    public Dictionary<byte, List<RuleInfo>> rules;
+    // the rules of the game 
+    // rules[playerN][piece] denote all the rules that player #n can use
+    //   by clicking on piece.
+    //   piece = noPiece denote rules that activates on clicking an empty square
+    //   piece = noSquare denote panel rules 
+    public readonly Dictionary<byte, Dictionary<byte, List<RuleInfo>>> rules;
 
-    // absolute win conditions, game states where a player wins 
-    //  the tagged byte represents the player who wins 
-    public List<Tuple<Game, byte>> absoluteWinConditions;
+    // win conditions
+    //    the player (represented by byte) wins when a structure
+    //    (represented by byte[,]) is found on the board
+    public readonly List<Tuple<byte[,], byte>> winConditions;
+
+
 
 
 
     /*** INSTANCE PROPERTIES ***/
+    // dimensions of the game board 
+    public byte NumOfRows 
+    {
+        get => boardAtStart.NumOfRows;
+    }
+
+    public byte NumOfCols 
+    {
+        get => boardAtStart.NumOfCols;
+    }
+
     // size of the piece spawning slots used for tiling this 
-    public float spawnSlotSize
+    public float SpawnSlotSize
     {
         get
         {
-            return boardAtStart.squareSize / pieceResolution;
+            return boardAtStart.SquareSize / pieceResolution;
         }
     }
 
@@ -63,19 +84,17 @@ public class GameInfo
 
 
     /*** CONSTRUCTORS ***/
-    public GameInfo(BoardInfo brdStrt, List<PieceInfo> pcs)
-    {
-        this.boardAtStart = brdStrt;
-        this.pieces = pcs;
-        this.numOfRows = brdStrt.numOfRows;
-        this.numOfCols = brdStrt.numOfCols;
-
-        // starts off with no rules specified
-        this.rules = new Dictionary<byte, List<RuleInfo>>();
-
-        // starts off with no specified win conditions 
-        this.absoluteWinConditions = new List<Tuple<Game, byte>>();
+    internal GameInfo(BoardInfo brdStrt, List<PieceInfo> pcs,
+                      Dictionary<byte, Dictionary<byte, List<RuleInfo>>> rls, 
+                      List<Tuple<byte[,], byte>> wnCnds)
+    { 
+        boardAtStart = brdStrt;
+        pieces = pcs;
+        rules = rls;
+        winConditions = wnCnds;
     }
+
+
 
 
 
@@ -83,20 +102,19 @@ public class GameInfo
     // randomly place pieces on the empty slots on the old board
     public BoardInfo RandomPiecePlacements(BoardInfo oldBoard) 
     {
-        System.Random ranGen = new System.Random();
+        Random ranGen = new Random();
 
-        for (byte r = 0; r < oldBoard.numOfRows; r++) 
+        for (byte r = 0; r < oldBoard.NumOfRows; r++) 
         { 
-            for (byte c = 0; c < oldBoard.numOfCols; c++) 
+            for (byte c = 0; c < oldBoard.NumOfCols; c++) 
             {
                 byte ranPiece =  (byte)ranGen.Next(numOfPieces + 1);
                 if (ranPiece == numOfPieces)
                 {
-                    ranPiece = PosInfo.noPiece;
+                    ranPiece = PieceInfo.noPiece;
                 }
 
-                oldBoard.boardStateRepresentation[r, c] =
-                    ranPiece;
+                oldBoard.BoardStateRepresentation[r, c] = ranPiece;
             }
         }
 
@@ -104,21 +122,7 @@ public class GameInfo
     }
 
 
-    /*** INSTANCE METHODS ***/
-    // trys to add piece to the list of pieces and returns true iff successful
-    public bool AddPiece(PieceInfo pce) 
-    { 
-        if (numOfPieces < maxNumOfPieces) 
-        {
-            pieces.Add(pce);
-            numOfPieces++;
 
-            return true;
-        }
-        else // cannot add anymore if max number of pieces is reached
-        {
-            return false;
-        }
-    }
+
 
 }

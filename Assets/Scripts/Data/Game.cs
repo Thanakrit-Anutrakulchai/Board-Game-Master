@@ -12,11 +12,6 @@ public class Game
     // the current state of the board 
     internal BoardInfo boardState;
 
-    // the spawning slots used to tile the board of the game and spawn pieces
-    //   this is matrix of lists of them. 
-    //   a List at a certain position in the matrix corresponds to the 
-    //   slots used to spawn a piece at the same position in the board
-    internal List<PieceSpawningSlot>[,] spawningsSlots;
 
 
 
@@ -29,38 +24,23 @@ public class Game
 
 
     /*** CONSTRUCTORS ***/
-    // instantiates with given game info and board state 
-    internal Game(GameInfo gInf, BoardInfo bInf) 
+    // instantiates with given game info, board state, and current player
+    internal Game(GameInfo gInfo, BoardInfo bInfo, byte curPlayer) 
     {
-        Info = gInf;
-        boardState = bInf;
+        Info = gInfo;
+        boardState = bInfo;
+        currentPlayer = curPlayer;
     }
+
+
 
     // instantiates with given game info in the board state at start of game
     //  the syntax here is just C# constructor chaining
-    internal Game(GameInfo gInf) : this(gInf, gInf.boardAtStart) { }
-
-    // Starts a game with board in brdStrt state, using pcs as pieces
-    internal Game(BoardInfo brdStrt, List<PieceInfo> pcs) 
-    {
-        Info = new GameInfo(brdStrt, pcs);
-        boardState  = brdStrt;
+    internal Game(GameInfo gInfo) : 
+        this(gInfo, gInfo.boardAtStart, gInfo.startingPlayer) { }
 
 
-        spawningsSlots =
-            new List<PieceSpawningSlot>[boardState.numOfRows, boardState.numOfCols];
-        // starts off with empty list at each position in spawningSlots matrix
-        //  each list has max size pieceRes^2, as there are that many slots in 
-        //  a square on the board
-        for (byte r = 0; r < boardState.numOfRows; r++) 
-        { 
-            for (byte c = 0; c < boardState.numOfCols; c++) 
-            {
-                spawningsSlots[r, c] = new List<PieceSpawningSlot>(
-                    Info.pieceResolution * Info.pieceResolution);
-            }
-        }
-    }
+
 
 
     /*** INSTANCE METHODS ***/
@@ -71,18 +51,19 @@ public class Game
     {
         // ensure board states are the same
         // first, ensure sizes are the same
-        if ((boardState.numOfRows != otherGame.boardState.numOfRows) ||
-            (boardState.numOfCols != otherGame.boardState.numOfCols))
+        if ((boardState.NumOfRows != otherGame.boardState.NumOfRows) ||
+            (boardState.NumOfCols != otherGame.boardState.NumOfCols))
         {
             return false; // otherwise, they clearly are not the same
         }
+
         // check board states equality, square/piece-wise 
-        for (byte r = 0; r < boardState.numOfRows; r++) 
+        for (byte r = 0; r < boardState.NumOfRows; r++) 
         { 
-            for (byte c = 0; c < boardState.numOfCols; c++) 
+            for (byte c = 0; c < boardState.NumOfCols; c++) 
             { 
-                if (boardState.boardStateRepresentation[r, c] != 
-                    otherGame.boardState.boardStateRepresentation[r, c]) 
+                if (boardState.BoardStateRepresentation[r, c] != 
+                    otherGame.boardState.BoardStateRepresentation[r, c]) 
                 {
                     return false; // false if a single piece/square mismatched
                 }

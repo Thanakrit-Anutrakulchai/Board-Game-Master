@@ -4,6 +4,14 @@
 [System.Serializable]
 public class BoardInfo
 {
+    /*** INSTANCE VARIABLES ***/
+    private PosInfo[,] boardShapeRepresentation;
+    private byte[,] boardStateRepresentation;
+
+
+
+
+
     /*** INSTANCE PROPERTIES ***/
     // board sizes in number of squares (which can have full pieces on top)
     public byte NumOfRows { get; }
@@ -12,16 +20,21 @@ public class BoardInfo
 
     // relative size of gaps between large squares, 
     //   e.g. 1 means gaps are as large as the squares
-    public float SizeOfGap { get; }
+    public float GapSize { get; }
      
 
     // array representating the shape and colouring of the board
-    internal PosInfo[,] BoardShapeRepresentation { get; }
+    internal PosInfo[,] BoardShapeRepresentation { get => boardShapeRepresentation; }
 
 
     // array representing which type of piece is where on the board
     // NOTE: array should always be of size numOfRows x numOfCold
-    internal byte[,] BoardStateRepresentation { get; set; }
+    internal byte[,] BoardStateRepresentation 
+    { 
+        get => boardStateRepresentation; 
+        set => boardStateRepresentation = value;
+    }
+
 
     // dimensions of the board in Unity's units
     public float Height
@@ -29,7 +42,7 @@ public class BoardInfo
         get
         {
             return NumOfRows * SquareSize + // space taken by squares
-                   (NumOfRows - 1) * SizeOfGap * SquareSize; // taken by gaps 
+                   (NumOfRows - 1) * GapSize * SquareSize; // taken by gaps 
         }
     }
     public float Width
@@ -37,7 +50,7 @@ public class BoardInfo
         get
         {
             return NumOfCols * SquareSize + // space taken by squares
-                   (NumOfCols - 1) * SizeOfGap * SquareSize; // taken by gaps
+                   (NumOfCols - 1) * GapSize * SquareSize; // taken by gaps
         }
     }
 
@@ -46,7 +59,7 @@ public class BoardInfo
     { 
         get 
         {
-            return new Vector3(-Width/2, SpatialConfigs.heightOfBoard, -Height/2);
+            return new Vector3(-Width/2, SpatialConfigs.HeightOfBoard, -Height/2);
         }
     }
 
@@ -69,10 +82,10 @@ public class BoardInfo
 
         NumOfRows = numRows;
         NumOfCols = numCols;
-        SizeOfGap = gapSize;
+        GapSize = gapSize;
         SquareSize = sqSize;
-        BoardShapeRepresentation = PosInfo.NothingMatrix(numRows,numCols); //TODO
-        BoardStateRepresentation = new byte[numRows, numCols];
+        boardShapeRepresentation = PosInfo.NothingMatrix(numRows,numCols); //TODO
+        boardStateRepresentation = new byte[numRows, numCols];
     }
 
 
@@ -80,7 +93,7 @@ public class BoardInfo
     /*** STATIC METHODS ***/
     // creates a numRows x numCols board with specified colour,
     //  with no pieces on the board
-    public static BoardInfo DefaultBoard(byte numRows, byte numCols, float sqSize,
+    internal static BoardInfo DefaultBoard(byte numRows, byte numCols, float sqSize,
                                          float gapSize, PosInfo.RGBData colour) 
     {
         // instantiates variables
@@ -91,8 +104,8 @@ public class BoardInfo
         {
             for (byte c = 0; c < numCols; c++) 
             {
-                board.boardShapeRepresentation[r,c] = colour;
-                board.boardStateRepresentation[r,c] = PosInfo.noPiece;
+                board.BoardShapeRepresentation[r,c] = colour;
+                board.BoardStateRepresentation[r,c] = PieceInfo.noPiece;
             }
         }
 
@@ -109,12 +122,8 @@ public class BoardInfo
     public BoardInfo GetCopy() 
     {
         // assigns all variables 
-        BoardInfo result = new BoardInfo();
-        result.numOfRows = this.numOfRows;
-        result.numOfCols = this.numOfCols;
-        result.squareSize = this.squareSize;
-        result.sizeOfGap = this.sizeOfGap;
-        result.boardShapeRepresentation = this.boardShapeRepresentation; //same ref
+        BoardInfo result = new BoardInfo(NumOfRows, NumOfCols, SquareSize, GapSize);
+        result.boardShapeRepresentation = BoardShapeRepresentation; //same ref
 
         // copies state representation by value
         result.boardStateRepresentation = 
