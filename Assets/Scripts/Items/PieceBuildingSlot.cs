@@ -50,6 +50,8 @@ internal class PieceBuildingSlot : PieceSlot
         hasPieceAbove = !hasPieceAbove;
     }
 
+
+
     // spawns cube and update visual rep. array when clicked
     private void OnMouseDown()
     {
@@ -57,5 +59,6 @@ internal class PieceBuildingSlot : PieceSlot
         vboard.OnSquareClicked(boardRow, boardCol);
     }
 
+    
 
 }

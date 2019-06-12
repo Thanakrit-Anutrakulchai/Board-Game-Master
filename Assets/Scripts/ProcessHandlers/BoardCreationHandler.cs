@@ -5,12 +5,14 @@ public class BoardCreationHandler : ProcessHandler<BoardCreationHandler>
 {
     /*** STATIC VARIABLES ***/
     // default colour of the piece button currently selected
-    public static Color selectedPieceColour =
+    internal static Color selectedPieceColour =
         new Color(36 / 255f, 185 / 255f, 46 / 255f, 1);
 
     // default PosInfo colour of a new board
-    public static PosInfo.RGBData defaultBoardColour =
+    internal static PosInfo.RGBData defaultBoardColour =
         new PosInfo.RGBData(22, 22, 22);
+        
+
 
 
 

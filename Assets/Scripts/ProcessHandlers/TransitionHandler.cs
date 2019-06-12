@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
@@ -19,18 +20,17 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
 
     /*** INSTANCE VARIABLESx ***/
     /** Unity Objects **/
-    private readonly ChooseBoardDim ChooseBoardDim = Camera.main.GetComponent<ChooseBoardDim>();
-    private readonly ChooseGame ChooseGame = Camera.main.GetComponent<ChooseGame>();
-    private readonly ChooseRuleArea ChooseRuleArea = Camera.main.GetComponent<ChooseRuleArea>();
-    private readonly Intro Intro = Camera.main.GetComponent<Intro>();
-    private readonly MakeBoard MakeBoard = Camera.main.GetComponent<MakeBoard>();
-    private readonly MakeGame MakeGame = Camera.main.GetComponent<MakeGame>();
-    private readonly MakePiece MakePiece = Camera.main.GetComponent<MakePiece>();
-    private readonly MakeRule MakeRule = Camera.main.GetComponent<MakeRule>();
-    private readonly MakeWinCond MakeWinCond = Camera.main.GetComponent<MakeWinCond>();
-    private readonly PaintBoard PaintBoard = Camera.main.GetComponent<PaintBoard>();
-    private readonly PanelRule PanelRule = Camera.main.GetComponent<PanelRule>();
-    private readonly PlayGame PlayGame = Camera.main.GetComponent<PlayGame>();
+    private ChooseBoardDim ChooseBoardDim;
+    private ChooseGame ChooseGame;
+    private ChooseRuleArea ChooseRuleArea;
+    private Intro Intro;
+    private MakeBoard MakeBoard;
+    private MakeGame MakeGame;
+    private MakePiece MakePiece;
+    private MakeRule MakeRule;
+    private MakeWinCond MakeWinCond;
+    private PaintBoard PaintBoard;
+    private PlayGame PlayGame;
 
     /* Et Cetera */
     private byte numTimesDeleteAllGamesClickedSinceDeletion;
@@ -39,7 +39,29 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
 
 
 
- 
+
+    /*** ON AWAKE ***/
+    private void Awake()
+    {
+        // links all Processes with this handler
+        ChooseBoardDim = Camera.main.GetComponent<ChooseBoardDim>();
+        ChooseGame = Camera.main.GetComponent<ChooseGame>();
+        ChooseRuleArea = Camera.main.GetComponent<ChooseRuleArea>();
+        Intro = Camera.main.GetComponent<Intro>();
+        MakeBoard = Camera.main.GetComponent<MakeBoard>();
+        MakeGame = Camera.main.GetComponent<MakeGame>();
+        MakePiece = Camera.main.GetComponent<MakePiece>();
+        MakeRule = Camera.main.GetComponent<MakeRule>();
+        MakeWinCond = Camera.main.GetComponent<MakeWinCond>();
+        PaintBoard = Camera.main.GetComponent<PaintBoard>();
+        PlayGame = Camera.main.GetComponent<PlayGame>();
+    }
+
+
+
+
+
+
     /*** INSTANCE METHODS ***/
     internal void AddListenersToButtons() 
     {
@@ -92,7 +114,7 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
 
         ChooseRuleArea.startMakingRuleButton.onClick.AddListener
             (
-                () => Transition(MakePiece, MakeGame)
+                () => Transition(ChooseRuleArea, MakeRule)
             );
 
 
@@ -135,8 +157,6 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
                 return MakeWinCond.GetCanvas();
             case ProgramData.State.PaintBoard:
                 return PaintBoard.GetCanvas();
-            case ProgramData.State.PanelRule:
-                return PanelRule.GetCanvas();
             case ProgramData.State.PlayGame:
                 return PlayGame.GetCanvas();
             default:

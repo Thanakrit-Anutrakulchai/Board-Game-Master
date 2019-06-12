@@ -48,9 +48,9 @@ public class Utility : MonoBehaviour
     public static void DeleteAllSavedGames()
     {
         // recreates directory if it is not there
-        Directory.CreateDirectory(gamesFolderPath);
+        Directory.CreateDirectory(ProgramData.gamesFolderPath);
         // removes all files inside
-        foreach (string path in Directory.GetFiles(gamesFolderPath))
+        foreach (string path in Directory.GetFiles(ProgramData.gamesFolderPath))
         {
             File.Delete(path);
         }

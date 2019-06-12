@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-// typealias, (size, player #'s turn) : Tuple<byte, byte>
+// typealias, (size, player who can use rule, player going after rule) : Tuple<byte, byte, byte>
 using RuleSetupData = System.Tuple<byte, byte, byte>;
 
 
@@ -11,12 +11,12 @@ internal sealed class ChooseRuleArea : Process<ChooseRuleArea>,
     IAssociatedState<GameCreationHandler, RuleSetupData>
 {
     /*** INSTANCE VARIABLES ***/
-    [SerializeField] internal readonly Canvas canvas;
+    [SerializeField] internal Canvas canvas;
 
-    [SerializeField] internal readonly Button startMakingRuleButton;
-    [SerializeField] internal readonly InputField areaSizeInput;
-    [SerializeField] internal readonly InputField whichPlayerUseInput;
-    [SerializeField] internal readonly InputField whoseTurnAfterInput;
+    [SerializeField] internal Button startMakingRuleButton;
+    [SerializeField] internal InputField areaSizeInput;
+    [SerializeField] internal InputField whichPlayerUseInput;
+    [SerializeField] internal InputField whoseTurnAfterInput;
 
 
 

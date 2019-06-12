@@ -8,12 +8,12 @@ using UnityEngine.UI;
 internal sealed class ChooseGame : Process<ChooseGame>, IAssociatedState<UnityEngine.Object, Game>
 {
     /*** INSTANCE VARIABLES ***/
-    [SerializeField] internal readonly Canvas canvas;
+    [SerializeField] internal Canvas canvas;
 
-    [SerializeField] internal readonly ScrollRect chooseGameScrView;
-    [SerializeField] internal readonly Button gameButtonTemplate;
-    [SerializeField] internal readonly Button deleteAllGamesButton;
-    [SerializeField] internal readonly Text warningText;
+    [SerializeField] internal ScrollRect chooseGameScrView;
+    [SerializeField] internal Button gameButtonTemplate;
+    [SerializeField] internal Button deleteAllGamesButton;
+    [SerializeField] internal Text warningText;
 
     // game to pass on to the Game Play process
     private Game gameToPass;
@@ -85,6 +85,9 @@ internal sealed class ChooseGame : Process<ChooseGame>, IAssociatedState<UnityEn
                     {
                         // retrieves information about game from file
                         FileStream file = File.Open(path, FileMode.Open);
+
+                        Debug.Log("DESERIALIZING AT: " + path);
+
                         BinaryFormatter binform = new BinaryFormatter();
                         GameInfo gameInfo = (GameInfo) binform.Deserialize(file);
 

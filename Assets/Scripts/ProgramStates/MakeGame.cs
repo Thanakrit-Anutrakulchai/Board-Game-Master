@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-// type alias, (# of players, # of rows, # of cols, piece resolution)
-using DimensionsData = System.Tuple<byte, byte, byte, byte>;
+// type alias, (# of players, # of rows, # of cols, piece resolution, relative gap size)
+using DimensionsData = System.Tuple<byte, byte, byte, byte, float>;
 using System;
 
 
@@ -12,14 +12,14 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
     IAssociatedStateLeave<GameCreationHandler>, IAssociatedStateLeave<GameInfo>
 {
     /*** INSTANCE VARIABLES ***/
-    [SerializeField] internal readonly Canvas canvas;
+    [SerializeField] internal Canvas canvas;
 
-    [SerializeField] internal readonly Button makePieceButton;
-    [SerializeField] internal readonly Button makeBoardButton;
-    [SerializeField] internal readonly Button makeRuleButton;
-    [SerializeField] internal readonly Button setWinCondButton;
-    [SerializeField] internal readonly Button doneButton;
-    [SerializeField] internal readonly InputField nameInput;
+    [SerializeField] internal Button makePieceButton;
+    [SerializeField] internal Button makeBoardButton;
+    [SerializeField] internal Button makeRuleButton;
+    [SerializeField] internal Button setWinCondButton;
+    [SerializeField] internal Button doneButton;
+    [SerializeField] internal InputField nameInput;
 
 
 
@@ -41,6 +41,10 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
         {
             throw new Exception("Unexpected previous state - mismatch with arguments passed");
         }
+
+        // sets board received to be board at the start of the game
+        GameCreationHandler gameHandler = GameCreationHandler.GetHandler();
+        gameHandler.boardAtStart = boardMade;
     }
 
 
@@ -51,6 +55,11 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
         {
             throw new Exception("Unexpected previous state - mismatch with arguments passed");
         }
+
+        // uses data to create new game board and list of pieces
+        GameCreationHandler gameHandler = GameCreationHandler.GetHandler();
+        gameHandler.StartNewGame(data);
+        
     }
 
 
@@ -62,20 +71,29 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
         {
             throw new Exception("Unexpected previous state - mismatch with arguments passed");
         }
+
+        GameCreationHandler gameHandler = GameCreationHandler.GetHandler();
+        // adds piece to list of pieces
+        gameHandler.pieces.Add(pieceMade);
     }
 
 
     public GameCreationHandler OnLeaveState(IAssociatedStateEnter<GameCreationHandler> nextState)
     {
         // TODO
-        return null;
+        return GameCreationHandler.GetHandler();
     }
 
 
 
+    // Make Game -> Intro
+    // finalize game, stores it in the games folder, and passes it back to Intro
     public GameInfo OnLeaveState(IAssociatedStateEnter<GameInfo> nextState)
     {
-        // TODO
-        throw new NotImplementedException();
+        GameCreationHandler gameHandler = GameCreationHandler.GetHandler();
+        // TODO ADD CHECKS ON NAME
+        GameInfo gameMade = gameHandler.FinalizeGame(nameInput.text);
+
+        return gameMade;
     }
 }

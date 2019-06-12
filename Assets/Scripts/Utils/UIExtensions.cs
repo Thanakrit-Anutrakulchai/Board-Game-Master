@@ -9,9 +9,11 @@ public static class UIExtensions
 {
     /*** STATIC VARIABLES USED FOR EXTENSIONS ***/
     // keeps track of the chosen item in each scroll view
-    private static readonly Dictionary<ScrollRect, UnityEngine.Object> chosenItems;
+    private static readonly Dictionary<ScrollRect, UnityEngine.Object> chosenItems =
+        new Dictionary<ScrollRect, UnityEngine.Object>();
     // tracks action to take when chosen item changes
-    private static readonly Dictionary<ScrollRect, Func<ScrollRect, UnityAction>> whenChosenChanges;
+    private static readonly Dictionary<ScrollRect, Func<ScrollRect, UnityAction>> whenChosenChanges =
+        new Dictionary<ScrollRect, Func<ScrollRect, UnityAction>>();
 
 
 

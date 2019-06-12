@@ -1,21 +1,21 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-// type alias, (# of players, # of rows, # of cols, piece resolution)
-using DimensionsData = System.Tuple<byte, byte, byte, byte>;
+// type alias, (# of players, # of rows, # of cols, piece resolution, relative gap size)
+using DimensionsData = System.Tuple<byte, byte, byte, byte, float>;
 
 // Items for entering the dimensions (of board) specification process
 internal sealed class ChooseBoardDim : Process<ChooseBoardDim>, 
     IAssociatedState<UnityEngine.Object, DimensionsData>
 {
     /*** INSTANCE VARIABLES ***/
-    [SerializeField] internal readonly Canvas canvas;
-
-    [SerializeField] internal readonly Button useDimsButton;
-    [SerializeField] internal readonly InputField numPlayersInput;
-    [SerializeField] internal readonly InputField numRowsInput;
-    [SerializeField] internal readonly InputField numColsInput;
-    [SerializeField] internal readonly InputField pceResInput;
-    [SerializeField] internal readonly Slider gapSlider; // moved from MakeBoard 
+    [SerializeField] internal Canvas canvas;
+    
+    [SerializeField] internal Button useDimsButton;
+    [SerializeField] internal InputField numPlayersInput;
+    [SerializeField] internal InputField numRowsInput;
+    [SerializeField] internal InputField numColsInput;
+    [SerializeField] internal InputField pceResInput;
+    [SerializeField] internal Slider gapSlider; // moved from MakeBoard 
 
 
 
@@ -53,8 +53,9 @@ internal sealed class ChooseBoardDim : Process<ChooseBoardDim>,
             byte.TryParse(numColsInput.text, out byte numCols) &&
             byte.TryParse(pceResInput.text, out byte pceRes))
         {
+            float gap = gapSlider.normalizedValue;
             // TODO check input is valid
-            return System.Tuple.Create(numPlayers, numRows, numCols, pceRes);
+            return System.Tuple.Create(numPlayers, numRows, numCols, pceRes, gap);
         }
         else 
         {

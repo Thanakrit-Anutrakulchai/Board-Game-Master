@@ -15,7 +15,7 @@ public class PieceCreationHandler : ProcessHandler<PieceCreationHandler>
 
     /*** INSTANCE VARIABLES ***/
     // size of build slots
-    [SerializeField] internal float buildSlotSize = 1f;
+    [SerializeField] internal float buildSlotScale = 1f;
 
     // representation of piece being created
     internal byte pieceResolution;
@@ -26,6 +26,9 @@ public class PieceCreationHandler : ProcessHandler<PieceCreationHandler>
 
 
     /*** INSTANCE PROPERTIES ***/
+    // size of build slots
+    internal float BuildSlotSize { get => buildSlotScale * 10; }
+
     // virtual board used in the creation of this piece 
     internal VirtualBoard<PieceBuildingSlot> VirtualBoardUsed { get; set; }
 
@@ -49,7 +52,7 @@ public class PieceCreationHandler : ProcessHandler<PieceCreationHandler>
         pieceResolution = pceRes;
         pieceBeingMadeRep = PosInfo.NothingMatrix(pceRes, pceRes);
 
-        return BoardInfo.DefaultBoard(pceRes, pceRes, buildSlotSize, 0.1f, creationSquareColour);
+        return BoardInfo.DefaultBoard(pceRes, pceRes, BuildSlotSize, 0.1f, creationSquareColour);
     }
 
 }

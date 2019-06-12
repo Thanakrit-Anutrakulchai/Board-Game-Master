@@ -21,12 +21,12 @@ public static class SpatialConfigs // TODO init at start ?
     /*** STATIC PROPERTIES ***/
     // default location for spawning boards based on other variables specified
     // this is the center of the board
-    internal static Vector3 commonBoardSpawn 
+    internal static Vector3 commonBoardOrigin 
     {
         get 
         {
             return commonCameraPosition - 
-                        new Vector3(0f, -defaultBoardDistBelowCamera, 0f);
+                        new Vector3(0f, defaultBoardDistBelowCamera, 0f);
         }
     }
 

@@ -7,7 +7,7 @@ public static class ByteExtensions
     /*** EXTENSIONS METHODS ***/
     // ensures that addition of two bytes is still within range to be a byte
     //  that is, returns true and result = b1 + b2 if their sum <= 255
-    //  otherwise, returns false 
+    //  otherwise, returns false (and 255 for result) 
     public static bool AddCheck(this byte b1, byte b2, out byte result)
     {
         int sum = b1 + b2;

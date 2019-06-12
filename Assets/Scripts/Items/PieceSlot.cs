@@ -7,7 +7,7 @@ public abstract class PieceSlot : MonoBehaviour
     // fixed variables determining size and position of cube spawned
     protected static readonly Vector3 spawnOffset = new Vector3(0, 0, 0);
     // default cube size: 1x1x1, default plane size:10x10
-    protected const int relScale = 10;
+    protected const float relScale = 10f;
 
 
 
@@ -24,7 +24,7 @@ public abstract class PieceSlot : MonoBehaviour
     internal byte boardRow;
     internal byte boardCol;
 
-    // virtual board this piece spawn slot is in
+    // virtual board this piece spawn slot is in (if it is)
     //   only one of these two will be used for a certain slot type
     private VirtualBoard<PieceBuildingSlot> virtualBoardBuild;
     private VirtualBoard<PieceSpawningSlot> virtualBoardSpawn;

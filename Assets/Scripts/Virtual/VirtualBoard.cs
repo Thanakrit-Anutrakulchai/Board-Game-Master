@@ -6,7 +6,7 @@ using UnityEngine.Events;
 /// <summary>
 /// A class for handling boards tiled by spawning slots
 /// </summary>
-public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
+public class VirtualBoard<Slot> where Slot : PieceSlot
 {
     // TODO remove unnecessary variables and use handlers (later)
     /*** INSTANCE VARIABLES ***/
@@ -54,11 +54,15 @@ public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
     internal VirtualBoard(BoardInfo startBoard, List<PieceInfo> pces, byte subsq, 
                           Slot template, UnityAction<VirtualBoard<Slot>, byte, byte> handler) 
     {
+        slots = new List<Slot>[startBoard.NumOfRows, startBoard.NumOfCols];
+        slots.FillWith((i, j) => new List<Slot>());
+
         info = startBoard;
         pieces = pces;
         slotsPerSide = subsq;
         slotTemplate = template;
-        onClickHandler = handler;
+        otherObjsOnBoard = new List<Object>();
+        onClickHandler = handler;   
     }
 
 
@@ -87,10 +91,11 @@ public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
     internal void SpawnBoard(Vector3 centrePos) 
     {
         Vector3 start = info.BottomLeft + centrePos;
+        float slotSize = info.SquareSize / slotsPerSide;
+        float slotScale = slotSize / 10f;
 
         // tiles and assigns appropriate variables to piece spawning slots
-        float slotSize = (info.SquareSize / 10) / slotsPerSide;
-        Utility.TileAct(start, slotTemplate.gameObject, slotSize,
+        Utility.TileAct(start, slotTemplate.gameObject, slotScale,
             info.NumOfRows, info.NumOfCols, slotsPerSide,
             info.GapSize,
             (slot, boardR, boardC, pieceR, pieceC) =>
@@ -102,7 +107,7 @@ public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
                 slotScr.pieceCol = pieceC;
                 slotScr.boardRow = boardR;
                 slotScr.boardCol = boardC;
-                slotScr.SetVirtualBoard(this);
+                slotScr.SetVirtualBoard(this); 
 
                 
 
@@ -135,14 +140,14 @@ public class VirtualBoard<Slot> : MonoBehaviour where Slot : PieceSlot
     { 
         foreach (List<Slot> sq in slots) 
         {
-            sq.ForEach((obj) => Destroy(obj.gameObject));
+            sq.ForEach((obj) => Object.Destroy(obj.gameObject));
         }
 
         foreach (Object obj in otherObjsOnBoard) 
         { 
             if (obj != null) // guard against objects already destroyed
             {
-                Destroy(obj);
+                Object.Destroy(obj);
             }
         }
     }

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 internal sealed class MakeWinCond : Process<MakeWinCond>, IAssociatedState<Object, Object>
 {
     /*** INSTANCE VARIABLES ***/
-    [SerializeField] internal readonly Canvas canvas;
+    [SerializeField] internal Canvas canvas;
     //TODO
 
         

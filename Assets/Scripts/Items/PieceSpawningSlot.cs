@@ -10,6 +10,14 @@ using System.Collections.Generic;
 //   an entire piece
 public class PieceSpawningSlot : PieceSlot
 {
+    /*** INSTANCE VARIABLES ***/
+    // holo board this piece slot is in (if it is)
+    private VirtualHoloBoard holoBoard;
+
+
+
+
+
     /*** CONSTRUCTORS ***/
     internal PieceSpawningSlot(byte pieceR, byte pieceC, byte boardR, byte boardC) 
         : base(pieceR, pieceC, boardR, boardC) // this calls the parent constructor
@@ -20,10 +28,32 @@ public class PieceSpawningSlot : PieceSlot
 
 
     /*** INSTANCE METHODS ***/
+    // returns the holo board associated with this piece spawning slot
+    internal VirtualHoloBoard GetHoloBoard() 
+    {
+        return holoBoard;
+    } 
+
+    // called from virtual board this is in (if it is) when the associated square changes
     internal override void OnUpdate() 
     {
         Spawn();
     }
+
+
+
+    // called from holo board this is in (if it is) when the associated square changes
+    internal void OnUpdateHolo()
+    {
+        VirtualHoloBoard holoBrd = GetHoloBoard();
+        PosInfo[,] visRep = 
+            PosInfo.Overlay(holoBrd.boardRepresentation[boardRow, boardCol], 
+                            holoBrd.hologramResolution);
+
+        Spawn(visRep, out PieceCubePlayMode cubeMade); 
+    }
+
+
 
     // Decides what to do when clicked based on current game state
     // If in process of making board, place selected piece on board
@@ -36,7 +66,18 @@ public class PieceSpawningSlot : PieceSlot
         Debug.Log("ROW POS. OF SQUARE CLICKED: " + boardRow);
         Debug.Log("COLUMN POS. OF SQUARE CLICKED: " + boardCol);
 
-        GetVirtualBoard<PieceSpawningSlot>().OnSquareClicked(boardRow, boardCol);
+        // update boards this slot is in
+        VirtualBoard<PieceSpawningSlot> vboard = GetVirtualBoard<PieceSpawningSlot>();
+        if (vboard != null)
+        {
+            vboard.OnSquareClicked(boardRow, boardCol);
+        }
+
+        VirtualHoloBoard hboard = GetHoloBoard();
+        if (hboard != null)
+        {
+            hboard.OnSquareClicked(boardRow, boardCol);
+        }
 
 
         /*
@@ -92,6 +133,13 @@ public class PieceSpawningSlot : PieceSlot
 
     }
 
+
+
+    // assigns a holo board to this piece spawning slot
+    internal void SetHoloBoard(VirtualHoloBoard holoBrd) 
+    {
+        holoBoard = holoBrd;
+    }
 
 
 

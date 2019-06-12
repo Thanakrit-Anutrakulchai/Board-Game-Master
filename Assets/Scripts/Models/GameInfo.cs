@@ -23,7 +23,7 @@ public class GameInfo
 
     /*** INSTANCE VARIABLES ***/
     // number of players
-    public readonly byte numberOfPlayers;
+    public readonly byte numOfPlayers;
 
     // player who gets to play at the start of the game
     public readonly byte startingPlayer;
@@ -84,12 +84,17 @@ public class GameInfo
 
 
     /*** CONSTRUCTORS ***/
-    internal GameInfo(BoardInfo brdStrt, List<PieceInfo> pcs,
+    internal GameInfo(BoardInfo brdStrt, List<PieceInfo> pcs, byte pceRes,
+                      byte numPlayers, byte startPlayer,
                       Dictionary<byte, Dictionary<byte, List<RuleInfo>>> rls, 
                       List<Tuple<byte[,], byte>> wnCnds)
     { 
         boardAtStart = brdStrt;
         pieces = pcs;
+        pieceResolution = pceRes;
+        numOfPieces = (byte) pcs.Count;
+        numOfPlayers = numPlayers;
+        startingPlayer = startPlayer;
         rules = rls;
         winConditions = wnCnds;
     }

@@ -5,10 +5,10 @@ using UnityEngine.UI;
 internal sealed class MakePiece : Process<MakePiece>, IAssociatedState<GameCreationHandler, PieceInfo>
 {
     /*** INSTANCE VARIABLES ***/
-    [SerializeField] internal readonly Canvas canvas;
+    [SerializeField] internal Canvas canvas;
 
-    [SerializeField] internal readonly Button doneButton;
-    [SerializeField] internal readonly InputField nameInput;
+    [SerializeField] internal Button doneButton;
+    [SerializeField] internal InputField nameInput;
 
 
 
@@ -34,7 +34,7 @@ internal sealed class MakePiece : Process<MakePiece>, IAssociatedState<GameCreat
             (
                 creationSquare,
                 gameHandler.pieces,
-                gameHandler.pieceResolution,
+                1,
                 Prefabs.GetPrefabs().pieceBuildingSlot,
                 (brd, r, c) => 
                 {
@@ -53,7 +53,8 @@ internal sealed class MakePiece : Process<MakePiece>, IAssociatedState<GameCreat
                 }
             );
 
-        vBoard.SpawnBoard(SpatialConfigs.commonBoardSpawn);
+        pceHandler.VirtualBoardUsed = vBoard;
+        vBoard.SpawnBoard(SpatialConfigs.commonBoardOrigin);
     }
 
 
@@ -63,6 +64,10 @@ internal sealed class MakePiece : Process<MakePiece>, IAssociatedState<GameCreat
     public PieceInfo OnLeaveState(IAssociatedStateEnter<PieceInfo> nextState)
     {
         PieceCreationHandler handler = PieceCreationHandler.GetHandler();
+
+        // destroys board displayed
+        handler.VirtualBoardUsed.DestroyBoard();
+
 
         // TODO add checks (alphanum with spaces, not too long)
         // gets user inputted name of piece 

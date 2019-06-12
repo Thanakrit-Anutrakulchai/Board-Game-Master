@@ -38,47 +38,29 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
 
 
     /*** INSTANCE METHODS ***/
-    // starts the process of playing a custom game 
-    internal void StartGame()
+    // starts the process of playing the custom game 
+    internal void StartGame(Game game)
     {
+        gameBeingPlayed = game;
+
+        Debug.Log("PIECE RES: " + game.Info.pieceResolution);
+
+        // generates virtual board for the game
+        VirtualBoard<PieceSpawningSlot> vboard = new VirtualBoard<PieceSpawningSlot>
+            ( 
+                game.Info.boardAtStart, 
+                game.Info.pieces, 
+                game.Info.pieceResolution, 
+                Prefabs.GetPrefabs().pieceSpawningSlot, 
+                (brd, r, c) => 
+                { 
+                    //TODO 
+                }
+            );
+
+        vboard.SpawnBoard(SpatialConfigs.commonBoardOrigin - game.Info.boardAtStart.BottomLeft);
+        VirtualBoardUsed = vboard;
         // TODO
-    }
-
-
-    // starts the game
-    internal void Play() 
-    {
-        // TODO
-
-        // retrievs game info, calculate where to start tiling
-        GameInfo gmInf = gameBeingPlayed.info;
-        BoardInfo startBoard = gmInf.boardAtStart;
-        Vector3 start = new Vector3(-startBoard.Width / 2, 10, -startBoard.Height / 2);
-
-        SetupHandler bh = 
-            this.gameObject.GetComponent<SetupHandler>();
-
-        float spawnSlotSize = (bh.BoardSquareSize/10) / gmInf.pieceResolution;
-
-        // tiles and assigns appropriate variables to piece spawning slots
-        Utility.TileAct(start, bh.pieceSpawningSlot, spawnSlotSize,
-            gmInf.numOfRows, gmInf.numOfCols, gmInf.pieceResolution,
-            gmInf.boardAtStart.sizeOfGap,
-            (slot, boardR, boardC, pieceR, pieceC) =>
-            {
-                // assigns variables
-                PieceSpawningSlot spawnSlotScr =
-                    slot.GetComponent<PieceSpawningSlot>();
-                spawnSlotScr.game = gameBeingPlayed;
-                spawnSlotScr.rowPos = pieceR;
-                spawnSlotScr.colPos = pieceC;
-                spawnSlotScr.boardRow = boardR;
-                spawnSlotScr.boardCol = boardC;
-                spawnSlotScr.Spawn();
-
-                // adds object to list of item to destroy after creation process
-                Utility.objsToDelete.Add(slot);
-            });
     }
 
 

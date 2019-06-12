@@ -2,7 +2,7 @@
 
 // collection of objects used throughout the course of the program,
 //   objects to be declared in the inspector
-public class Prefabs
+public class Prefabs : MonoBehaviour
 {
     /*** INSTANCE VARIABLES ***/
     /** Unity Objects **/

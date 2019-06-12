@@ -5,10 +5,10 @@ using UnityEngine.UI;
 internal sealed class PlayGame : Process<PlayGame>, IAssociatedState<Game, Object>
 {
     /*** INSTANCE VARIABLES ***/
-    [SerializeField] internal readonly Canvas canvas;
+    [SerializeField] internal Canvas canvas;
 
-    [SerializeField] internal readonly Text curPlayerText;
-    [SerializeField] internal readonly ScrollRect movesScrView;
+    [SerializeField] internal Text curPlayerText;
+    [SerializeField] internal ScrollRect movesScrView;
 
 
 
@@ -23,10 +23,12 @@ internal sealed class PlayGame : Process<PlayGame>, IAssociatedState<Game, Objec
 
 
 
-    public void OnEnterState(IAssociatedStateLeave<Game> previousState, Game args)
+    public void OnEnterState(IAssociatedStateLeave<Game> previousState, Game game)
     {
         // TODO
-        throw new System.NotImplementedException();
+        GamePlayHandler gameHandler = GamePlayHandler.GetHandler();
+
+        gameHandler.StartGame(game);
     }
 
 

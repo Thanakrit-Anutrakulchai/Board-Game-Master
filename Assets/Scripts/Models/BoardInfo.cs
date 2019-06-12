@@ -54,12 +54,12 @@ public class BoardInfo
         }
     }
 
-    // bottom left corner of the board
+    // vector bottom left corner of the board (projected onto plane y=0)
     public Vector3 BottomLeft 
     { 
         get 
         {
-            return new Vector3(-Width/2, SpatialConfigs.HeightOfBoard, -Height/2);
+            return new Vector3(-Width/2, 0, -Height/2);
         }
     }
 
