@@ -36,7 +36,7 @@ public class Utility : MonoBehaviour
     }
 
     // overloads CreateButton to be able to take an action with no parameters
-    public static Button CreateButton(Button template, Component location,
+    internal static Button CreateButton(Button template, Component location,
                                       string text, UnityAction action)
     {
         return CreateButton(template, location, text, (_) => action);
@@ -45,7 +45,7 @@ public class Utility : MonoBehaviour
 
 
     // clears and recreates games folder, REMOVES ALL SAVED GAMES!!!
-    public static void DeleteAllSavedGames()
+    internal static void DeleteAllSavedGames()
     {
         // recreates directory if it is not there
         Directory.CreateDirectory(ProgramData.gamesFolderPath);

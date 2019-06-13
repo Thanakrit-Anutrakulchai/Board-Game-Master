@@ -22,6 +22,9 @@ public class GameInfo
 
 
     /*** INSTANCE VARIABLES ***/
+    // the name of the game
+    public readonly string name;
+
     // number of players
     public readonly byte numOfPlayers;
 
@@ -95,7 +98,52 @@ public class GameInfo
         numOfPieces = (byte) pcs.Count;
         numOfPlayers = numPlayers;
         startingPlayer = startPlayer;
+
         rules = rls;
+        for (byte plyr = 0; plyr < numPlayers; plyr++) 
+        { 
+            if (!rules.ContainsKey(plyr)) 
+            {
+                rules.Add(plyr, new Dictionary<byte, List<RuleInfo>>());
+            }
+            Dictionary<byte, List<RuleInfo>> theirMoves = rules[plyr];
+
+            // for clicking on board and panel rules
+            if (!theirMoves.ContainsKey(PieceInfo.noPiece)) 
+            {
+                theirMoves.Add(PieceInfo.noPiece, new List<RuleInfo>());
+            }
+            List<RuleInfo> clickBoardRules = theirMoves[PieceInfo.noPiece];
+            if (clickBoardRules == null) 
+            {
+                theirMoves[PieceInfo.noPiece] = new List<RuleInfo>();
+            }
+
+            if (!theirMoves.ContainsKey(PieceInfo.noSquare)) 
+            {
+                theirMoves.Add(PieceInfo.noSquare, new List<RuleInfo>());
+            }
+            List<RuleInfo> panelRules = theirMoves[PieceInfo.noSquare];
+            if (panelRules == null)
+            {
+                theirMoves[PieceInfo.noSquare] = new List<RuleInfo>();
+            }
+
+            // on click pieces
+            for (byte pce = 0; pce < pcs.Count; pce++) 
+            { 
+                if (!theirMoves.ContainsKey(pce)) 
+                {
+                    theirMoves.Add(pce, new List<RuleInfo>());
+                }
+                List<RuleInfo> triggeredRules = theirMoves[pce];
+                if (triggeredRules == null) 
+                {
+                    theirMoves[pce] = new List<RuleInfo>();
+                }
+            }
+        } // end double for loop, filling nulls in rules
+
         winConditions = wnCnds;
     }
 

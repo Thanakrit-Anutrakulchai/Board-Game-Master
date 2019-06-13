@@ -26,7 +26,7 @@ public static class UIExtensions
     /// <param name="uncleared">Objects that will not be cleared from the scroll view</param>
     /// <typeparam name="T">type of objects to be destroyed</typeparam>
     public static void Clear<T>(this ScrollRect scrView, List<T> uncleared)
-        where T : UnityEngine.Object // equivalent syntax in java is: <T extends Object>
+        where T : MonoBehaviour // equivalent syntax in java is: <T extends ...>
     {
         RectTransform content = scrView.content;
         if (content == null) // guard against null 
@@ -38,7 +38,7 @@ public static class UIExtensions
         { 
             if (!uncleared.Contains(element)) 
             {
-                UnityEngine.Object.Destroy(element);
+                UnityEngine.Object.Destroy(element.gameObject);
             }
         }
     }
@@ -47,13 +47,13 @@ public static class UIExtensions
 
     // above method overloaded to work with one exception without generating a list
     public static void Clear<T>(this ScrollRect scrView, T uncleared)
-        where T : UnityEngine.Object // equivalent syntax in java is: <T extends Object>
+        where T : MonoBehaviour // equivalent syntax in java is: <T extends ...>
     {
         foreach (T element in scrView.GetComponentsInChildren<T>())
         {
             if (!uncleared.Equals(element))
             {
-                UnityEngine.Object.Destroy(element);
+                UnityEngine.Object.Destroy(element.gameObject);
             }
         }
     }

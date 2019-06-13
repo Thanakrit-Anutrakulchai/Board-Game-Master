@@ -117,6 +117,11 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
                 () => Transition(ChooseRuleArea, MakeRule)
             );
 
+        MakeRule.doneButton.onClick.AddListener
+            (
+                () => Transition(MakeRule, MakeGame)
+            );
+
 
 
         // TODO Move these to the ProgramStates classes

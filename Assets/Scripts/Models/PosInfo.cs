@@ -57,6 +57,7 @@ public abstract class PosInfo
 
 
 
+
     /*** STATIC METHODS ***/
     // addition of PosInfo according to these rules:
     //   thing1 + nothing = thing1
@@ -80,7 +81,7 @@ public abstract class PosInfo
                         rgba1.alpha.AddCheck(rgba2.red, out byte alpha);
                         return new RGBWithAlpha(red, green, blue, alpha);
                     case RGBData rgb2:
-                        return rgba1 + p2;
+                        return rgba1 + new RGBWithAlpha(rgb2.red, rgb2.green, rgb2.blue, 255);
                     case Nothing n2:
                         return p1;
                     default:

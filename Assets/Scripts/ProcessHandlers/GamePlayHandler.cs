@@ -19,7 +19,7 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
 
     /*** INSTANCE VARIABLES ***/
     // congratulatory text for the winner(s) 
-    private Text congratulatoryText;
+    //private Text congratulatoryText;
 
     // the game currently being played 
     internal Game gameBeingPlayed;
@@ -31,7 +31,7 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
 
     /*** INSTANCE PROPERTIES ***/
     // virtual board encoding data about game board
-    VirtualBoard<PieceSpawningSlot> VirtualBoardUsed { get; set; }
+    internal VirtualBoard<PieceSpawningSlot> VirtualBoardUsed { get; set; }
 
 
 
@@ -53,22 +53,62 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
                 game.Info.pieceResolution, 
                 Prefabs.GetPrefabs().pieceSpawningSlot, 
                 (brd, r, c) => 
-                { 
-                    //TODO 
+                {
+                    byte curPlayer = gameBeingPlayed.currentPlayer;
+                    byte pceClicked =
+                        gameBeingPlayed
+                            .boardState
+                            .BoardStateRepresentation[r, c];
+
+                    List<RuleInfo> rules = 
+                        gameBeingPlayed.Info
+                                       .rules[curPlayer][pceClicked];
+
+                    Debug.Log("NUMBER OF TRIGGERED RULES: " + rules.Count);
+
+                    PlayGame playGame = PlayGame.GetProcess();
+                    // clear old rules listed on panel
+                    playGame.movesScrView.Clear(playGame.moveButtonTemplate);
+
+                    foreach (RuleInfo rule in rules)    
+                    {
+                        List<Game> possibleGames = rule.Apply(gameBeingPlayed, r, c);
+
+                        // dont display non-applicable rules
+                        if (possibleGames.Count == 0) 
+                        {
+                            continue;
+                        }
+
+                        Utility.CreateButton
+                            (
+                                playGame.moveButtonTemplate,
+                                playGame.movesScrView.content, 
+                                rule.name, 
+                                delegate 
+                                {
+                                    // for now, only allow first state
+                                    gameBeingPlayed = possibleGames[0];
+                                    VirtualBoardUsed.RefreshSquare(r, c);
+                                    NextTurn(rule.nextPlayer);
+                                }
+                            );
+                    }
                 }
             );
 
-        vboard.SpawnBoard(SpatialConfigs.commonBoardOrigin - game.Info.boardAtStart.BottomLeft);
+        vboard.SpawnBoard(SpatialConfigs.commonBoardOrigin);
         VirtualBoardUsed = vboard;
-        // TODO
+
+        NextTurn(gameBeingPlayed.Info.startingPlayer);
     }
 
 
 
     // moves onto the next turn of the game
-    public void NextTurn() 
+    public void NextTurn(byte player) 
     {
-        //TODO 
+        gameBeingPlayed.currentPlayer = player;
 
         List<byte> winners = new List<byte>();
         // check if game has been won 
@@ -82,7 +122,10 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
         }
 
         // TODO ask whether multiple winners is a TIE or all wins or what
-        GameEnded(winners);
+        if (winners.Count > 0)
+        {
+            GameEnded(winners);
+        }
     }
 
 
@@ -103,19 +146,19 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
         // declare that no one has won... if no one has won
         if (winners.Count == 0) 
         {
-            congratulatoryText.text = 
-                "Oh no! No one has won!";
+            Debug.Log(
+                "Oh no! No one has won!");
         } 
         else if (winners.Count == 1) // if there is 1 clear winner, annouce it
         {
-            congratulatoryText.text = 
-                "The game has ended! The winner is: Player No." + winners[0];
+            Debug.Log(
+                "The game has ended! The winner is: Player No." + winners[0]);
         }
         else // list all of the winners 
         {
             // TODO 
-            congratulatoryText.text = 
-                "The game has ended! Multiple people won!";
+            Debug.Log(
+                "The game has ended! Multiple people won!");
         }
     }
 }

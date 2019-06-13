@@ -13,12 +13,16 @@ internal sealed class MakeRule : Process<MakeRule>,
     /*** INSTANCE VARIABLES ***/
     [SerializeField] internal Canvas canvas;
 
+    [SerializeField] internal Button allPiecesButton;
     [SerializeField] internal Button doneButton;
+    [SerializeField] internal Button noPieceButton;
     [SerializeField] internal Button removePieceButton;
+    [SerializeField] internal Button unaffectedButton;
     [SerializeField] internal Button pieceButtonTemplate;
     [SerializeField] internal Button setTriggerPieceButton;
     [SerializeField] internal Button toggleBeforeAfterButton;
     [SerializeField] internal Button togglePanelTriggerButton;
+    [SerializeField] internal InputField nameInput;
     [SerializeField] internal ScrollRect selectPieceScrView;
 
 
@@ -49,8 +53,22 @@ internal sealed class MakeRule : Process<MakeRule>,
 
     public RuleInfo OnLeaveState(IAssociatedStateEnter<RuleInfo> nextState)
     {
-        // TODO
-        throw new NotImplementedException();
+        RuleCreationHandler ruleHandler = RuleCreationHandler.GetHandler();
+
+        // destroys board displayed
+        if (ruleHandler.SettingBoardAfter) 
+        {
+            ruleHandler.HoloBoardAfter.DestroyBoard();
+        }
+        else 
+        {
+            ruleHandler.HoloBoardBefore.DestroyBoard();
+        }
+
+        // TODO add checks
+        string rlNm = nameInput.GetComponentInChildren<Text>().text;
+        RuleInfo ruleMade = ruleHandler.FinalizeRule(rlNm);
+        return ruleMade;
     }
 
 
@@ -72,11 +90,16 @@ internal sealed class MakeRule : Process<MakeRule>,
                             btn.GetComponent<Image>().color = Color.white;
                         }
                     );
+
                     removePieceButton.GetComponent<Image>().color = Color.white;
                     setTriggerPieceButton.GetComponent<Image>().color = Color.white;
+                    allPiecesButton.GetComponent<Image>().color = Color.white;
+                    noPieceButton.GetComponent<Image>().color = Color.white;
+                    unaffectedButton.GetComponent<Image>().color = Color.white;
 
                     // highlights chosen
-                    if (scrView.GetChosenItem<Button>(out Button chosen))
+                    if (scrView.GetChosenItem<Button>(out Button chosen) && 
+                        chosen != null)
                     {
                         chosen.GetComponent<Image>().color =
                             RuleCreationHandler.selectedPieceColour;
@@ -84,7 +107,6 @@ internal sealed class MakeRule : Process<MakeRule>,
                     else 
                     {
                         // TODO
-                        throw new System.NotImplementedException("ADD CHECK");
                     }
                 }
             );
@@ -105,7 +127,7 @@ internal sealed class MakeRule : Process<MakeRule>,
             byte indexAssocPiece = index;
             PieceInfo pce = gameHandler.pieces[index];
 
-            // creaets a button tagged with the piece name and attach it to scrollView
+            // creates a button tagged with the piece name and attach it to scrollView
             Button pceButton =
                 Utility.CreateButton(pieceButtonTemplate, selectPieceScrView.content,
                 pce.pieceName,
@@ -118,16 +140,46 @@ internal sealed class MakeRule : Process<MakeRule>,
                     Debug.Log("INDEX OF PIECE SELECTED: " + indexAssocPiece);
 
                     // notifies board creation handler
-                    ruleHandler.PieceSelected = indexAssocPiece;
+                    ruleHandler.PieceSelected =
+                        new RuleCreationHandler
+                                .PieceSelection
+                                .OnePiece(indexAssocPiece);
+                               
                 });
         }
 
+
+        // places all the pieces on square clicked
+        allPiecesButton.onClick.AddListener
+            (delegate
+            {
+                ruleHandler.PieceSelected =
+                    new RuleCreationHandler.PieceSelection
+                                           .AllPieces();
+
+                // highlights button
+                selectPieceScrView.SetChosenItem(allPiecesButton);
+
+            });
+
+        // only applicable if there is NOT a piece there
+        noPieceButton.onClick.AddListener
+            (delegate
+            {
+                ruleHandler.PieceSelected =
+                    new RuleCreationHandler.PieceSelection
+                                           .NoPiece();
+
+                selectPieceScrView.SetChosenItem(noPieceButton);
+            });
 
         // change piece selected when clicked
         removePieceButton.onClick.AddListener
             (delegate 
             {
-                ruleHandler.PieceSelected = PieceInfo.noPiece;
+                ruleHandler.PieceSelected =
+                    new RuleCreationHandler.PieceSelection
+                                           .RemovePiece();
 
                 // highlights button
                 selectPieceScrView.SetChosenItem(removePieceButton);
@@ -170,13 +222,13 @@ internal sealed class MakeRule : Process<MakeRule>,
 
                     if (ruleHandler.SettingBoardAfter) // if setting after state
                     {
-                        toggleBeforeAfterButton.GetComponent<Text>().text =
-                            "SET AREA BEFORE APPLYING RULE";
+                        toggleBeforeAfterButton.GetComponentInChildren<Text>().text =
+                            "SET AREA BEFORE";
                     }
                     else // if setting before state
                     {
-                        toggleBeforeAfterButton.GetComponent<Text>().text =
-                            "SET ARE AFTER APPLYING RULE"; 
+                        toggleBeforeAfterButton.GetComponentInChildren<Text>().text =
+                            "SET AREA AFTER"; 
                     }
                 }
             );
@@ -192,15 +244,26 @@ internal sealed class MakeRule : Process<MakeRule>,
 
                     if (ruleHandler.MakingTriggerRule) 
                     {
-                        togglePanelTriggerButton.GetComponent<Text>().text =
+                        togglePanelTriggerButton.GetComponentInChildren<Text>().text =
                             "CHANGE TO PANEL RULE";
                     }
                     else 
                     {
-                        togglePanelTriggerButton.GetComponent<Text>().text =
+                        togglePanelTriggerButton.GetComponentInChildren<Text>().text =
                             "CHANGE TO TRIGGER RULE";
                     }
                 }
             );
+
+        // changes square selected to become unaffected
+        unaffectedButton.onClick.AddListener
+            (delegate
+            {
+                ruleHandler.PieceSelected =
+                    new RuleCreationHandler.PieceSelection
+                                           .Unaffected();
+
+                selectPieceScrView.SetChosenItem(unaffectedButton);
+            });
     }
 }

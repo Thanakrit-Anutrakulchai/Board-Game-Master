@@ -50,7 +50,12 @@ public class PieceSpawningSlot : PieceSlot
             PosInfo.Overlay(holoBrd.boardRepresentation[boardRow, boardCol], 
                             holoBrd.hologramResolution);
 
-        Spawn(visRep, out PieceCubePlayMode cubeMade); 
+        GetComponent<Renderer>().material.color = 
+            GetHoloBoard().boardColours[boardRow, boardCol];
+        if (Spawn(visRep, out PieceCubePlayMode cubeMade)) 
+        {
+            GetHoloBoard().otherObjsOnBoard.Add(cubeMade.gameObject);
+        } 
     }
 
 

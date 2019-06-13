@@ -109,7 +109,13 @@ public class GameCreationHandler : ProcessHandler<GameCreationHandler>
             );
 
         pieces = new List<PieceInfo>();
+
         rules = new Dictionary<byte, Dictionary<byte, List<RuleInfo>>>();
+        for (byte plyr = 0; plyr < numOfPlayers; plyr++) 
+        {
+            rules[plyr] = new Dictionary<byte, List<RuleInfo>>();
+        }
+        
         winConditions = new List<Tuple<byte[,], byte>>();
     }
 }
