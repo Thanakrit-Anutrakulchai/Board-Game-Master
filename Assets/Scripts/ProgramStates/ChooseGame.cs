@@ -29,6 +29,25 @@ internal sealed class ChooseGame : Process<ChooseGame>, IAssociatedState<UnityEn
 
 
 
+    /*** START ***/
+    // Add handlers to UI elements
+    private void Start()
+    {
+        // makes button do what it says it will -- it really will!
+        deleteAllGamesButton.onClick.AddListener
+            (
+                delegate
+                {
+                    Utility.DeleteAllSavedGames();
+                    chooseGameScrView.Clear(gameButtonTemplate);
+                }
+            );
+    }
+
+
+
+
+
     /*** INSTANCE METHODS ***/
     // Intro -> Choose Game
     public void OnEnterState(IAssociatedStateLeave<UnityEngine.Object> prevState, 
@@ -98,14 +117,5 @@ internal sealed class ChooseGame : Process<ChooseGame>, IAssociatedState<UnityEn
                 );
         } // finishes populating scroll view
 
-        // makes button do what it says it will -- it really will!
-        deleteAllGamesButton.onClick.AddListener
-            (
-                delegate
-                {
-                    Utility.DeleteAllSavedGames();
-                    chooseGameScrView.Clear(gameButtonTemplate);
-                }
-            );
     }
 }

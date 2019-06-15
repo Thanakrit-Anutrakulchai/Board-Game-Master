@@ -48,10 +48,10 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
         // generates virtual board for the game
         VirtualBoard<PieceSpawningSlot> vboard = new VirtualBoard<PieceSpawningSlot>
             ( 
-                game.Info.boardAtStart, 
-                game.Info.pieces, 
+                game.Info.boardAtStart.BoardStateRepresentation, 
                 game.Info.pieceResolution, 
-                Prefabs.GetPrefabs().pieceSpawningSlot, 
+                game.Info.boardAtStart.SquareSize,
+                game.Info.boardAtStart.GapSize,
                 (brd, r, c) => 
                 {
                     byte curPlayer = gameBeingPlayed.currentPlayer;
@@ -74,6 +74,7 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
                     {
                         List<Game> possibleGames = rule.Apply(gameBeingPlayed, r, c);
 
+                        Debug.Log("APPLICATION RESULTS: " + possibleGames.Count + " POSSIBLE GAMES");
                         // dont display non-applicable rules
                         if (possibleGames.Count == 0) 
                         {
@@ -89,7 +90,19 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
                                 {
                                     // for now, only allow first state
                                     gameBeingPlayed = possibleGames[0];
-                                    VirtualBoardUsed.RefreshSquare(r, c);
+                                    byte[,] brdState = gameBeingPlayed
+                                                        .boardState
+                                                        .BoardStateRepresentation;
+
+                                    // updates virtual board
+                                    VirtualBoardUsed.boardRepresentation =
+                                        gameBeingPlayed.Info
+                                                       .LinkVisRepTo(brdState);
+
+                                    // refresh all squares
+                                    VirtualBoardUsed.RefreshBoard();
+
+                                    // move onto next term
                                     NextTurn(rule.nextPlayer);
                                 }
                             );
@@ -108,14 +121,19 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
     // moves onto the next turn of the game
     public void NextTurn(byte player) 
     {
+        // clear previous moves 
+        PlayGame playGame = PlayGame.GetProcess();
+        playGame.movesScrView.Clear(playGame.moveButtonTemplate);
+
+        // update current player
         gameBeingPlayed.currentPlayer = player;
 
         List<byte> winners = new List<byte>();
         // check if game has been won 
-        foreach ((byte[,] state, byte winner) in gameBeingPlayed.Info.winConditions)
+        foreach (WinCondInfo winCond in gameBeingPlayed.Info.winConditions)
         {
             // player has won if there is a sub-structure of that type
-            if (state.IsSubMatrixOf(gameBeingPlayed.boardState.BoardStateRepresentation)) 
+            if ( winCond.Check(gameBeingPlayed, out byte winner) ) 
             {
                 winners.Add(winner);
             }

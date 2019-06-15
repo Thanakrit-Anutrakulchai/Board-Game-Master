@@ -55,7 +55,7 @@ public class GameInfo
     // win conditions
     //    the player (represented by byte) wins when a structure
     //    (represented by byte[,]) is found on the board
-    public readonly List<Tuple<byte[,], byte>> winConditions;
+    public readonly List<WinCondInfo> winConditions;
 
 
 
@@ -90,7 +90,7 @@ public class GameInfo
     internal GameInfo(BoardInfo brdStrt, List<PieceInfo> pcs, byte pceRes,
                       byte numPlayers, byte startPlayer,
                       Dictionary<byte, Dictionary<byte, List<RuleInfo>>> rls, 
-                      List<Tuple<byte[,], byte>> wnCnds)
+                      List<WinCondInfo> wnCnds)
     { 
         boardAtStart = brdStrt;
         pieces = pcs;
@@ -178,4 +178,24 @@ public class GameInfo
 
 
 
+    /*** INSTANCE VARIABLES ***/
+    // creates a "PosInfo[,][,] array-like obj" which updates when source is updated
+    internal Linked2D<byte, PosInfo[,]> LinkVisRepTo(byte[,] source)
+    {
+        return new Linked2D<byte, PosInfo[,]>
+            (
+                source,
+                (i) =>
+                {
+                    if (i == PieceInfo.noPiece)
+                    {
+                        return PosInfo.NothingMatrix(pieceResolution, pieceResolution);
+                    }
+                    else
+                    {
+                        return pieces[i].visualRepresentation;
+                    }
+                }
+            );
+    }
 }

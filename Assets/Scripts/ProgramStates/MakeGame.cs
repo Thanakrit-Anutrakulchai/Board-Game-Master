@@ -10,7 +10,7 @@ using System;
 // Items displayed on the MakeGame canvas 
 internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<DimensionsData>,
     IAssociatedStateEnter<BoardInfo>, IAssociatedStateEnter<PieceInfo>,
-    IAssociatedStateEnter<RuleInfo>,
+    IAssociatedStateEnter<RuleInfo>, IAssociatedStateEnter<WinCondInfo>,
     IAssociatedStateLeave<GameCreationHandler>, IAssociatedStateLeave<GameInfo>
 {
     /*** INSTANCE VARIABLES ***/
@@ -19,7 +19,7 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
     [SerializeField] internal Button makePieceButton;
     [SerializeField] internal Button makeBoardButton;
     [SerializeField] internal Button makeRuleButton;
-    [SerializeField] internal Button setWinCondButton;
+    [SerializeField] internal Button makeWinCondButton;
     [SerializeField] internal Button doneButton;
     [SerializeField] internal InputField nameInput;
 
@@ -109,6 +109,14 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
 
 
 
+    public void OnEnterState(IAssociatedStateLeave<WinCondInfo> previousState, 
+                             WinCondInfo winCondMade)
+    {
+        //
+    }
+
+
+
     public GameCreationHandler OnLeaveState(IAssociatedStateEnter<GameCreationHandler> nextState)
     {
         // TODO
@@ -136,5 +144,9 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
         // clears name input field
         nameInput.text = "";
     }
+
+
+
+
 
 }

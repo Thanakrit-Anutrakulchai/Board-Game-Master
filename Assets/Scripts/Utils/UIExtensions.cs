@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -100,6 +101,81 @@ public static class UIExtensions
             chosen = null;
             return false; // return false if failed
         }
+    }
+
+
+
+    // makes the scroll view highlights the chosen item the colour specified
+    //   unhighlights all other items of the same type, as well as extra ones provided
+    public static void HighlightOnlyChosen<T>(this ScrollRect scrView, 
+                                           List<T> toUnhighlight,
+                                           Color unhighlightColour,
+                                           Color highlightColour)
+        where T : UnityEngine.EventSystems.UIBehaviour
+    {
+        // unhighlights non chosen
+        scrView.ForEach<T>
+            (
+                (obj) => obj.GetComponent<Image>().color = unhighlightColour
+            );
+        toUnhighlight.ForEach((obj) => obj.GetComponent<Image>().color = unhighlightColour);
+
+        // highlights chosen
+        if (scrView.GetChosenItem(out T chosen) &&
+            chosen != null)
+        {
+            chosen.GetComponent<Image>().color = highlightColour;
+        }
+    }
+
+
+
+    // above overloaded with unhighlightColour set to white
+    public static void HighlightOnlyChosen<T>(this ScrollRect scrView,
+                                           List<T> toUnhighlight,
+                                           Color highlightColour)
+        where T : UnityEngine.EventSystems.UIBehaviour
+    {
+        scrView.HighlightOnlyChosen(toUnhighlight, Color.white, highlightColour);
+    }
+
+
+
+    // clears and then populates scroll view with button
+    //   based on template provided, is set to Chosen item when clicked,
+    //   applies act(buttonMade, index) afterwards
+    public static void RepopulatePieceButtons(this ScrollRect scrView, 
+                                              Button template,
+                                              UnityAction<Button, byte> act)
+    {
+        GameCreationHandler gameHandler = GameCreationHandler.GetHandler();
+
+
+        // clears all old visible button on scroll view (except template)
+        scrView.Clear(template);
+
+        // populates the scroll view with buttons labeled with piece names
+        for (byte index = 0; index<gameHandler.pieces.Count; index++)
+        {
+            // index of the associated piece 
+            //  index should not be used directly in delegate, as it *will* change
+            //  after this iteration of the loop ends
+            // index and indexAssocPiece are kind of like up'value's in Lua
+            byte indexAssocPiece = index;
+            PieceInfo pce = gameHandler.pieces[index];
+
+            // creates a button tagged with the piece name and attach it to scrollView
+            Utility.CreateButton(template, scrView.content,
+            pce.pieceName,
+            (btn) => delegate
+            {
+                scrView.SetChosenItem(btn);
+                // TODO TEMP DEBUG
+                // index of piece selected
+                Debug.Log("INDEX OF PIECE SELECTED: " + indexAssocPiece);
+                act(btn, indexAssocPiece);
+        });
+}
     }
 
 

@@ -180,7 +180,9 @@ public class RuleInfo
                     {
                         // only activates if change is a SquareChange.Changed
                         case SquareChange.Changed sqChng: 
-                            if (!sqChng.pieceChangedFrom.Contains(pce)) 
+                            if (!sqChng.pieceChangedFrom.Contains(pce) &&
+                                !(sqChng.pieceChangedFrom.Count == 0 && 
+                                  pce == PieceInfo.noPiece)) 
                             {
                                 // piece here is incompatible with rule
                                 // -> rule cannot be applied -> no resulting state

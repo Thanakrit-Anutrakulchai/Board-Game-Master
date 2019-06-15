@@ -5,11 +5,11 @@ public static class ArrayExtensions
 {
     /*** EXTENSION METHODS ***/
     // replace all 'null' elements in a 2D array with value provided by supplier
-    public static void FillWith<T>(this T[,] arr, Func<int, int, T> supplier) 
-    { 
-        for (int i = 0; i < arr.GetLength(0); i++) 
-        { 
-            for (int j = 0; j < arr.GetLength(1); j++) 
+    public static void FillWith<T>(this T[,] arr, Func<int, int, T> supplier)
+    {
+        for (int i = 0; i < arr.GetLength(0); i++)
+        {
+            for (int j = 0; j < arr.GetLength(1); j++)
             {
                 if (arr[i, j] == null) // never true for value types (?)
                 {
@@ -73,10 +73,36 @@ public static class ArrayExtensions
 
 
 
-    public static bool IsSubMatrixOf<T>(this T[,] littleArr, T[,] bigArr) 
+    public static bool IsSubMatrixOf<T>(this T[,] littleArr, T[,] bigArr)
+        where T : IEquatable<T>
     {
-        // TODO 
-        throw new System.NotImplementedException("Should find fast approach");
+        // TODO MAKE THIS FASTER
+        int lengthDiff0 = bigArr.GetLength(0) - littleArr.GetLength(0);
+        int lengthDiff1 = bigArr.GetLength(1) - littleArr.GetLength(1);
+        for (int i = 0; i <= lengthDiff0; i++) 
+        { 
+            for (int j = 0; j <= lengthDiff1; j++) 
+            {
+                bool shownDifferent = false;
+                for (int r = 0; r < littleArr.GetLength(0); r++) 
+                { 
+                    for (int c = 0; c < littleArr.GetLength(1); c++) 
+                    { 
+                        if (littleArr[r, c].Equals(bigArr[i+r, j+c])) 
+                        {
+                            shownDifferent = true;
+                        }
+                    }
+                } // end of inner double for loop, checking one subarr spot
+
+                if (!shownDifferent) 
+                {
+                    return true;
+                }
+            }
+        } // end of quad for loop, checking all subarr spots
+
+        return false;
     }
 
 

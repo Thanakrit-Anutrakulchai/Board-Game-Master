@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -44,10 +43,14 @@ public class RuleCreationHandler : ProcessHandler<RuleCreationHandler>
 
     // colour of the set trigger piece button when in process of selecting one
     internal static Color setTriggerTrueColour =
-        new Color(44 / 255f, 44 / 255f, 44 / 255f, 1);
+        new Color(44 / 255f, 44 / 255f, 200 / 255f, 1);
 
     // colour of the set trigger piece button when not selecting one
     internal static Color setTriggerFalseColour = Color.white;
+
+    // colour of the square the trigger piece is on
+    internal static Color triggerPieceColour =
+        new Color(20 / 255f, 20 / 255f, 200/ 255f, 0.8f);
 
     // colour of the unaffected holographic squares
     internal static Color unaffectedSquareColour =
@@ -301,10 +304,20 @@ public class RuleCreationHandler : ProcessHandler<RuleCreationHandler>
                                     triggerPiece = from[0];
                                     triggerRow = r;
                                     triggerCol = c;
+
+                                    HoloBoardBefore.boardColours[r, c] =
+                                        triggerPieceColour;
+                                }
+                                else if (from.Count == 0) // when board clicked
+                                {
+                                    triggerPiece = PieceInfo.noPiece;
+                                    triggerRow = r;
+                                    triggerCol = c;
                                 }
                                 else 
-                                { 
-                                    // TODO say no
+                                {
+                                    // TODO add check and complain
+                                    throw new System.NotSupportedException("TODO");
                                 }
                                 break;
 
@@ -465,10 +478,17 @@ public class RuleCreationHandler : ProcessHandler<RuleCreationHandler>
                 break;
 
             case RuleInfo.SquareChange.Changed changed:
-                areaAfterRep[r, c] = new List<PosInfo[,]>
+                if (changed.pieceChangedTo == PieceInfo.noPiece)
                 {
-                    gh.pieces[changed.pieceChangedTo].visualRepresentation
-                };
+                    areaAfterRep[r, c] = new List<PosInfo[,]>();
+                }
+                else
+                {
+                    areaAfterRep[r, c] = new List<PosInfo[,]>
+                    {
+                        gh.pieces[changed.pieceChangedTo].visualRepresentation
+                    };
+                }
                 break;
 
             default:

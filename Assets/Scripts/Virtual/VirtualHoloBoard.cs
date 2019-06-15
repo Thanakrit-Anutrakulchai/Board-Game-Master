@@ -144,6 +144,10 @@ public class VirtualHoloBoard
         float sideLength = AreaSize * squareSize + (AreaSize - 1) * squareSize * gapSize;
         Vector3 bottomLeft = new Vector3(-sideLength / 2f, 0f, -sideLength / 2f);
 
+        float subSlotSize = squareSize / hologramResolution;
+        bottomLeft.x += subSlotSize / 2;
+        bottomLeft.z += subSlotSize / 2;
+        
         Vector3 start = bottomLeft + centrePos;
 
         // tiles and assigns appropriate variables to piece spawning slots

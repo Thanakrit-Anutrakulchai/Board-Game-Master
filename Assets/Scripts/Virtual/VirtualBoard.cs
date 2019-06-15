@@ -6,8 +6,19 @@ using UnityEngine.Events;
 /// <summary>
 /// A class for handling boards tiled by spawning slots
 /// </summary>
-public class VirtualBoard<Slot> where Slot : PieceSlot
+public class VirtualBoard<Slot> where Slot : PieceSlot<Slot>
 {
+    /*** STATIC VARIABLES ***/
+    /// <summary>
+    /// PieceSlot game object used as instantiation template for making
+    /// more slots.
+    /// </summary>
+    private readonly Slot slotTemplate = PieceSlot<Slot>.template;
+
+
+
+
+
     // TODO remove unnecessary variables and use handlers (later)
     /*** INSTANCE VARIABLES ***/
     /// <summary>
@@ -16,18 +27,17 @@ public class VirtualBoard<Slot> where Slot : PieceSlot
     /// </summary>
     private readonly List<Slot>[,] slots;
 
-    /// <summary>
-    /// PieceSlot game object used as instantiation template for making
-    /// more slots.
-    /// </summary>
-    private readonly Slot slotTemplate; 
+    // size of gaps between squares
+    private readonly float gapSize;
 
-    /// <summary>
-    /// provides information about the board 
-    /// </summary>
-    internal readonly BoardInfo info;
-    internal readonly List<PieceInfo> pieces; // pieces that may be placed on this
-    private byte slotsPerSide; // normally this would correspond to pieceResolution
+    // size of a square
+    private readonly float squareSize;
+
+    // normally this would correspond to pieceResolution
+    private readonly byte slotsPerSide;
+
+    // matrix of visual representations of what's on a board square
+    internal IProvider2D<int, PosInfo[,]> boardRepresentation;
 
     // other objects on the board (e.g. piece cubes)
     internal List<Object> otherObjsOnBoard; 
@@ -43,33 +53,68 @@ public class VirtualBoard<Slot> where Slot : PieceSlot
 
 
 
-    /*** INSTANCE PROPERTIES ***/
-    internal BoardInfo Info { get; }
-
-
-
-
-
     /*** CONSTRUCTOR ***/
-    internal VirtualBoard(BoardInfo startBoard, List<PieceInfo> pces, byte subsq, 
-                          Slot template, UnityAction<VirtualBoard<Slot>, byte, byte> handler) 
+    internal VirtualBoard(IProvider2D<int, PosInfo[,]> linked, byte subsize, 
+                          float sizeSq, float sizeGap,
+                          UnityAction<VirtualBoard<Slot>, byte, byte> handler)
     {
-        slots = new List<Slot>[startBoard.NumOfRows, startBoard.NumOfCols];
+        slots = new List<Slot>[linked.GetLength(0), linked.GetLength(1)];
         slots.FillWith((i, j) => new List<Slot>());
 
-        info = startBoard;
-        pieces = pces;
-        slotsPerSide = subsq;
-        slotTemplate = template;
+        boardRepresentation = linked;
+
+        slotsPerSide = subsize;
+        squareSize = sizeSq;
+        gapSize = sizeGap;
+
         otherObjsOnBoard = new List<Object>();
-        onClickHandler = handler;   
+        onClickHandler = handler;
+    }
+
+
+
+    internal VirtualBoard(byte[,] startBoard, byte subsize, float sizeSq, float sizeGap,
+                              UnityAction<VirtualBoard<Slot>, byte, byte> handler)
+        : this
+            (
+                GameCreationHandler.GetHandler().LinkVisRepTo(startBoard),
+                subsize, sizeSq, sizeGap, handler
+            )
+    { 
+    
+    }
+
+
+
+    internal VirtualBoard(PosInfo[,][,] visReps, byte subsize, float sizeSq, float sizeGap,
+                              UnityAction<VirtualBoard<Slot>, byte, byte> handler)
+        : this
+            (
+                new Linked2D<PosInfo[,], PosInfo[,]>(visReps, Utility.Identity),
+                subsize, sizeSq, sizeGap, handler
+            )
+    {
+
     }
 
 
 
 
-
     /*** INSTANCE METHODS ***/
+    // refresh every single square on the board
+    internal void RefreshBoard() 
+    { 
+        for (byte r = 0; r < boardRepresentation.GetLength(0); r++) 
+        { 
+            for (byte c = 0; c < boardRepresentation.GetLength(1); c++) 
+            {
+                RefreshSquare(r, c);
+            }
+        }
+    }
+
+
+
     /// <summary>
     /// Calls the OnCreate method of the slots tiling the square at the 
     /// position specified
@@ -90,14 +135,25 @@ public class VirtualBoard<Slot> where Slot : PieceSlot
     /// <param name="centrePos">position of the centre of the board</param>
     internal void SpawnBoard(Vector3 centrePos) 
     {
-        Vector3 start = info.BottomLeft + centrePos;
-        float slotSize = info.SquareSize / slotsPerSide;
+        // calculates where to start tiling
+        int rows = boardRepresentation.GetLength(0);
+        int cols = boardRepresentation.GetLength(1);
+        float height = rows * squareSize + (rows - 1) * squareSize * gapSize;
+        float width = cols * squareSize + (cols - 1) * squareSize * gapSize;
+        Vector3 bottomLeft = new Vector3(-width / 2, 0, -height / 2);
+        // correction due to spawning at centre, not bottom left
+        float subSlotSize = squareSize / slotsPerSide;
+        bottomLeft.x += subSlotSize / 2;
+        bottomLeft.z += subSlotSize / 2; 
+
+        Vector3 start = bottomLeft + centrePos;
+        float slotSize = squareSize / slotsPerSide;
         float slotScale = slotSize / 10f;
 
         // tiles and assigns appropriate variables to piece spawning slots
         Utility.TileAct(start, slotTemplate.gameObject, slotScale,
-            info.NumOfRows, info.NumOfCols, slotsPerSide,
-            info.GapSize,
+            (byte)rows, (byte)cols, slotsPerSide,
+            gapSize,
             (slot, boardR, boardC, pieceR, pieceC) =>
             {
                 // assigns variables
