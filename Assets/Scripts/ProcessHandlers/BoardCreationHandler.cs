@@ -10,7 +10,7 @@ public class BoardCreationHandler : ProcessHandler<BoardCreationHandler>
 
     // default PosInfo colour of a new board
     internal static PosInfo.RGBData defaultBoardColour =
-        new PosInfo.RGBData(22, 22, 22);
+        new PosInfo.RGBData(222, 222, 222);
         
 
 

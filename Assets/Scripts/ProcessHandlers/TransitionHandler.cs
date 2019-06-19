@@ -24,6 +24,7 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
     private ChooseGame ChooseGame;
     private ChooseRuleArea ChooseRuleArea;
     private ChooseWinCondArea ChooseWinCondArea;
+    private GenerateAI GenerateAI;
     private Intro Intro;
     private MakeBoard MakeBoard;
     private MakeGame MakeGame;
@@ -49,6 +50,7 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
         ChooseGame = Camera.main.GetComponent<ChooseGame>();
         ChooseRuleArea = Camera.main.GetComponent<ChooseRuleArea>();
         ChooseWinCondArea = Camera.main.GetComponent<ChooseWinCondArea>();
+        GenerateAI = Camera.main.GetComponent<GenerateAI>();
         Intro = Camera.main.GetComponent<Intro>();
         MakeBoard = Camera.main.GetComponent<MakeBoard>();
         MakeGame = Camera.main.GetComponent<MakeGame>();
@@ -108,6 +110,16 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
         MakeGame.makeWinCondButton.onClick.AddListener
             (
                 () => Transition(MakeGame, ChooseWinCondArea)
+            );
+
+        ChooseGame.playButton.onClick.AddListener
+            (
+                () => Transition(ChooseGame, PlayGame)
+            );
+
+        ChooseGame.playButton.onClick.AddListener
+            (
+                () => Transition(ChooseGame, GenerateAI)
             );
 
         MakeBoard.doneButton.onClick.AddListener

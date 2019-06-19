@@ -1,17 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.UI;
 
 // Items associated with the ChooseGame canvas
-internal sealed class ChooseGame : Process<ChooseGame>, IAssociatedState<UnityEngine.Object, Game>
+internal sealed class ChooseGame : Process<ChooseGame>, 
+    IAssociatedState<UnityEngine.Object, Game>
 {
+    /*** STATIC VARIABLES ***/
+    private static Color selectedPieceColour = 
+        new Color(36 / 255f, 185 / 255f, 46 / 255f, 1);
+
+
+
+
+
     /*** INSTANCE VARIABLES ***/
     [SerializeField] internal Canvas canvas;
 
     [SerializeField] internal ScrollRect chooseGameScrView;
     [SerializeField] internal Button gameButtonTemplate;
+    [SerializeField] internal Button generateAIButton;
+    [SerializeField] internal Button playButton;
     [SerializeField] internal Button deleteAllGamesButton;
     [SerializeField] internal Text warningText;
 
@@ -42,7 +54,17 @@ internal sealed class ChooseGame : Process<ChooseGame>, IAssociatedState<UnityEn
                     chooseGameScrView.Clear(gameButtonTemplate);
                 }
             );
+
+        // highlights chosen game button
+        chooseGameScrView.WhenChosenChanges
+            ((scrView) => delegate 
+                { 
+                    scrView.HighlightOnlyChosen(new List<Button>(), selectedPieceColour);
+                }
+            );
+        
     }
+
 
 
 
@@ -89,18 +111,15 @@ internal sealed class ChooseGame : Process<ChooseGame>, IAssociatedState<UnityEn
             string gameName = path.Substring(indexNameStart, lengthOfName);
 
             // recovers original name by substituting spaces back in
-            gameName = gameName.Replace('_', ' '); 
+            gameName = gameName.Replace('_', ' ');
 
             // appends named button to the scroll view
-            TransitionHandler transHandler = TransitionHandler.GetHandler();
-            transHandler.CreateTransitionButton<UnityEngine.Object, Game, UnityEngine.Object>
+            Utility.CreateButton
                 (
-                    gameButtonTemplate,
+                    gameButtonTemplate, 
                     chooseGameScrView.content,
                     gameName,
-                    ChooseGame.GetProcess(),
-                    PlayGame.GetProcess(),
-                    delegate 
+                    (btn) => delegate
                     {
                         // retrieves information about game from file
                         FileStream file = File.Open(path, FileMode.Open);
@@ -108,13 +127,16 @@ internal sealed class ChooseGame : Process<ChooseGame>, IAssociatedState<UnityEn
                         Debug.Log("DESERIALIZING AT: " + path);
 
                         BinaryFormatter binform = new BinaryFormatter();
-                        GameInfo gameInfo = (GameInfo) binform.Deserialize(file);
+                        GameInfo gameInfo = (GameInfo)binform.Deserialize(file);
 
                         // close file and prepare to pass info on
                         file.Close();
                         gameToPass = new Game(gameInfo);
+
+                        chooseGameScrView.SetChosenItem(btn);
                     }
                 );
+                    
         } // finishes populating scroll view
 
     }

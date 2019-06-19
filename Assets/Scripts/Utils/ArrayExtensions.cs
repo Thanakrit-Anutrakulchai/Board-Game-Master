@@ -3,7 +3,7 @@
 // provides extension methods for arrays, to make handling them easy
 public static class ArrayExtensions
 {
-    /*** EXTENSION METHODS ***/
+    /*** EXTENSION METHODS -- ARRAY ***/
     // replace all 'null' elements in a 2D array with value provided by supplier
     public static void FillWith<T>(this T[,] arr, Func<int, int, T> supplier)
     {
@@ -73,13 +73,21 @@ public static class ArrayExtensions
 
 
 
-    public static bool IsSubMatrixOf<T>(this T[,] littleArr, T[,] bigArr)
+    // checks if there is a subarray of bigArr with the same elements as littleArr
+    //   indexes where littleArr contains skipOn will not be checked
+    public static bool IsSubMatrixOf<T>(this T[,] littleArr, T[,] bigArr, T skipOn)
         where T : IEquatable<T>
     {
         UnityEngine.Debug.Log("CHECKING SUBARR CONTAINMENT");
+        // uses padded array to check partial match
+        IProvider2D<int, T> bigProv = bigArr.ToProvider().Pad
+                                                (skipOn, 
+                                                 littleArr.GetLength(0) - 1, 
+                                                 littleArr.GetLength(1) - 1);
+
         // TODO MAKE THIS FASTER
-        int lengthDiff0 = bigArr.GetLength(0) - littleArr.GetLength(0);
-        int lengthDiff1 = bigArr.GetLength(1) - littleArr.GetLength(1);
+        int lengthDiff0 = bigProv.GetLength(0) - littleArr.GetLength(0);
+        int lengthDiff1 = bigProv.GetLength(1) - littleArr.GetLength(1);
         for (int i = 0; i <= lengthDiff0; i++) 
         { 
             for (int j = 0; j <= lengthDiff1; j++) 
@@ -89,19 +97,32 @@ public static class ArrayExtensions
                 { 
                     for (int c = 0; c < littleArr.GetLength(1); c++) 
                     { 
-                        shownDifferent |= !littleArr[r, c].Equals(bigArr[i + r, j + c]);
+                        if (littleArr[r, c].Equals(skipOn)) // skip on skipOn
+                        {
+                            continue;
+                        } 
+
+                        shownDifferent |= !littleArr[r, c].Equals(bigProv[i + r, j + c]);
                     }
                 } // end of inner double for loop, checking one subarr spot
 
                 if (!shownDifferent)
                 {
-                    UnityEngine.Debug.Log("SHOWN DIFF REACHED");
+                    UnityEngine.Debug.Log("SHOWN NOT DIFF REACHED");
                     return true;
                 }
             }
         } // end of quad for loop, checking all subarr spots
 
         return false;
+    }
+
+
+
+    // returns an IProvider2D which just returns elements of the array at each index
+    public static IProvider2D<int, T> ToProvider<T>(this T[,] arr)
+    {
+        return new Linked2D<T, T>(arr, Utility.Identity);
     }
 
 
@@ -132,4 +153,77 @@ public static class ArrayExtensions
 
         return result;
     }
+
+
+
+
+
+    /*** EXTENSION METHODS -- IProvider2D ***/
+    // returns a new, "padded" on all side Provider with value specified
+    public static IProvider2D<int, T> Pad<T>(this IProvider2D<int, T> provider, 
+                                             T padding, int padWidth, int padHeight) 
+    {
+        Func<int, int, T> getAtIndex = (int x, int y) =>
+        {
+            if (x.InRange(padWidth, provider.GetLength(0) + padWidth - 1) && 
+                y.InRange(padHeight, provider.GetLength(1) + padHeight - 1))
+            {
+                return provider[x - padWidth, y - padHeight];
+            }
+            else
+            {
+                return padding;
+            }
+        };
+
+        return getAtIndex.ToProvider(provider.GetLength(0) + (2*padWidth), 
+                                     provider.GetLength(1) + (2*padHeight));
+    }
+
+
+
+
+
+    /*** EXTENSION METHODS -- FUNC<K, K, T> ***/
+    // treats first two arguments as index and return value as value at that index
+    //   provides lengths specified
+
+
+    private class ToProviderWrapper<K, T> : IProvider2D<K, T> // helper inner class
+    {
+        private readonly Func<K, K, T> function;
+        private readonly int length0;
+        private readonly int length1;
+
+        internal ToProviderWrapper(Func<K, K, T> fnc, int l0, int l1) 
+        { function = fnc; length0 = l0; length1 = l1; }
+
+        public T this[K key1, K key2] => function(key1, key2);
+        public int GetLength(int n)
+        {
+            if (n == 0) 
+            {
+                return length0;
+            } 
+            else if (n == 1) 
+            {
+                return length1;
+            }  
+            else 
+            {
+                // errors on purpose for same type of error message
+                return (new int[0, 0].GetLength(n));
+            }
+        }
+    }
+
+    public static IProvider2D<K, T> ToProvider<K, T>(this Func<K, K, T> func, int l0, int l1) 
+    {
+        return new ToProviderWrapper<K, T>(func, l0, l1);
+    }
+
+
+
+
+
 }

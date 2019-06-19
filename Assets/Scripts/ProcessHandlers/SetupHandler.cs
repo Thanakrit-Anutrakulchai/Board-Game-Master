@@ -18,7 +18,9 @@ public class SetupHandler : ProcessHandler<SetupHandler>
         //  information about the gamess
         //  It can only be accessed in the Start or Awake method for MonoBehaviours
         ProgramData.gamesFolderPath = Application.persistentDataPath + "/games";
+        ProgramData.botsFolderPath = Application.persistentDataPath + "/bots";
     }
+
 
 
 

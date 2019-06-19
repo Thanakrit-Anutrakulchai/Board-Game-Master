@@ -47,6 +47,11 @@ public abstract class PosInfo
             green = (byte)(unityColour.g * 255f);
             blue = (byte)(unityColour.b * 255f);
         }
+
+        public virtual UnityEngine.Color ToUnityColour() 
+        {
+            return new UnityEngine.Color(red / 255f, green / 255f, blue / 255f);
+        }
     }
     // RGB colour with alpha value (for opacity)
     [System.Serializable]
@@ -63,6 +68,13 @@ public abstract class PosInfo
             : base(unityColour)
         {
             alpha = (byte)(unityColour.a * 255f);
+        }
+
+        public override UnityEngine.Color ToUnityColour()
+        {
+            UnityEngine.Color colour = base.ToUnityColour();
+            colour.a = alpha / 255f;
+            return colour;
         }
     }
 

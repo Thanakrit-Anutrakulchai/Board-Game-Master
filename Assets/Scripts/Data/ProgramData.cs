@@ -10,6 +10,7 @@ public class ProgramData
         ChooseGame,
         ChooseRuleArea,
         ChooseWinCondArea,
+        GeneratingAI,
         Intro,
         MakeBoard,
         MakeGame,
@@ -30,6 +31,9 @@ public class ProgramData
     // path to folder where all games made with/used in this program can be found
     //   (files with .gam extensions)
     internal static string gamesFolderPath; //assigned in SetupHandler
+
+    // path to where info about bots are stored
+    internal static string botsFolderPath;
 
     // current state of the program
     internal static State currentState;

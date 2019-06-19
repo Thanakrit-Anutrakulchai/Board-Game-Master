@@ -261,7 +261,18 @@ public class VirtualBoard<Slot> where Slot : PieceSlot<Slot>
                 slotScr.pieceCol = pieceC;
                 slotScr.boardRow = boardR;
                 slotScr.boardCol = boardC;
-                slotScr.SetVirtualBoard(this); 
+                slotScr.SetVirtualBoard(this);
+
+                // colours the slot 
+                switch (boardColours[boardR, boardC]) 
+                {
+                    case PosInfo.Nothing nothing:
+                        throw new System.NotSupportedException("Holes in board currently unsupported");
+                    case PosInfo.RGBData rgb:
+                        slotScr.gameObject.GetComponent<Renderer>().material.color
+                            = rgb.ToUnityColour();
+                        break;
+                }
 
                 
 

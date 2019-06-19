@@ -33,7 +33,8 @@ public class WinCondInfo
     // true iff. someone won, and if true: winner = the person who won
     public bool Check(Game game, out byte win) 
     {
-        if (winStructure.IsSubMatrixOf(game.boardState.BoardStateRepresentation)) 
+        if (winStructure.IsSubMatrixOf(game.boardState.BoardStateRepresentation, 
+                                       PieceInfo.noSquare)) 
         {
             win = winner;
             return true;
