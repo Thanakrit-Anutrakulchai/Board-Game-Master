@@ -1,16 +1,22 @@
-﻿
+﻿// AI files name format: (game name)-(player #).bot
 // data about AI bots 
 public class BotInfo
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+    /*** INNER CLASSES ***/
+    // represents how the AI decides how to play
+    internal enum AIMode 
+    { 
+        RandomPlay
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
+
+
+
+    /*** INSTANCE METHODS ***/
+
+
+
+
+
 }

@@ -12532,6 +12532,7 @@ GameObject:
   - component: {fileID: 1448092659}
   - component: {fileID: 1448092658}
   - component: {fileID: 1448092660}
+  - component: {fileID: 1448092661}
   - component: {fileID: 1448092657}
   - component: {fileID: 1448092656}
   - component: {fileID: 1448092655}
@@ -12943,6 +12944,19 @@ MonoBehaviour:
   startButton: {fileID: 831142781}
   sizeInput: {fileID: 1214518673}
   winnerInput: {fileID: 2024543479}
+--- !u!114 &1448092661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448092636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3cfe7db072b94bedbd21dc214aa7c27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvas: {fileID: 1402491004}
 --- !u!1 &1449290545
 GameObject:
   m_ObjectHideFlags: 0

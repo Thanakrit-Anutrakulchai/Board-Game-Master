@@ -117,7 +117,7 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
                 () => Transition(ChooseGame, PlayGame)
             );
 
-        ChooseGame.playButton.onClick.AddListener
+        ChooseGame.generateAIButton.onClick.AddListener
             (
                 () => Transition(ChooseGame, GenerateAI)
             );

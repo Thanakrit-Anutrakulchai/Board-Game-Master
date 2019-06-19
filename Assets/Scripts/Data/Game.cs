@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 
 // class representing a custom game and its behaviours 
@@ -44,6 +45,30 @@ public class Game
 
 
     /*** INSTANCE METHODS ***/
+    // lists of all moves currently usable at the current game state
+    //   tuples returned are in form: (subrule, rowPos clicked, colPos clicked)
+    internal List<Tuple<RuleInfo, byte, byte>> AllMovesPossible() 
+    {
+        byte[,] brdStateRep = boardState.BoardStateRepresentation;
+        List<Tuple<RuleInfo, byte, byte>> accu = new List<Tuple<RuleInfo, byte, byte>>();
+        for (int r = 0; r < brdStateRep.GetLength(0); r++) 
+        { 
+            for (int c = 0; c < brdStateRep.GetLength(1); c++) 
+            {
+                List<RuleInfo> rules = Info.rules[currentPlayer][brdStateRep[r, c]];
+                foreach (RuleInfo subrule in rules) 
+                {
+                    accu.Add(Tuple.Create(subrule, (byte)r, (byte)c));
+                }
+            }
+        } // end foreach in double for loop appending all usable rules to list
+
+        return accu;
+    }
+
+
+
+
     // TODO TEMP: turn this into full-blown evaluation function for AI?
     // true iff. this and the otherGame has same board state and current player
     //   note that the colouring of the boards are ignored
