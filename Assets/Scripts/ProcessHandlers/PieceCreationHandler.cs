@@ -59,6 +59,7 @@ public class PieceCreationHandler : ProcessHandler<PieceCreationHandler>
             (
                 // TODO this is adhoc solution: vboard only used for tiling, really
                 new Linked2D<PosInfo, PosInfo[,]>(pieceBeingMadeRep, (_) => pieceBeingMadeRep),
+                new Linked2D<PosInfo, PosInfo>(pieceBeingMadeRep, (_) => creationSquareColour),
                 1,
                 BuildSlotSize,
                 buildSlotGapScale,

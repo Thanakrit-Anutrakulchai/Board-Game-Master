@@ -40,16 +40,29 @@ public abstract class PosInfo
 
         public RGBData(byte r, byte g, byte b)
         { this.red = r; this.green = g; this.blue = b; }
+
+        public RGBData(UnityEngine.Color unityColour)
+        {
+            red = (byte)(unityColour.r * 255f);
+            green = (byte)(unityColour.g * 255f);
+            blue = (byte)(unityColour.b * 255f);
+        }
     }
     // RGB colour with alpha value (for opacity)
     [System.Serializable]
-    public class RGBWithAlpha : PosInfo.RGBData
+    public class RGBWithAlpha : RGBData
     {
         public byte alpha; // alpha is stored as byte for consistency
 
         public RGBWithAlpha(byte r, byte g, byte b, byte a) : base(r, g, b)
         {
             alpha = a;
+        }
+
+        public RGBWithAlpha(UnityEngine.Color unityColour) 
+            : base(unityColour)
+        {
+            alpha = (byte)(unityColour.a * 255f);
         }
     }
 
@@ -122,4 +135,15 @@ public abstract class PosInfo
             return accu;
         }
     }
+
+
+
+
+
+    /*** INSTANCE METHODS ***/
+
+
+
+
+
 }

@@ -35,7 +35,7 @@ public class RuleCreationHandler : ProcessHandler<RuleCreationHandler>
 
     // default colour of square with no piece on it
     internal static Color noPieceColour =
-        new Color(20 / 255f, 20 / 255f, 20 / 255f, 0.8f);
+        new Color(20 / 255f, 200 / 255f, 20 / 255f, 0.8f);
 
     // default colour of the piece button currently selected
     internal static Color selectedPieceColour =
@@ -54,7 +54,7 @@ public class RuleCreationHandler : ProcessHandler<RuleCreationHandler>
 
     // colour of the unaffected holographic squares
     internal static Color unaffectedSquareColour =
-        new Color(200 / 255f, 200 / 255f, 200 / 255f, 0.8f);
+        new Color(220 / 255f, 220 / 255f, 220 / 255f, 0.8f);
         
 
 

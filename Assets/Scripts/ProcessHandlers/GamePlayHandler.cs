@@ -24,6 +24,9 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
     // the game currently being played 
     internal Game gameBeingPlayed;
 
+    // true iff. game has ended (a player has won) 
+    internal bool gameHasEnded;
+
 
 
 
@@ -46,14 +49,21 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
         Debug.Log("PIECE RES: " + game.Info.pieceResolution);
 
         // generates virtual board for the game
-        VirtualBoard<PieceSpawningSlot> vboard = new VirtualBoard<PieceSpawningSlot>
+        VirtualBoardUsed = new VirtualBoard<PieceSpawningSlot>
             ( 
                 game.Info.boardAtStart.BoardStateRepresentation, 
+                game.Info.boardAtStart.BoardShapeRepresentation,
                 game.Info.pieceResolution, 
                 game.Info.boardAtStart.SquareSize,
                 game.Info.boardAtStart.GapSize,
                 (brd, r, c) => 
                 {
+                    // lock board (do nothing) if game has ended 
+                    if (gameHasEnded) 
+                    {
+                        return;
+                    }
+
                     byte curPlayer = gameBeingPlayed.currentPlayer;
                     byte pceClicked =
                         gameBeingPlayed
@@ -110,8 +120,7 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
                 }
             );
 
-        vboard.SpawnBoard(SpatialConfigs.commonBoardOrigin);
-        VirtualBoardUsed = vboard;
+        VirtualBoardUsed.SpawnBoard(SpatialConfigs.commonBoardOrigin);
 
         NextTurn(gameBeingPlayed.Info.startingPlayer);
     }
@@ -151,6 +160,8 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
     // announces that game has been won and ends the game
     private void GameEnded(List<byte> winners) 
     {
+        gameHasEnded = true;
+
         // TODO 
         // VERY TEMP.
         Debug.Log("List of Winners:");

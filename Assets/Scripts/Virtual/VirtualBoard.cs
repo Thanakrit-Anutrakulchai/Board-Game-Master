@@ -36,6 +36,9 @@ public class VirtualBoard<Slot> where Slot : PieceSlot<Slot>
     // normally this would correspond to pieceResolution
     private readonly byte slotsPerSide;
 
+    // matrix of RGBA colours of board squares
+    internal IProvider2D<int, PosInfo> boardColours;
+
     // matrix of visual representations of what's on a board square
     internal IProvider2D<int, PosInfo[,]> boardRepresentation;
 
@@ -54,14 +57,17 @@ public class VirtualBoard<Slot> where Slot : PieceSlot<Slot>
 
 
     /*** CONSTRUCTOR ***/
-    internal VirtualBoard(IProvider2D<int, PosInfo[,]> linked, byte subsize, 
-                          float sizeSq, float sizeGap,
-                          UnityAction<VirtualBoard<Slot>, byte, byte> handler)
+    private VirtualBoard(IProvider2D<int, PosInfo[,]> linked, 
+                         IProvider2D<int, PosInfo> colours,
+                         int length0, int length1, byte subsize, 
+                         float sizeSq, float sizeGap,
+                         UnityAction<VirtualBoard<Slot>, byte, byte> handler)
     {
-        slots = new List<Slot>[linked.GetLength(0), linked.GetLength(1)];
+        slots = new List<Slot>[length0, length1];
         slots.FillWith((i, j) => new List<Slot>());
 
         boardRepresentation = linked;
+        boardColours = colours;
 
         slotsPerSide = subsize;
         squareSize = sizeSq;
@@ -73,29 +79,121 @@ public class VirtualBoard<Slot> where Slot : PieceSlot<Slot>
 
 
 
-    internal VirtualBoard(byte[,] startBoard, byte subsize, float sizeSq, float sizeGap,
-                              UnityAction<VirtualBoard<Slot>, byte, byte> handler)
+    internal VirtualBoard(IProvider2D<int, PosInfo[,]> linked,
+                          IProvider2D<int, PosInfo> colours,
+                          byte subsize, float sizeSq, float sizeGap,
+                          UnityAction<VirtualBoard<Slot>, byte, byte> handler)
         : this
             (
-                GameCreationHandler.GetHandler().LinkVisRepTo(startBoard),
+                linked, colours, linked.GetLength(0), linked.GetLength(1),
                 subsize, sizeSq, sizeGap, handler
             )
-    { 
-    
-    }
+    { }
 
 
 
-    internal VirtualBoard(PosInfo[,][,] visReps, byte subsize, float sizeSq, float sizeGap,
-                              UnityAction<VirtualBoard<Slot>, byte, byte> handler)
+    internal VirtualBoard(byte[,] startBoard, IProvider2D<int, PosInfo> colours,
+                          byte subsize, float sizeSq, float sizeGap,
+                          UnityAction<VirtualBoard<Slot>, byte, byte> handler)
         : this
             (
-                new Linked2D<PosInfo[,], PosInfo[,]>(visReps, Utility.Identity),
+                null, colours, startBoard.GetLength(0), startBoard.GetLength(1),
                 subsize, sizeSq, sizeGap, handler
             )
     {
-
+        // links board rep. to visual rep. based on current state of program
+        if (ProgramData.currentState == ProgramData.State.PlayGame) 
+        {
+            GamePlayHandler playHandler = GamePlayHandler.GetHandler();
+            boardRepresentation = playHandler.gameBeingPlayed
+                                             .Info.LinkVisRepTo(startBoard);
+        }
+        else 
+        {
+            GameCreationHandler createHandler = GameCreationHandler.GetHandler();
+            boardRepresentation = createHandler.LinkVisRepTo(startBoard);
+        }
     }
+
+
+
+    internal VirtualBoard(byte[,] startBoard, PosInfo[,] colours,
+                      byte subsize, float sizeSq, float sizeGap,
+                      UnityAction<VirtualBoard<Slot>, byte, byte> handler)
+    : this
+        (
+            null, new Linked2D<PosInfo, PosInfo>(colours, Utility.Identity),
+            startBoard.GetLength(0), startBoard.GetLength(1),
+            subsize, sizeSq, sizeGap, handler
+        )
+    {
+        // links board rep. to visual rep. based on current state of program
+        if (ProgramData.currentState == ProgramData.State.PlayGame)
+        {
+            GamePlayHandler playHandler = GamePlayHandler.GetHandler();
+            boardRepresentation = playHandler.gameBeingPlayed
+                                             .Info.LinkVisRepTo(startBoard);
+        }
+        else
+        {
+            GameCreationHandler createHandler = GameCreationHandler.GetHandler();
+            boardRepresentation = createHandler.LinkVisRepTo(startBoard);
+        }
+    }
+
+
+
+    internal VirtualBoard(PosInfo[,][,] visReps, PosInfo[,] colours,
+                          byte subsize, float sizeSq, float sizeGap,
+                          UnityAction<VirtualBoard<Slot>, byte, byte> handler)
+        : this
+            (
+                new Linked2D<PosInfo[,], PosInfo[,]>(visReps, Utility.Identity),
+                new Linked2D<PosInfo, PosInfo>(colours, Utility.Identity),
+                visReps.GetLength(0), visReps.GetLength(1),
+                subsize, sizeSq, sizeGap, handler
+            )
+    { }
+
+
+
+    internal VirtualBoard(byte[,] startBoard, PosInfo defaultColour,
+                      byte subsize, float sizeSq, float sizeGap,
+                      UnityAction<VirtualBoard<Slot>, byte, byte> handler)
+    : this
+        (
+            null, new Linked2D<byte, PosInfo>(startBoard, (_) => defaultColour), 
+            startBoard.GetLength(0), startBoard.GetLength(1),
+            subsize, sizeSq, sizeGap, handler
+        )
+    {
+        // links board rep. to visual rep. based on current state of program
+        if (ProgramData.currentState == ProgramData.State.PlayGame)
+        {
+            GamePlayHandler playHandler = GamePlayHandler.GetHandler();
+            boardRepresentation = playHandler.gameBeingPlayed
+                                             .Info.LinkVisRepTo(startBoard);
+        }
+        else
+        {
+            GameCreationHandler createHandler = GameCreationHandler.GetHandler();
+            boardRepresentation = createHandler.LinkVisRepTo(startBoard);
+        }
+    }
+
+
+
+    internal VirtualBoard(PosInfo[,][,] visReps, PosInfo defaultColour, 
+                          byte subsize, float sizeSq, float sizeGap,
+                          UnityAction<VirtualBoard<Slot>, byte, byte> handler)
+        : this
+            (
+                new Linked2D<PosInfo[,], PosInfo[,]>(visReps, Utility.Identity),
+                new Linked2D<PosInfo[,], PosInfo>(visReps, (_) => defaultColour),
+                visReps.GetLength(0), visReps.GetLength(1),
+                subsize, sizeSq, sizeGap, handler
+            )
+    { }
 
 
 

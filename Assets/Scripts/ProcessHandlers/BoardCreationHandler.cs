@@ -78,6 +78,7 @@ public class BoardCreationHandler : ProcessHandler<BoardCreationHandler>
         VirtualBoard<PieceSpawningSlot> virBoard = new VirtualBoard<PieceSpawningSlot>
             (
                 boardBeingMade.BoardStateRepresentation,
+                boardBeingMade.BoardShapeRepresentation,
                 gameHandler.pieceResolution,
                 BoardSquareSize, 
                 gameHandler.GapSize,

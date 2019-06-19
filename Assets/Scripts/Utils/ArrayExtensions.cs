@@ -76,6 +76,7 @@ public static class ArrayExtensions
     public static bool IsSubMatrixOf<T>(this T[,] littleArr, T[,] bigArr)
         where T : IEquatable<T>
     {
+        UnityEngine.Debug.Log("CHECKING SUBARR CONTAINMENT");
         // TODO MAKE THIS FASTER
         int lengthDiff0 = bigArr.GetLength(0) - littleArr.GetLength(0);
         int lengthDiff1 = bigArr.GetLength(1) - littleArr.GetLength(1);
@@ -88,15 +89,13 @@ public static class ArrayExtensions
                 { 
                     for (int c = 0; c < littleArr.GetLength(1); c++) 
                     { 
-                        if (littleArr[r, c].Equals(bigArr[i+r, j+c])) 
-                        {
-                            shownDifferent = true;
-                        }
+                        shownDifferent |= !littleArr[r, c].Equals(bigArr[i + r, j + c]);
                     }
                 } // end of inner double for loop, checking one subarr spot
 
-                if (!shownDifferent) 
+                if (!shownDifferent)
                 {
+                    UnityEngine.Debug.Log("SHOWN DIFF REACHED");
                     return true;
                 }
             }

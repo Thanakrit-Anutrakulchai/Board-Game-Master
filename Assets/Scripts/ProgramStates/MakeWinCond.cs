@@ -13,8 +13,10 @@ internal sealed class MakeWinCond : Process<MakeWinCond>,
     /*** INSTANCE VARIABLES ***/
     [SerializeField] internal Canvas canvas;
 
+    [SerializeField] internal Button anythingButton;
     [SerializeField] internal Button doneButton;
     [SerializeField] internal Button pieceButtonTemplate;
+    [SerializeField] internal Button noPieceButton;
     [SerializeField] internal Button removePieceButton;
     [SerializeField] internal InputField nameInput;
     [SerializeField] internal ScrollRect selectPieceScrView;
@@ -26,6 +28,7 @@ internal sealed class MakeWinCond : Process<MakeWinCond>,
     /*** START ***/
     private void Start()
     {
+        // sets up chosen button highlighting
         selectPieceScrView.WhenChosenChanges
             ((scrView) => 
                 delegate
@@ -37,6 +40,24 @@ internal sealed class MakeWinCond : Process<MakeWinCond>,
                     );
                 }
             );
+
+        // highlights and set piece selected for buttons outside scrollview
+        removePieceButton.onClick.AddListener
+            (delegate 
+            {
+                selectPieceScrView.SetChosenItem(removePieceButton);
+                WinCondCreationHandler winHandler = WinCondCreationHandler.GetHandler();
+                winHandler.pieceSelected = PieceInfo.noPiece;
+            });
+
+        // highlights and say square click is not checked 
+        anythingButton.onClick.AddListener
+            (delegate
+            {
+                selectPieceScrView.SetChosenItem(anythingButton);
+                WinCondCreationHandler winHandler = WinCondCreationHandler.GetHandler();
+                winHandler.pieceSelected = PieceInfo.noSquare;
+            });
     }
 
 

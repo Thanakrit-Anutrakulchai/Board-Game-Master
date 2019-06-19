@@ -180,6 +180,26 @@ public static class UIExtensions
 
 
 
+    // changes the colour of the image component of the UI object
+    public static void SetColour<T>(this T UIElem, Color color)
+        where T : UnityEngine.EventSystems.UIBehaviour
+    {
+        UIElem.GetComponent<Image>().color = color;
+    }
+
+
+
+    // sets chosen item to button clicked if it is in the list provided
+    public static void SetChoosableButtons(this ScrollRect scrView, List<Button> buttons) 
+    { 
+        foreach (Button b in buttons) 
+        {
+            b.onClick.AddListener(delegate { scrView.SetChosenItem(b); });
+        }
+    }
+
+
+
     /// <summary>
     /// Sets the scroll view's chosen item and calls the scroll view's  
     /// when chosen changes method (if it has one)

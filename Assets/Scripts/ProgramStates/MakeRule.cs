@@ -33,6 +33,17 @@ internal sealed class MakeRule : Process<MakeRule>,
     private void Start()
     {
         RuleCreationHandler ruleHandler = RuleCreationHandler.GetHandler();
+
+        // 
+        selectPieceScrView.SetChoosableButtons(new System.Collections.Generic.List<Button> 
+            { 
+                allPiecesButton,
+                noPieceButton,
+                removePieceButton,
+                unaffectedButton,
+                setTriggerPieceButton,
+            });
+
         // makes scrollview highlight chosen item (only)
         selectPieceScrView.WhenChosenChanges
             ((scrView) =>
@@ -56,12 +67,26 @@ internal sealed class MakeRule : Process<MakeRule>,
                     if (scrView.GetChosenItem<Button>(out Button chosen) &&
                         chosen != null)
                     {
-                        chosen.GetComponent<Image>().color =
-                            RuleCreationHandler.selectedPieceColour;
-                    }
-                    else
-                    {
-                        // TODO
+                        switch (chosen) 
+                        {
+                            case Button btn when btn == setTriggerPieceButton:
+                                if (ruleHandler.SelectingTriggerPiece)
+                                {
+                                    setTriggerPieceButton.GetComponent<Image>().color =
+                                        RuleCreationHandler.setTriggerTrueColour;
+                                } 
+                                else 
+                                {
+                                    setTriggerPieceButton.GetComponent<Image>().color =
+                                        RuleCreationHandler.setTriggerFalseColour;
+                                }
+                                break;
+                            case Button otherBtn:
+                                chosen.GetComponent<Image>().color =
+                                RuleCreationHandler.selectedPieceColour;
+                                ruleHandler.SelectingTriggerPiece = false;
+                                break;
+                        }
                     }
                 }
             );
@@ -71,8 +96,8 @@ internal sealed class MakeRule : Process<MakeRule>,
             (delegate
             {
                 ruleHandler.PieceSelected =
-                    new RuleCreationHandler.PieceSelection
-                                           .AllPieces();
+                                    new RuleCreationHandler.PieceSelection
+                                                           .AllPieces();
 
                 // highlights button
                 selectPieceScrView.SetChosenItem(allPiecesButton);
@@ -113,18 +138,6 @@ internal sealed class MakeRule : Process<MakeRule>,
 
                     // unhighlights other button 
                     selectPieceScrView.SetChosenItem(setTriggerPieceButton);
-
-                    // colour according to state
-                    if (ruleHandler.SelectingTriggerPiece)
-                    {
-                        setTriggerPieceButton.GetComponent<Image>().color =
-                            RuleCreationHandler.setTriggerTrueColour;
-                    }
-                    else
-                    {
-                        setTriggerPieceButton.GetComponent<Image>().color =
-                            RuleCreationHandler.setTriggerFalseColour;
-                    }
                 }
             );
 

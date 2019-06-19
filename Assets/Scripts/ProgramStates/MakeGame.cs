@@ -112,7 +112,9 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
     public void OnEnterState(IAssociatedStateLeave<WinCondInfo> previousState, 
                              WinCondInfo winCondMade)
     {
-        //
+        // add win condition
+        GameCreationHandler gameHandler = GameCreationHandler.GetHandler();
+        gameHandler.winConditions.Add(winCondMade);
     }
 
 

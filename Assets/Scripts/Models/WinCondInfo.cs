@@ -2,6 +2,7 @@
 
 
 // class representing a win condition for the game
+[System.Serializable]
 public class WinCondInfo
 {
     /*** INSTANCE VARIABLES ***/

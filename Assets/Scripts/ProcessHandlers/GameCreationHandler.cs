@@ -99,7 +99,7 @@ public class GameCreationHandler : ProcessHandler<GameCreationHandler>
                 source,
                 (i) =>
                 {
-                    if (i == PieceInfo.noPiece)
+                    if (i == PieceInfo.noPiece || i == PieceInfo.noSquare)
                     {
                         return PosInfo.NothingMatrix(pieceResolution, pieceResolution);
                     }
