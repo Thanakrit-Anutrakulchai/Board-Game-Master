@@ -8,8 +8,21 @@ internal sealed class PlayGame : Process<PlayGame>, IAssociatedState<Game, Objec
     [SerializeField] internal Canvas canvas;
 
     [SerializeField] internal Button moveButtonTemplate;
+    [SerializeField] internal Button quitGameButton;
     [SerializeField] internal ScrollRect movesScrView;
     [SerializeField] internal Text curPlayerText;
+    [SerializeField] internal Text winnerText;
+
+
+
+
+
+    /*** START ***/
+    // adds listeners
+    private void Start()
+    {
+        //
+    }
 
 
 
@@ -26,9 +39,7 @@ internal sealed class PlayGame : Process<PlayGame>, IAssociatedState<Game, Objec
 
     public void OnEnterState(IAssociatedStateLeave<Game> previousState, Game game)
     {
-        // TODO
         GamePlayHandler gameHandler = GamePlayHandler.GetHandler();
-
         gameHandler.StartGame(game);
     }
 
@@ -36,7 +47,23 @@ internal sealed class PlayGame : Process<PlayGame>, IAssociatedState<Game, Objec
 
     public Object OnLeaveState(IAssociatedStateEnter<Object> nextState)
     {
-        // TODO
-        throw new System.NotImplementedException();
+        GamePlayHandler gameHandler = GamePlayHandler.GetHandler();
+        gameHandler.QuitGame();
+        return null;
+    }
+
+
+
+    // clears moves scroll view, reset player text
+    private void SetupUIs() 
+    {
+        // clear scroll view
+        movesScrView.Clear(moveButtonTemplate);
+
+        // resets current player text, just incase
+        curPlayerText.text = "";
+
+        // resets winning player
+        winnerText.text = "";
     }
 }

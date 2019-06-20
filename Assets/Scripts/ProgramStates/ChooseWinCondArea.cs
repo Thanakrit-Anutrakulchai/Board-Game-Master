@@ -16,6 +16,7 @@ internal sealed class ChooseWinCondArea : Process<ChooseWinCondArea>,
     [SerializeField] internal Button startButton;
     [SerializeField] internal InputField sizeInput;
     [SerializeField] internal InputField winnerInput;
+    [SerializeField] internal Text complainText;
 
 
 
@@ -45,19 +46,27 @@ internal sealed class ChooseWinCondArea : Process<ChooseWinCondArea>,
 
     public WinCondSetupData OnLeaveState(IAssociatedStateEnter<WinCondSetupData> nextState)
     {
-        // TODO add checks
-        bool success = Byte.TryParse(sizeInput.text, out byte size);
-        success &= Byte.TryParse(winnerInput.text, out byte winner);
-        // success = succes & check(size, winner)
+        GameCreationHandler gameHandler = GameCreationHandler.GetHandler();
+
+        // TODO allow rectangular (non-square) areas
+        byte maxAreaSize = Math.Min(gameHandler.NumOfRows, gameHandler.NumOfCols);
+
+        bool success = Byte.TryParse(sizeInput.text, out byte size) &&
+            size.InRange(1, maxAreaSize);
+        success &= Byte.TryParse(winnerInput.text, out byte winner) &&
+            winner.InRange(1, gameHandler.numOfPlayers);
 
         if (success) 
         {
-            return Tuple.Create(size, winner);
+            return Tuple.Create(size, (byte) (winner - 1));
         }
         else
         {
-            // TODO
-            throw new NotImplementedException("TO ADD: ASKS AGAIN");
+            complainText.text = 
+                "Please enter valid whole numbers";
+
+            TransitionHandler.GetHandler().AbortTransition();
+            return null;
         }
     }
 

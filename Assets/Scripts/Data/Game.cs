@@ -13,6 +13,9 @@ public class Game
     // the current state of the board 
     internal BoardInfo boardState;
 
+    // contains key-value pairs of turns played by bots, and the respective bot
+    internal Dictionary<byte, BotInfo> bots;
+
 
 
 

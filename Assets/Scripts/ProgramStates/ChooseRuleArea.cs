@@ -17,6 +17,7 @@ internal sealed class ChooseRuleArea : Process<ChooseRuleArea>,
     [SerializeField] internal InputField areaSizeInput;
     [SerializeField] internal InputField whichPlayerUseInput;
     [SerializeField] internal InputField whoseTurnAfterInput;
+    [SerializeField] internal Text complainText;
 
 
 
@@ -42,19 +43,30 @@ internal sealed class ChooseRuleArea : Process<ChooseRuleArea>,
 
     public RuleSetupData OnLeaveState(IAssociatedStateEnter<RuleSetupData> nextState)
     {
-        if (byte.TryParse(areaSizeInput.text, out byte areaSize) && 
-            byte.TryParse(whichPlayerUseInput.text, out byte playerUsing) &&
-            byte.TryParse(whoseTurnAfterInput.text, out byte playerAfter)) 
-        {
-            // TODO 
-            // Add check for 0 < size <= min(#rows, #cols), playerTurn in range
+        GameCreationHandler gameHandler = GameCreationHandler.GetHandler();
 
-            return Tuple.Create(areaSize, playerUsing, playerAfter);
+        // TODO allow rectangular (non-square) affected area
+        byte maxAreaSize = Math.Min(gameHandler.NumOfRows, gameHandler.NumOfCols);
+
+        bool validInput = byte.TryParse(areaSizeInput.text, out byte areaSize) &&
+            areaSize.InRange(1, maxAreaSize);
+        validInput &= byte.TryParse(whichPlayerUseInput.text, out byte playerUsing) && 
+            playerUsing.InRange(1, gameHandler.numOfPlayers);
+        validInput &= byte.TryParse(whoseTurnAfterInput.text, out byte playerAfter) && 
+            playerAfter.InRange(1, gameHandler.numOfPlayers);
+
+        if (validInput)
+        {
+            return Tuple.Create(areaSize, (byte) (playerUsing - 1), (byte) (playerAfter - 1));
         }
         else 
         {
-            // TODO
-            throw new System.NotImplementedException("ADD ASKING AGAIN");
+            complainText.text = 
+                "Please enter valid whole numbers";
+
+            TransitionHandler.GetHandler().AbortTransition();
+
+            return null; 
         }
     }
 
@@ -66,5 +78,7 @@ internal sealed class ChooseRuleArea : Process<ChooseRuleArea>,
         areaSizeInput.text = "";
         whichPlayerUseInput.text = "";
         whoseTurnAfterInput.text = "";
+
+        complainText.text = "";
     }
 }

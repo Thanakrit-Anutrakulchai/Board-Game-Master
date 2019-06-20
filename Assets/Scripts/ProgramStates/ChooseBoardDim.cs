@@ -15,8 +15,8 @@ internal sealed class ChooseBoardDim : Process<ChooseBoardDim>,
     [SerializeField] internal InputField numRowsInput;
     [SerializeField] internal InputField numColsInput;
     [SerializeField] internal InputField pceResInput;
-    [SerializeField] internal Slider gapSlider; // moved from MakeBoard 
-
+    [SerializeField] internal Slider gapSlider; // moved from MakeBoard  
+    [SerializeField] internal Text complainText;   
 
 
 
@@ -48,18 +48,28 @@ internal sealed class ChooseBoardDim : Process<ChooseBoardDim>,
         //   also, 'out' just means the variable is passed/returned by reference
 
         // parses user input, move on to next process if inputs are valid
-        if (byte.TryParse(numPlayersInput.text, out byte numPlayers) &&
-            byte.TryParse(numRowsInput.text, out byte numRows) &&
-            byte.TryParse(numColsInput.text, out byte numCols) &&
-            byte.TryParse(pceResInput.text, out byte pceRes))
+        bool validInput = byte.TryParse(numPlayersInput.text, out byte numPlayers) && 
+            numPlayers.InRange(1, 250);
+        validInput &= byte.TryParse(numRowsInput.text, out byte numRows) &&
+            numRows.InRange(1, 250);
+        validInput &= byte.TryParse(numColsInput.text, out byte numCols) &&
+            numCols.InRange(1, 250);
+        validInput &= byte.TryParse(pceResInput.text, out byte pceRes) &&
+            pceRes.InRange(1, 250);
+            
+        if (validInput)
         {
             float gap = gapSlider.normalizedValue;
-            // TODO check input is valid
             return System.Tuple.Create(numPlayers, numRows, numCols, pceRes, gap);
         }
         else 
         {
-            // TODO Add checks -> keep going until success
+            // complains that value is invalid
+            complainText.text = "Please only enter whole numbers between 1 and 250";
+
+            // stops the transition
+            TransitionHandler.GetHandler().AbortTransition();
+
             return null;
         }
     }
@@ -73,5 +83,8 @@ internal sealed class ChooseBoardDim : Process<ChooseBoardDim>,
         numRowsInput.text = "";
         numColsInput.text = "";
         pceResInput.text = "";
+
+        // reset complain text
+        complainText.text = "";
     }
 }

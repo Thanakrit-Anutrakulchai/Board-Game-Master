@@ -35,6 +35,7 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
     private PlayGame PlayGame;
 
     /* Et Cetera */
+    private bool abortingTransition;
     private byte numTimesDeleteAllGamesClickedSinceDeletion;
 
 
@@ -59,6 +60,8 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
         MakeWinCond = Camera.main.GetComponent<MakeWinCond>();
         PaintBoard = Camera.main.GetComponent<PaintBoard>();
         PlayGame = Camera.main.GetComponent<PlayGame>();
+
+        abortingTransition = false;
     }
 
 
@@ -67,6 +70,15 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
 
 
     /*** INSTANCE METHODS ***/
+    // to be called from OnLeaveState methods
+    // stops the transition from continuing
+    internal void AbortTransition() 
+    {
+        abortingTransition = true;
+    }
+
+
+
     // should be called only once
     internal void AddListenersToButtons() 
     {
@@ -89,7 +101,7 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
 
         MakeGame.doneButton.onClick.AddListener
             (
-                () => Transition(MakeGame, Intro)
+                () => Transition<GameInfo>(MakeGame, Intro)
             );
 
         MakeGame.makeBoardButton.onClick.AddListener
@@ -122,6 +134,11 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
                 () => Transition(ChooseGame, GenerateAI)
             );
 
+        PlayGame.quitGameButton.onClick.AddListener
+            (
+                () => Transition(PlayGame, Intro)
+            );
+
         MakeBoard.doneButton.onClick.AddListener
             (
                 () => Transition(MakeBoard, MakeGame)
@@ -152,18 +169,6 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
                 () => Transition(MakeWinCond, MakeGame)
             );
 
-
-
-        // TODO Move these to the ProgramStates classes
-
-        /*
-        deleteAllGamesButton.onClick.AddListener(DeleteAllGames);
-
-        activatePieceClickedButton.onClick.AddListener(MakeRelRule);
-        setTriggerPieceButton.onClick.AddListener(SetTriggerPiece);
-        relRuleSwitchToButton.onClick.AddListener(RelRuleSwitchTo);
-        relRuleDoneButton.onClick.AddListener(DoneRelRule);
-        */      
     }
 
 
@@ -229,6 +234,13 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
 
         // call the corresponding method before leaving state
         T args = prev.OnLeaveState(next);
+
+        // stop if transition aborted
+        if (abortingTransition) 
+        {
+            abortingTransition = false; // reset
+            return;
+        }
 
         // switch canvas
         prev.GetCanvas().gameObject.SetActive(false);

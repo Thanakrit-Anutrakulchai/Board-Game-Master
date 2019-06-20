@@ -1,12 +1,6 @@
-﻿using UnityEngine.UI;
-using UnityEngine;
+﻿using UnityEngine;
 using System.IO;
-using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary;
-using System;
 
-// TODO
-// REFACTOR code into smaller chunks
 
 // Class that handles what happens when the program starts
 public class SetupHandler : ProcessHandler<SetupHandler>
@@ -40,6 +34,27 @@ public class SetupHandler : ProcessHandler<SetupHandler>
 
         // creates games folder if it does not exist yet
         Directory.CreateDirectory(ProgramData.gamesFolderPath);
+
+        // generates and assigns string for checking names
+        string checkStr = "";
+        for (char c = 'A'; c <= 'Z'; c++)
+        {
+            checkStr += c;
+        }
+
+        for (char c = 'a'; c <= 'z'; c++)
+        {
+            checkStr += c;
+        }
+
+        for (int i = 0; i <= 9; i++)
+        {
+            checkStr += i;
+        }
+
+        checkStr += ' ';
+
+        ProgramData.nameCheckString = checkStr;
     }
 
 

@@ -9,6 +9,7 @@ internal sealed class MakePiece : Process<MakePiece>, IAssociatedState<GameCreat
 
     [SerializeField] internal Button doneButton;
     [SerializeField] internal InputField nameInput;
+    [SerializeField] internal Text complainText;
 
 
 
@@ -45,12 +46,23 @@ internal sealed class MakePiece : Process<MakePiece>, IAssociatedState<GameCreat
         handler.VirtualBoardUsed.DestroyBoard();
 
 
-        // TODO add checks (alphanum with spaces, not too long)
-        // gets user inputted name of piece 
+        // checks name is alphanumeric (with spaces)
         string pceName = nameInput.text;
+        bool validInput = Utility.EnsureProperName(pceName);
 
-        // returns piece made
-        return handler.FinalizePiece(pceName);
+        if (validInput)
+        {
+            // returns piece made
+            return handler.FinalizePiece(pceName);
+        } 
+        else 
+        {
+            complainText.text = 
+                "Name must contain only digits, letters, and spaces";
+
+            TransitionHandler.GetHandler().AbortTransition();
+            return null;
+        }
     }
 
 
@@ -59,5 +71,6 @@ internal sealed class MakePiece : Process<MakePiece>, IAssociatedState<GameCreat
     {
         // clear name input field 
         nameInput.text = "";
+        complainText.text = "";
     }
 }

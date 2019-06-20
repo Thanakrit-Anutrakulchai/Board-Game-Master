@@ -57,7 +57,8 @@ public class PieceCreationHandler : ProcessHandler<PieceCreationHandler>
 
         VirtualBoard<PieceBuildingSlot> vBoard = new VirtualBoard<PieceBuildingSlot>
             (
-                // TODO this is adhoc solution: vboard only used for tiling, really
+                // TODO refactor later
+                // this is adhoc solution: vboard only used for tiling, really
                 new Linked2D<PosInfo, PosInfo[,]>(pieceBeingMadeRep, (_) => pieceBeingMadeRep),
                 new Linked2D<PosInfo, PosInfo>(pieceBeingMadeRep, (_) => creationSquareColour),
                 1,

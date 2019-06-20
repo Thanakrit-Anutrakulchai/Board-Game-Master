@@ -32,6 +32,10 @@ public class ProgramData
     //   (files with .gam extensions)
     internal static string gamesFolderPath; //assigned in SetupHandler
 
+    // string for checking validity of a name
+    //   constructured and assigned in setup handler
+    internal static string nameCheckString;
+
     // path to where info about bots are stored
     internal static string botsFolderPath;
 

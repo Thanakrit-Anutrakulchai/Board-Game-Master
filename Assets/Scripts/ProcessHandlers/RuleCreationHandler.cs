@@ -35,7 +35,7 @@ public class RuleCreationHandler : ProcessHandler<RuleCreationHandler>
 
     // default colour of square with no piece on it
     internal static Color noPieceColour =
-        new Color(20 / 255f, 200 / 255f, 20 / 255f, 0.8f);
+        new Color(200 / 255f, 20 / 255f, 20 / 255f, 0.8f);
 
     // default colour of the piece button currently selected
     internal static Color selectedPieceColour =
@@ -184,6 +184,11 @@ public class RuleCreationHandler : ProcessHandler<RuleCreationHandler>
                 break;
 
             case PieceSelection.RemovePiece removePce:
+                if (change is RuleInfo.SquareChange.Unaffected) 
+                {
+                    break;
+                }
+
                 List<byte> from = change.PieceChangedFromOrEmpty();
                 if (from.Count > 0) // guard against empty
                 {
@@ -290,11 +295,22 @@ public class RuleCreationHandler : ProcessHandler<RuleCreationHandler>
                 {
                     if (selectingTriggerPiece) // sets piece click triggered
                     {
+                        bool triggerNotSet = false;
+
                         // attempts to set trigger piece
                         switch (relChangesBeingMade[r, c]) 
                         {
                             case RuleInfo.SquareChange.Unaffected un:
-                                // TODO say no
+                                relChangesBeingMade[r, c] =
+                                    new RuleInfo
+                                            .SquareChange
+                                            .Changed(new List<byte>(), PieceInfo.noPiece);
+                                triggerPiece = PieceInfo.noPiece;
+                                triggerRow = r;
+                                triggerCol = c;
+
+                                HoloBoardBefore.boardColours[r, c] =
+                                        triggerPieceColour;
                                 break;
 
                             case RuleInfo.SquareChange.Changed changed:
@@ -313,21 +329,32 @@ public class RuleCreationHandler : ProcessHandler<RuleCreationHandler>
                                     triggerPiece = PieceInfo.noPiece;
                                     triggerRow = r;
                                     triggerCol = c;
+
+                                    HoloBoardBefore.boardColours[r, c] =
+                                        triggerPieceColour;
                                 }
                                 else 
                                 {
-                                    // TODO add check and complain
-                                    throw new System.NotSupportedException("TODO");
+                                    // TODO allow multiple trigger pieces 
+                                    //        in future versions ?
+                                    // notify user that they cannot do that
+                                    triggerNotSet = true;
+                                    MakeRule mkRule = MakeRule.GetProcess();
+                                    mkRule.complainText.text = 
+                                        "ONLY ONE PIECE CAN BE THE TRIGGER PIECE";
                                 }
                                 break;
 
                             default:
                                 throw new System.ArgumentException(
                                     "Unaccounted for SquareChange type");
-                        }
+                        } // end switch on piece set to trigger
 
-                        // toggles selectingTrigger value back
-                        selectingTriggerPiece = false;
+                        // toggles selectingTrigger value back if successful
+                        if (!triggerNotSet)
+                        {
+                            selectingTriggerPiece = false;
+                        }
 
                         // clears button colour
                         MakeRule.GetProcess().setTriggerPieceButton
@@ -378,6 +405,11 @@ public class RuleCreationHandler : ProcessHandler<RuleCreationHandler>
                 break;
 
             case PieceSelection.RemovePiece removePce:
+                if (change is RuleInfo.SquareChange.Unaffected) 
+                {
+                    break;
+                }
+
                 relChangesBeingMade[r, c] =
                     new RuleInfo.SquareChange
                                 .Changed(change.PieceChangedFromOrEmpty(), PieceInfo.noPiece);

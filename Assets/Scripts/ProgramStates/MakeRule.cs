@@ -24,6 +24,7 @@ internal sealed class MakeRule : Process<MakeRule>,
     [SerializeField] internal Button togglePanelTriggerButton;
     [SerializeField] internal InputField nameInput;
     [SerializeField] internal ScrollRect selectPieceScrView;
+    [SerializeField] internal Text complainText;
 
 
 
@@ -212,7 +213,6 @@ internal sealed class MakeRule : Process<MakeRule>,
 
     public void OnEnterState(IAssociatedStateLeave<RuleSetupData> previousState, RuleSetupData setupData)
     {
-        // TODO
         RuleCreationHandler ruleHandler = RuleCreationHandler.GetHandler();
 
         // unpacks data
@@ -238,9 +238,21 @@ internal sealed class MakeRule : Process<MakeRule>,
             ruleHandler.HoloBoardBefore.DestroyBoard();
         }
 
-        // TODO add checks
-        RuleInfo ruleMade = ruleHandler.FinalizeRule(nameInput.text);
-        return ruleMade;
+        // checks name is alphanumeric with spaces
+        bool validInput = Utility.EnsureProperName(nameInput.text);
+        if (validInput)
+        {
+            RuleInfo ruleMade = ruleHandler.FinalizeRule(nameInput.text);
+            return ruleMade;
+        }
+        else 
+        {
+            complainText.text =
+                "Name must contain only digits, letters, and spaces";
+             
+            TransitionHandler.GetHandler().AbortTransition();
+            return null;
+        }
     }
 
 
@@ -248,6 +260,8 @@ internal sealed class MakeRule : Process<MakeRule>,
     private void SetupUIs() 
     {
         RuleCreationHandler ruleHandler = RuleCreationHandler.GetHandler();
+        // clears old complains
+        complainText.text = "";
 
         // clear old name input
         nameInput.text = "";

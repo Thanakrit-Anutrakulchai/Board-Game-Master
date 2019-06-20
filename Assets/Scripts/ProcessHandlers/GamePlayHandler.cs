@@ -25,7 +25,7 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
     internal Game gameBeingPlayed;
 
     // true iff. game has ended (a player has won) 
-    internal bool gameHasEnded;
+    internal bool boardLocked;
 
 
 
@@ -45,21 +45,39 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
     internal void StartGame(Game game)
     {
         gameBeingPlayed = game;
+        PlayGame playGame = PlayGame.GetProcess();
 
         Debug.Log("PIECE RES: " + game.Info.pieceResolution);
 
+
         // generates virtual board for the game
+        Func<int, int, PosInfo[,]> getBrdState =
+            (r, c) =>
+            {
+                byte pce = gameBeingPlayed.boardState.BoardStateRepresentation[r, c];
+                byte pceRes = gameBeingPlayed.Info.pieceResolution;
+                if (pce == PieceInfo.noPiece || pce == PieceInfo.noSquare) 
+                {
+                    return PosInfo.NothingMatrix(pceRes, pceRes);
+                }
+
+                return gameBeingPlayed.Info.pieces[pce].visualRepresentation;
+            };
+
+        Func<int, int, PosInfo> getBrdShape = 
+            (r, c) => gameBeingPlayed.boardState.BoardShapeRepresentation[r, c];
+
         VirtualBoardUsed = new VirtualBoard<PieceSpawningSlot>
             ( 
-                game.Info.boardAtStart.BoardStateRepresentation, 
-                game.Info.boardAtStart.BoardShapeRepresentation,
+                getBrdState.ToProvider(gameBeingPlayed.Info.NumOfRows, gameBeingPlayed.Info.NumOfCols), 
+                getBrdShape.ToProvider(gameBeingPlayed.Info.NumOfRows, gameBeingPlayed.Info.NumOfCols),
                 game.Info.pieceResolution, 
                 game.Info.boardAtStart.SquareSize,
                 game.Info.boardAtStart.GapSize,
                 (brd, r, c) => 
                 {
                     // lock board (do nothing) if game has ended 
-                    if (gameHasEnded) 
+                    if (boardLocked) 
                     {
                         return;
                     }
@@ -76,7 +94,6 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
 
                     Debug.Log("NUMBER OF TRIGGERED RULES: " + rules.Count);
 
-                    PlayGame playGame = PlayGame.GetProcess();
                     // clear old rules listed on panel
                     playGame.movesScrView.Clear(playGame.moveButtonTemplate);
 
@@ -98,16 +115,9 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
                                 rule.name, 
                                 delegate 
                                 {
+                                    // TODO allow multiple in future versions ?
                                     // for now, only allow first state
                                     gameBeingPlayed = possibleGames[0];
-                                    byte[,] brdState = gameBeingPlayed
-                                                        .boardState
-                                                        .BoardStateRepresentation;
-
-                                    // updates virtual board
-                                    VirtualBoardUsed.boardRepresentation =
-                                        gameBeingPlayed.Info
-                                                       .LinkVisRepTo(brdState);
 
                                     // refresh all squares
                                     VirtualBoardUsed.RefreshBoard();
@@ -121,7 +131,6 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
             );
 
         VirtualBoardUsed.SpawnBoard(SpatialConfigs.commonBoardOrigin);
-
         NextTurn(gameBeingPlayed.Info.startingPlayer);
     }
 
@@ -130,15 +139,29 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
     // moves onto the next turn of the game
     public void NextTurn(byte player) 
     {
-        // clear previous moves 
-        PlayGame playGame = PlayGame.GetProcess();
-        playGame.movesScrView.Clear(playGame.moveButtonTemplate);
-
         // update current player
         gameBeingPlayed.currentPlayer = player;
 
-        List<byte> winners = new List<byte>();
+        PlayGame playGame = PlayGame.GetProcess();
+        // updates current player text
+        playGame.curPlayerText.text = "CURRENT PLAYER: " + gameBeingPlayed.currentPlayer;
+
+        // clear previous moves 
+        playGame.movesScrView.Clear(playGame.moveButtonTemplate);
+
+        // let bot choose a move on its turn
+        if (gameBeingPlayed.bots.ContainsKey(player)) 
+        {
+            boardLocked = true;
+            Tuple<RuleInfo, byte, byte> move = 
+                gameBeingPlayed.bots[player].ChooseMove(gameBeingPlayed);
+            // TODO change if multiple games per rule allowed in future versions
+            gameBeingPlayed = move.Item1.Apply(gameBeingPlayed, move.Item2, move.Item3)[0];
+        }
+
+
         // check if game has been won 
+        List<byte> winners = new List<byte>();
         foreach (WinCondInfo winCond in gameBeingPlayed.Info.winConditions)
         {
             // player has won if there is a sub-structure of that type
@@ -148,7 +171,6 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
             }
         }
 
-        // TODO ask whether multiple winners is a TIE or all wins or what
         if (winners.Count > 0)
         {
             GameEnded(winners);
@@ -158,11 +180,19 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
 
 
     // announces that game has been won and ends the game
+    // assumption that winners is non-empty
     private void GameEnded(List<byte> winners) 
     {
-        gameHasEnded = true;
+        boardLocked = true;
 
-        // TODO 
+        // TODO Allow multiple winners per game in later versions
+        PlayGame playGame = PlayGame.GetProcess();
+        playGame.curPlayerText.text = "";
+        playGame.winnerText.text =
+            "Player " + winners[0] + " has won the game!";
+
+
+        /* DEBUG CODE
         // VERY TEMP.
         Debug.Log("List of Winners:");
         foreach (byte winner in winners) 
@@ -171,7 +201,6 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
         }
 
 
-        // TODO add custom text
         // declare that no one has won... if no one has won
         if (winners.Count == 0) 
         {
@@ -185,9 +214,23 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
         }
         else // list all of the winners 
         {
-            // TODO 
             Debug.Log(
                 "The game has ended! Multiple people won!");
         }
+        */
     }
+
+
+
+    // method called when the quit game button is pressed
+    internal void QuitGame() 
+    {
+        // destroys the game board
+        VirtualBoardUsed.DestroyBoard();
+    }
+
+
+
+
+
 }

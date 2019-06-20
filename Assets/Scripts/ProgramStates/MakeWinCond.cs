@@ -20,6 +20,7 @@ internal sealed class MakeWinCond : Process<MakeWinCond>,
     [SerializeField] internal Button removePieceButton;
     [SerializeField] internal InputField nameInput;
     [SerializeField] internal ScrollRect selectPieceScrView;
+    [SerializeField] internal Text complainText;
 
 
 
@@ -90,14 +91,24 @@ internal sealed class MakeWinCond : Process<MakeWinCond>,
 
     public WinCondInfo OnLeaveState(IAssociatedStateEnter<WinCondInfo> nextState)
     {
-        // parses name
-        // TODO add check
-        string nm = nameInput.text;
+        bool validInput = Utility.EnsureProperName(nameInput.text);
+        if (validInput)
+        {
+            WinCondCreationHandler winCondHandler = WinCondCreationHandler.GetHandler();
+            WinCondInfo winCondMade = winCondHandler.FinalizeWinCond(nameInput.text);
+            return winCondMade;
+        }
+        else 
+        {
+            complainText.text =
+                "Name must contain only digits, letters, and spaces";
 
-        WinCondCreationHandler winCondHandler = WinCondCreationHandler.GetHandler();
-        WinCondInfo winCondMade = winCondHandler.FinalizeWinCond(nm);
 
-        return winCondMade;
+            TransitionHandler.GetHandler().AbortTransition();
+            return null;
+        }
+
+
     }
 
 

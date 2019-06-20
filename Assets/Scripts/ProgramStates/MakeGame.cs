@@ -22,6 +22,7 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
     [SerializeField] internal Button makeWinCondButton;
     [SerializeField] internal Button doneButton;
     [SerializeField] internal InputField nameInput;
+    [SerializeField] internal Text complainText;
 
 
 
@@ -38,7 +39,6 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
 
     public void OnEnterState(IAssociatedStateLeave<BoardInfo> prevState, BoardInfo boardMade) 
     {
-        // TODO
         if (!(prevState is MakeBoard)) // guard against wrong state
         {
             throw new Exception("Unexpected previous state - mismatch with arguments passed");
@@ -52,7 +52,6 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
 
     public void OnEnterState(IAssociatedStateLeave<DimensionsData> prevState, DimensionsData data)
     {
-        // TODO
         if (!(prevState is ChooseBoardDim)) // guard against wrong state
         {
             throw new Exception("Unexpected previous state - mismatch with arguments passed");
@@ -71,7 +70,6 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
     // entered after end of piece creation
     public void OnEnterState(IAssociatedStateLeave<PieceInfo> previousState, PieceInfo pieceMade)
     {
-        // TODO
         if (!(previousState is MakePiece)) // guard against wrong state
         {
             throw new Exception("Unexpected previous state - mismatch with arguments passed");
@@ -121,7 +119,6 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
 
     public GameCreationHandler OnLeaveState(IAssociatedStateEnter<GameCreationHandler> nextState)
     {
-        // TODO
         return GameCreationHandler.GetHandler();
     }
 
@@ -132,10 +129,23 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
     public GameInfo OnLeaveState(IAssociatedStateEnter<GameInfo> nextState)
     {
         GameCreationHandler gameHandler = GameCreationHandler.GetHandler();
-        // TODO ADD CHECKS ON NAME
-        GameInfo gameMade = gameHandler.FinalizeGame(nameInput.text);
+        // checks validity of name
+        bool validInput = Utility.EnsureProperName(nameInput.text);
 
-        return gameMade;
+        // finishes creation process (if name is valid)
+        if (validInput)
+        {
+            GameInfo gameMade = gameHandler.FinalizeGame(nameInput.text);
+            return gameMade;
+        } 
+        else 
+        {
+            complainText.text = 
+                "Name must contain only digits, letters. and spaces";
+
+            TransitionHandler.GetHandler().AbortTransition();
+            return null;
+        }
     }
 
 
@@ -145,6 +155,7 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
     {
         // clears name input field
         nameInput.text = "";
+        complainText.text = "";
     }
 
 

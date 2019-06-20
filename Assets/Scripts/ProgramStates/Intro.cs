@@ -2,7 +2,8 @@
 using UnityEngine.UI;
 
 // Items displayed on the Intro canvas
-internal sealed class Intro : Process<Intro>, IAssociatedState<GameInfo, Object>
+internal sealed class Intro : Process<Intro>, IAssociatedState<GameInfo, Object>,
+    IAssociatedStateEnter<Object>
 {
     /*** INSTANCE VARIABLES ***/
     [SerializeField] internal Canvas canvas;
@@ -26,15 +27,18 @@ internal sealed class Intro : Process<Intro>, IAssociatedState<GameInfo, Object>
 
     public void OnEnterState(IAssociatedStateLeave<GameInfo> previousState, GameInfo args)
     {
-        // TODO
-        throw new System.NotImplementedException();
+        // do nothing
     }
 
 
 
     public Object OnLeaveState(IAssociatedStateEnter<Object> nextState)
     {
-        // TODO
-        return null;
+        return null; // do nothing
+    }
+
+    public void OnEnterState(IAssociatedStateLeave<Object> previousState, Object args)
+    {
+        // do nothing
     }
 }

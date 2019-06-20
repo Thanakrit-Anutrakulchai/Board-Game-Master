@@ -83,7 +83,8 @@ public class RuleInfo
     public readonly byte nextPlayer;
 
     // the 'relative changes' of the area affected
-    internal readonly SquareChange[,] relChanges; //TODO make indexing not mutate?
+    // TODO make indexing not mutate in later versions
+    internal readonly SquareChange[,] relChanges; 
 
     // index and location of the trigger piece in relChange
     //  the trigger piece is the one which activates the rule when clicked
@@ -214,8 +215,8 @@ public class RuleInfo
         { 
             for (byte cRel = 0; cRel < relChanges.GetLength(1); cRel++) 
             {
-                // TODO 
-                // TEMP. 'redundant' chceck incase of unexpected error
+                // TODO remove in future version after refactoring
+                // 'redundant' chceck incase of unexpected error
                 // this check had already been done, surely absPosStillBytes = true
                 bool absPosStillBytes = rRel.AddCheck(originRow, out byte rAbs);
                 absPosStillBytes &= cRel.AddCheck(originCol, out byte cAbs);

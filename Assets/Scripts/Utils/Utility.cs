@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using System;
 using System.IO;
 using System.Collections.Generic;
-
+using System.Linq;
 
 
 // collection of useful variables and methods useful throughout the program
@@ -75,8 +75,12 @@ public class Utility
     //  does NOT check for name crashes
     public static bool EnsureProperName(string str)
     {
-        //TODO
-        return true;
+        string checkStr = ProgramData.nameCheckString;
+
+        // TODO prevent name being too long (cannot display text)
+        // maybe trim name before displaying in future versions?
+        // temporary solution: limit name size to 15 characters
+        return str.All((c) => checkStr.Contains(c)) && (str.Count() <= 15);
     }
 
 

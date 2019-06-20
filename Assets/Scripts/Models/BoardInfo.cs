@@ -84,7 +84,7 @@ public class BoardInfo
         NumOfCols = numCols;
         GapSize = gapSize;
         SquareSize = sqSize;
-        boardShapeRepresentation = PosInfo.NothingMatrix(numRows,numCols); //TODO
+        boardShapeRepresentation = PosInfo.NothingMatrix(numRows,numCols); //default
         boardStateRepresentation = new byte[numRows, numCols];
     }
 

@@ -23,6 +23,16 @@ public static class NumericExtensions
         }
     }
 
+
+
+    // true iff number is in [low, high] (that is, low <= number <= high)
+    public static bool InRange(this byte theNumber, byte low, byte high)
+    {
+        return (low <= theNumber) && (theNumber <= high);
+    }
+
+
+
     // ensures that addition of two bytes is still within range to be a byte
     //  that is, returns true and result = b1 - b2 if their difference >= 0
     //  otherwise, returns false 
