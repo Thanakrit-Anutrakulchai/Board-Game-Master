@@ -24,6 +24,11 @@ internal sealed class MakeBoard : Process<MakeBoard>, IAssociatedState<GameCreat
     // Add handlers to scroll view and remove piece button
     private void Start()
     {
+        zoomSlider.onValueChanged.AddListener
+            (
+                (h) => CameraHandler.GetHandler().MoveCamera(h)
+            );
+
         BoardCreationHandler bh = BoardCreationHandler.GetHandler();
         // on click, change button
         removePieceButton.onClick.AddListener(

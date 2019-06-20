@@ -10,6 +10,20 @@ internal sealed class MakePiece : Process<MakePiece>, IAssociatedState<GameCreat
     [SerializeField] internal Button doneButton;
     [SerializeField] internal InputField nameInput;
     [SerializeField] internal Text complainText;
+    [SerializeField] internal Slider zoomSlider;
+
+
+
+
+
+    /*** START ***/
+    private void Start()
+    {
+        zoomSlider.onValueChanged.AddListener
+            (
+                (h) => CameraHandler.GetHandler().MoveCamera(h)
+            );
+    }
 
 
 

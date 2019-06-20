@@ -25,6 +25,8 @@ internal sealed class MakeRule : Process<MakeRule>,
     [SerializeField] internal InputField nameInput;
     [SerializeField] internal ScrollRect selectPieceScrView;
     [SerializeField] internal Text complainText;
+    [SerializeField] internal Slider zoomSlider;
+
 
 
 
@@ -33,9 +35,14 @@ internal sealed class MakeRule : Process<MakeRule>,
     // Adds handlers to UI elements
     private void Start()
     {
+        zoomSlider.onValueChanged.AddListener
+            (
+                (h) => CameraHandler.GetHandler().MoveCamera(h)
+            );
+
         RuleCreationHandler ruleHandler = RuleCreationHandler.GetHandler();
 
-        // 
+
         selectPieceScrView.SetChoosableButtons(new System.Collections.Generic.List<Button> 
             { 
                 allPiecesButton,

@@ -54,14 +54,17 @@ public class Game
     {
         byte[,] brdStateRep = boardState.BoardStateRepresentation;
         List<Tuple<RuleInfo, byte, byte>> accu = new List<Tuple<RuleInfo, byte, byte>>();
-        for (int r = 0; r < brdStateRep.GetLength(0); r++) 
+        for (byte r = 0; r < brdStateRep.GetLength(0); r++) 
         { 
-            for (int c = 0; c < brdStateRep.GetLength(1); c++) 
+            for (byte c = 0; c < brdStateRep.GetLength(1); c++) 
             {
                 List<RuleInfo> rules = Info.rules[currentPlayer][brdStateRep[r, c]];
                 foreach (RuleInfo subrule in rules) 
                 {
-                    accu.Add(Tuple.Create(subrule, (byte)r, (byte)c));
+                    if (subrule.Apply(this, r, c).Count > 0)
+                    {
+                        accu.Add(Tuple.Create(subrule, (byte)r, (byte)c));
+                    }
                 }
             }
         } // end foreach in double for loop appending all usable rules to list

@@ -153,6 +153,8 @@ internal sealed class MakeGame : Process<MakeGame>, IAssociatedStateEnter<Dimens
     // called upon entered from ChooseDim canvas, as of the first version
     private void SetupUIs() 
     {
+        complainText.text = "";
+
         // clears name input field
         nameInput.text = "";
         complainText.text = "";

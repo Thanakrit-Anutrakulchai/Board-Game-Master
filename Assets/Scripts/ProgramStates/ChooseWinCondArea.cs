@@ -74,7 +74,10 @@ internal sealed class ChooseWinCondArea : Process<ChooseWinCondArea>,
 
     private void SetupUIs() 
     {
+        complainText.text = "";
+
         // clears old input
         sizeInput.text = "";
+        winnerInput.text = "";
     } 
 }

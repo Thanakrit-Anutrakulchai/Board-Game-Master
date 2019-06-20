@@ -21,6 +21,7 @@ internal sealed class MakeWinCond : Process<MakeWinCond>,
     [SerializeField] internal InputField nameInput;
     [SerializeField] internal ScrollRect selectPieceScrView;
     [SerializeField] internal Text complainText;
+    [SerializeField] internal Slider zoomSlider;
 
 
 
@@ -29,6 +30,11 @@ internal sealed class MakeWinCond : Process<MakeWinCond>,
     /*** START ***/
     private void Start()
     {
+        zoomSlider.onValueChanged.AddListener
+            (
+                (h) => CameraHandler.GetHandler().MoveCamera(h)
+            );
+
         // sets up chosen button highlighting
         selectPieceScrView.WhenChosenChanges
             ((scrView) => 
