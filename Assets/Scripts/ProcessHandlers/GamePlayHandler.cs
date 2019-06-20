@@ -212,7 +212,7 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
         PlayGame playGame = PlayGame.GetProcess();
         playGame.curPlayerText.text = "";
         playGame.winnerText.text =
-            "Player " + winners[0] + " has won the game!";
+            "Player " + (winners[0] + 1) + " has won the game!";
 
 
         /* DEBUG CODE

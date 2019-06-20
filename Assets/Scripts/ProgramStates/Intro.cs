@@ -10,7 +10,18 @@ internal sealed class Intro : Process<Intro>, IAssociatedState<GameInfo, Object>
 
     [SerializeField] internal Button playGameButton;
     [SerializeField] internal Button makeGameButton;
+    [SerializeField] internal Button quitButton;
 
+
+
+
+
+
+    /*** START ***/
+    private void Start()
+    {
+        quitButton.onClick.AddListener(Application.Quit);
+    }
 
 
 

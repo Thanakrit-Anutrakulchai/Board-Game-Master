@@ -8,7 +8,8 @@ using UnityEngine.UI;
 // Items associated with the ChooseGame canvas
 internal sealed class ChooseGame : Process<ChooseGame>, 
     IAssociatedState<UnityEngine.Object, Game>,
-    IAssociatedStateEnter<Dictionary<byte, BotInfo>>
+    IAssociatedStateEnter<Dictionary<byte, BotInfo>>,
+    IAssociatedStateLeave<UnityEngine.Object>
 {
     /*** STATIC VARIABLES ***/
     private static Color selectedPieceColour = 
@@ -22,6 +23,7 @@ internal sealed class ChooseGame : Process<ChooseGame>,
     [SerializeField] internal Canvas canvas;
 
     [SerializeField] internal ScrollRect chooseGameScrView;
+    [SerializeField] internal Button backButton;
     [SerializeField] internal Button gameButtonTemplate;
     [SerializeField] internal Button generateAIButton;
     [SerializeField] internal Button playButton;
@@ -104,6 +106,14 @@ internal sealed class ChooseGame : Process<ChooseGame>,
 
 
 
+    // Choose Game -> Intro (back button)
+    public UnityEngine.Object OnLeaveState(IAssociatedStateEnter<UnityEngine.Object> nextState)
+    {
+        return null; // do nothing
+    }
+
+
+
     // populates scroll view with named buttons which starts a game when clicked
     private void SetupUIs()
     {
@@ -158,7 +168,7 @@ internal sealed class ChooseGame : Process<ChooseGame>,
 
     }
 
-   
+
 
 
 

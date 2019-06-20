@@ -126,6 +126,11 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
                 () => Transition(MakeGame, ChooseWinCondArea)
             );
 
+        ChooseGame.backButton.onClick.AddListener
+            (
+                () => Transition<Object>(ChooseGame, Intro)
+            );
+
         ChooseGame.playButton.onClick.AddListener
             (
                 () => Transition(ChooseGame, PlayGame)

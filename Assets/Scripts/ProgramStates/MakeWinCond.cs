@@ -126,6 +126,7 @@ internal sealed class MakeWinCond : Process<MakeWinCond>,
         // clear old name
         nameInput.text = "";
 
+
         // repopulates scroll view with piece buttons
         WinCondCreationHandler winHandler = WinCondCreationHandler.GetHandler();
         selectPieceScrView.Clear(pieceButtonTemplate);
