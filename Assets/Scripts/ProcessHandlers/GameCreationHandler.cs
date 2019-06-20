@@ -70,19 +70,38 @@ public class GameCreationHandler : ProcessHandler<GameCreationHandler>
 
 
     /*** INSTANCE METHODS ***/
+    // list of default player names, where player # n, index n-1, is 'Player n'
+    internal List<string> DefaultPlayerNames() 
+    {
+        List<string> names = new List<string>();
+        for (int i = 0; i < numOfPlayers; i++) 
+        {
+            names.Add("Player " + (i+1));
+        }
+
+        return names;
+    }
+
+
+
     // finishes game creation
     internal GameInfo FinalizeGame(string gameName) 
     {
+        // TODO Allow custom player names in future versions 
+
         // creates game info
         GameInfo gameMade = new GameInfo(boardAtStart, pieces, pieceResolution,
-                                         numOfPlayers, startingPlayer,
+                                         numOfPlayers, startingPlayer, 
+                                         DefaultPlayerNames(),
                                          rules, winConditions);
 
 
         // serializes it to file with name of game in games folder
         BinaryFormatter binFormat = new BinaryFormatter();
         FileStream gameFile = File.Create(
-            ProgramData.gamesFolderPath + "/" + gameName.Replace(' ', '_') + ".gam");
+            ProgramData.gamesFolderPath + 
+            Path.DirectorySeparatorChar + 
+            gameName.Replace(' ', '_') + ".gam");
         binFormat.Serialize(gameFile, gameMade);
         gameFile.Close();
 

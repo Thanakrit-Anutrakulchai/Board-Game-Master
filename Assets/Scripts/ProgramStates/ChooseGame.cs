@@ -7,7 +7,8 @@ using UnityEngine.UI;
 
 // Items associated with the ChooseGame canvas
 internal sealed class ChooseGame : Process<ChooseGame>, 
-    IAssociatedState<UnityEngine.Object, Game>
+    IAssociatedState<UnityEngine.Object, Game>,
+    IAssociatedStateEnter<Dictionary<byte, BotInfo>>
 {
     /*** STATIC VARIABLES ***/
     private static Color selectedPieceColour = 
@@ -73,17 +74,31 @@ internal sealed class ChooseGame : Process<ChooseGame>,
     /*** INSTANCE METHODS ***/
     // Intro -> Choose Game
     public void OnEnterState(IAssociatedStateLeave<UnityEngine.Object> prevState, 
-                                UnityEngine.Object args)
+                             UnityEngine.Object args)
     {
         SetupUIs();
     }
 
 
 
+    // SetupAIs -> Choose Game / GenerateAI
+    public void OnEnterState(IAssociatedStateLeave<Dictionary<byte, BotInfo>> previousState,
+                             Dictionary<byte, BotInfo> botsSetup)
+    {
+        gameToPass.bots = botsSetup;
+    }
+
+
+
     // Choose Game -> Play Game
-    // passes game chosen
+    // passes game chosen and switches screens, if one was chosen
     public Game OnLeaveState(IAssociatedStateEnter<Game> nextState)
     {
+        if (gameToPass == null) 
+        {
+            TransitionHandler.GetHandler().AbortTransition();
+        }
+
         return gameToPass;
     }
 
@@ -106,7 +121,9 @@ internal sealed class ChooseGame : Process<ChooseGame>,
         {
             // retrieves name of game
             int indexNameEnd = path.IndexOf(".gam", StringComparison.InvariantCulture);
-            int indexNameStart = path.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
+            int indexNameStart = 
+                path.LastIndexOf("" + Path.DirectorySeparatorChar, 
+                                 StringComparison.InvariantCulture) + 1;
             int lengthOfName = indexNameEnd - indexNameStart;
             string gameName = path.Substring(indexNameStart, lengthOfName);
 
@@ -140,4 +157,9 @@ internal sealed class ChooseGame : Process<ChooseGame>,
         } // finishes populating scroll view
 
     }
+
+   
+
+
+
 }

@@ -115,6 +115,8 @@ internal sealed class MakeWinCond : Process<MakeWinCond>,
 
     private void SetupUIs() 
     {
+        complainText.text = "";
+
         // clear old name
         nameInput.text = "";
 

@@ -34,6 +34,9 @@ public class GameInfo
     // state of the board at the start of the game
     public readonly BoardInfo boardAtStart;
 
+    // the names of the players
+    public readonly List<string> playerNames;
+
     // pieces of the game, with indexes used as a sort of identifier
     public readonly List<PieceInfo> pieces;
 
@@ -88,7 +91,7 @@ public class GameInfo
 
     /*** CONSTRUCTORS ***/
     internal GameInfo(BoardInfo brdStrt, List<PieceInfo> pcs, byte pceRes,
-                      byte numPlayers, byte startPlayer,
+                      byte numPlayers, byte startPlayer, List<string> namesOfPlayers,
                       Dictionary<byte, Dictionary<byte, List<RuleInfo>>> rls, 
                       List<WinCondInfo> wnCnds)
     { 
@@ -98,6 +101,7 @@ public class GameInfo
         numOfPieces = (byte) pcs.Count;
         numOfPlayers = numPlayers;
         startingPlayer = startPlayer;
+        playerNames = namesOfPlayers;
 
         rules = rls;
         for (byte plyr = 0; plyr < numPlayers; plyr++) 

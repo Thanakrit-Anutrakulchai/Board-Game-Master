@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 
 // This script manages custom games in play mode, 
@@ -45,6 +44,13 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
     internal void StartGame(Game game)
     {
         gameBeingPlayed = game;
+
+        // instantiate bots setup (empty) if it was null
+        if (gameBeingPlayed.bots == null) 
+        {
+            gameBeingPlayed.bots = new Dictionary<byte, BotInfo>();
+        }
+
         PlayGame playGame = PlayGame.GetProcess();
 
         Debug.Log("PIECE RES: " + game.Info.pieceResolution);
@@ -144,10 +150,28 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
 
         PlayGame playGame = PlayGame.GetProcess();
         // updates current player text
-        playGame.curPlayerText.text = "CURRENT PLAYER: " + gameBeingPlayed.currentPlayer;
+        playGame.curPlayerText.text = "CURRENT PLAYER: " + (gameBeingPlayed.currentPlayer + 1);
 
         // clear previous moves 
         playGame.movesScrView.Clear(playGame.moveButtonTemplate);
+
+        // check if game has been won 
+        List<byte> winners = new List<byte>();
+        foreach (WinCondInfo winCond in gameBeingPlayed.Info.winConditions)
+        {
+            // player has won if there is a sub-structure of that type
+            if (winCond.Check(gameBeingPlayed, out byte winner))
+            {
+                winners.Add(winner);
+            }
+        }
+
+        // end game if someone has won
+        if (winners.Count > 0)
+        {
+            GameEnded(winners);
+            return; 
+        }
 
         // let bot choose a move on its turn
         if (gameBeingPlayed.bots.ContainsKey(player)) 
@@ -156,24 +180,23 @@ public class GamePlayHandler : ProcessHandler<GamePlayHandler>
             Tuple<RuleInfo, byte, byte> move = 
                 gameBeingPlayed.bots[player].ChooseMove(gameBeingPlayed);
             // TODO change if multiple games per rule allowed in future versions
-            gameBeingPlayed = move.Item1.Apply(gameBeingPlayed, move.Item2, move.Item3)[0];
-        }
 
-
-        // check if game has been won 
-        List<byte> winners = new List<byte>();
-        foreach (WinCondInfo winCond in gameBeingPlayed.Info.winConditions)
-        {
-            // player has won if there is a sub-structure of that type
-            if ( winCond.Check(gameBeingPlayed, out byte winner) ) 
+            if (move == null) // if AI cannot choose a move i.e. if there is none
             {
-                winners.Add(winner);
+                // just dont do anything, game will "freeze" 
+                // TODO say something here to user 
             }
-        }
-
-        if (winners.Count > 0)
+            else
+            {
+                Debug.Log("BOT MADE A MOVE");
+                gameBeingPlayed = move.Item1.Apply(gameBeingPlayed, move.Item2, move.Item3)[0];
+                VirtualBoardUsed.RefreshBoard();
+                NextTurn(gameBeingPlayed.currentPlayer);
+            }
+        } 
+        else // unlocks board for player to play
         {
-            GameEnded(winners);
+            boardLocked = false;
         }
     }
 

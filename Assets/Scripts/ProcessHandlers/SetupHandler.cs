@@ -11,8 +11,10 @@ public class SetupHandler : ProcessHandler<SetupHandler>
         // Application.persistentDataPath links to a folder which contains
         //  information about the gamess
         //  It can only be accessed in the Start or Awake method for MonoBehaviours
-        ProgramData.gamesFolderPath = Application.persistentDataPath + "/games";
-        ProgramData.botsFolderPath = Application.persistentDataPath + "/bots";
+        ProgramData.gamesFolderPath = Application.persistentDataPath + 
+            Path.DirectorySeparatorChar + "games";
+        ProgramData.botsFolderPath = Application.persistentDataPath +
+            Path.DirectorySeparatorChar + "bots";
     }
 
 
@@ -32,8 +34,9 @@ public class SetupHandler : ProcessHandler<SetupHandler>
         TransitionHandler th = Camera.main.GetComponent<TransitionHandler>();
         th.AddListenersToButtons();
 
-        // creates games folder if it does not exist yet
+        // creates games folder and bots folder if they do not exist yet
         Directory.CreateDirectory(ProgramData.gamesFolderPath);
+        Directory.CreateDirectory(ProgramData.botsFolderPath);
 
         // generates and assigns string for checking names
         string checkStr = "";

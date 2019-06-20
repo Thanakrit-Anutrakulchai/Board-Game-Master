@@ -141,6 +141,41 @@ public static class UIExtensions
 
 
 
+    // clears and repopulates scroll view with buttons specified, 
+    //   which performs act(buttonMade, index) when a button is clicked 
+    public static void RepopulateButtons(this ScrollRect scrView,
+                                              Button template,
+                                              List<string> names,
+                                              UnityAction<Button, byte> act)
+    {
+        // clears all old visible button on scroll view (except template)
+        scrView.Clear(template);
+
+        // populates the scroll view with buttons labeled with piece names
+        for (byte index = 0; index < names.Count; index++)
+        {
+            // index of the associated item
+            //  index should not be used directly in delegate, as it *will* change
+            //  after this iteration of the loop ends
+            // index and indexAssocPiece are kind of like up'value's in Lua
+            byte indexAssocPiece = index;
+
+            // creates a button tagged with the name and attach it to scrollView
+            Utility.CreateButton(template, scrView.content,
+            names[index],
+            (btn) => delegate
+            {
+                scrView.SetChosenItem(btn);
+                // TODO TEMP DEBUG
+                // index of selected
+                Debug.Log("INDEX OF SELECTED: " + indexAssocPiece);
+                act(btn, indexAssocPiece);
+            });
+        }
+    }
+
+
+
     // clears and then populates scroll view with button
     //   based on template provided, is set to Chosen item when clicked,
     //   applies act(buttonMade, index) afterwards
@@ -150,32 +185,8 @@ public static class UIExtensions
     {
         GameCreationHandler gameHandler = GameCreationHandler.GetHandler();
 
-
-        // clears all old visible button on scroll view (except template)
-        scrView.Clear(template);
-
-        // populates the scroll view with buttons labeled with piece names
-        for (byte index = 0; index<gameHandler.pieces.Count; index++)
-        {
-            // index of the associated piece 
-            //  index should not be used directly in delegate, as it *will* change
-            //  after this iteration of the loop ends
-            // index and indexAssocPiece are kind of like up'value's in Lua
-            byte indexAssocPiece = index;
-            PieceInfo pce = gameHandler.pieces[index];
-
-            // creates a button tagged with the piece name and attach it to scrollView
-            Utility.CreateButton(template, scrView.content,
-            pce.pieceName,
-            (btn) => delegate
-            {
-                scrView.SetChosenItem(btn);
-                // TODO TEMP DEBUG
-                // index of piece selected
-                Debug.Log("INDEX OF PIECE SELECTED: " + indexAssocPiece);
-                act(btn, indexAssocPiece);
-        });
-}
+        RepopulateButtons(scrView, template,
+                          gameHandler.pieces.ConvertAll((p) => p.pieceName), act);
     }
 
 

@@ -73,48 +73,91 @@ public static class ArrayExtensions
 
 
 
-    // checks if there is a subarray of bigArr with the same elements as littleArr
-    //   indexes where littleArr contains skipOn will not be checked
-    public static bool IsSubMatrixOf<T>(this T[,] littleArr, T[,] bigArr, T skipOn)
-        where T : IEquatable<T>
+    // checks whether there is a subarr in bigArr, after padding it, 
+    //   such that when it is 'covered' with littleArr 
+    // (applying 'cover' to both elements at that position) 
+    //   all positions returns true
+    public static bool Covers<L, B>(this L[,] littleArr, B[,] bigArr, 
+                                    Func<L, B, bool> cover, B padding) 
     {
-        UnityEngine.Debug.Log("CHECKING SUBARR CONTAINMENT");
+        UnityEngine.Debug.Log("CHECKING SUBARR COVERING");
+
         // uses padded array to check partial match
-        IProvider2D<int, T> bigProv = bigArr.ToProvider().Pad
-                                                (skipOn, 
-                                                 littleArr.GetLength(0) - 1, 
+        IProvider2D<int, B> bigProv = bigArr.ToProvider().Pad
+                                                (padding,
+                                                 littleArr.GetLength(0) - 1,
                                                  littleArr.GetLength(1) - 1);
 
         // TODO MAKE THIS FASTER
         int lengthDiff0 = bigProv.GetLength(0) - littleArr.GetLength(0);
         int lengthDiff1 = bigProv.GetLength(1) - littleArr.GetLength(1);
-        for (int i = 0; i <= lengthDiff0; i++) 
-        { 
-            for (int j = 0; j <= lengthDiff1; j++) 
+        for (int i = 0; i <= lengthDiff0; i++)
+        {
+            for (int j = 0; j <= lengthDiff1; j++)
             {
-                bool shownDifferent = false;
-                for (int r = 0; r < littleArr.GetLength(0); r++) 
-                { 
-                    for (int c = 0; c < littleArr.GetLength(1); c++) 
-                    { 
-                        if (littleArr[r, c].Equals(skipOn)) // skip on skipOn
-                        {
-                            continue;
-                        } 
-
-                        shownDifferent |= !littleArr[r, c].Equals(bigProv[i + r, j + c]);
-                    }
-                } // end of inner double for loop, checking one subarr spot
-
-                if (!shownDifferent)
+                bool covers = CoversAt(littleArr, bigProv, i, j, cover);
+                if (covers)
                 {
-                    UnityEngine.Debug.Log("SHOWN NOT DIFF REACHED");
+                    UnityEngine.Debug.Log("SHOWN COVERED REACHED");
                     return true;
                 }
             }
         } // end of quad for loop, checking all subarr spots
 
         return false;
+    }
+
+
+
+    // checks that littleArr 'covers' a sub-array of the same size in big prov.
+    //   starting at the position specified, at a corner
+    public static bool CoversAt<L, B>(this L[,] littleArr, IProvider2D<int, B> bigProv, 
+                                      int posI, int posJ,
+                                      Func<L, B, bool> cover)
+    {
+        bool shownDifferent = false;
+        for (int r = 0; r < littleArr.GetLength(0); r++)
+        {
+            for (int c = 0; c < littleArr.GetLength(1); c++)
+            {
+                shownDifferent |= !cover(littleArr[r, c], bigProv[posI + r, posJ + c]);
+            }
+        } // end of inner double for loop, checking one subarr spot
+
+        return !shownDifferent;
+    }
+
+    // overloaded version of CoversAt that works for bigProv
+    public static bool CoversAt<L, B>(this L[,] littleArr, B[,] bigArr,
+                                      int posI, int posJ,
+                                      Func<L, B, bool> cover, B padding)
+    {
+        // uses padded array to check partial match
+        IProvider2D<int, B> bigProv = bigArr.ToProvider().Pad
+                                                (padding,
+                                                 littleArr.GetLength(0) - 1,
+                                                 littleArr.GetLength(1) - 1);
+
+        return CoversAt(littleArr, bigProv, posI, posJ, cover);
+    }
+
+
+
+    // checks if there is a subarray of bigArr with the same elements as littleArr
+    //   indexes where littleArr contains skipOn will not be checked
+    public static bool IsSubMatrixOf<T>(this T[,] littleArr, T[,] bigArr, T skipOn)
+        where T : IEquatable<T>
+    {
+        return littleArr.Covers(bigArr, MkIsSubMatrixCover(skipOn), skipOn);
+    }
+
+
+    // helper function -- creates covering for the Covers function
+    // cover returns true iff. fromLil == skipOn || fromLil = fromBig
+    private static Func<T, T, bool> MkIsSubMatrixCover<T>(T skipOn) where T : IEquatable<T> 
+    {
+        return
+            (fromLil, fromBig) => (fromLil.Equals(skipOn)) || (fromLil.Equals(fromBig));
     }
 
 

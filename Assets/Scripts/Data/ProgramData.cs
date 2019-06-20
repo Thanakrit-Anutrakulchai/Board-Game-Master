@@ -20,7 +20,8 @@ public class ProgramData
         PaintBoard,
         PanelRule,
         PlayGame,
-        RelativeRule
+        RelativeRule,
+        SettingAIs
     }
 
 

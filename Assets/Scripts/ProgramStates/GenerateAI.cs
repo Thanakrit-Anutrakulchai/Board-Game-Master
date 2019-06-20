@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 internal class GenerateAI : Process<GenerateAI>,
-    IAssociatedState<Game, BotInfo>
+    IAssociatedState<Game, List<BotInfo>>
 {
     /*** INSTANCE VARIABLES ***/
     [SerializeField] internal Canvas canvas;
+
+    //[SerializeField] internal Button setupAIsButton;
+    [SerializeField] internal Text pleaseWaitText;
 
 
 
@@ -31,15 +36,25 @@ internal class GenerateAI : Process<GenerateAI>,
     // Choose Game -> GenerateAI
     public void OnEnterState(IAssociatedStateLeave<Game> previousState, Game game)
     {
-        throw new NotImplementedException();
+        SetupUIs();
+        AIGenerationHandler.GetHandler().GenerateBots(game);
     }
 
 
 
     // GenerateAI -> Choose Game
-    public BotInfo OnLeaveState(IAssociatedStateEnter<BotInfo> nextState)
+    public List<BotInfo> OnLeaveState(IAssociatedStateEnter<List<BotInfo>> nextState)
     {
-        throw new NotImplementedException();
+        return AIGenerationHandler.GetHandler().RetrieveBots();
+    }
+
+
+
+    // reset wait text, hides setup ai button
+    private void SetupUIs() 
+    {
+        pleaseWaitText.text = AIGenerationHandler.defaultWaitText;
+        //setupAIsButton.gameObject.SetActive(false);
     }
 
 

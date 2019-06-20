@@ -33,6 +33,7 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
     private MakeWinCond MakeWinCond;
     private PaintBoard PaintBoard;
     private PlayGame PlayGame;
+    private SetupAIs SetupAIs;
 
     /* Et Cetera */
     private bool abortingTransition;
@@ -60,6 +61,7 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
         MakeWinCond = Camera.main.GetComponent<MakeWinCond>();
         PaintBoard = Camera.main.GetComponent<PaintBoard>();
         PlayGame = Camera.main.GetComponent<PlayGame>();
+        SetupAIs = Camera.main.GetComponent<SetupAIs>();
 
         abortingTransition = false;
     }
@@ -134,6 +136,11 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
                 () => Transition(ChooseGame, GenerateAI)
             );
 
+        SetupAIs.doneButton.onClick.AddListener
+            (
+                () => Transition(SetupAIs, ChooseGame)
+            );
+
         PlayGame.quitGameButton.onClick.AddListener
             (
                 () => Transition(PlayGame, Intro)
@@ -201,6 +208,8 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
                 return PaintBoard.GetCanvas();
             case ProgramData.State.PlayGame:
                 return PlayGame.GetCanvas();
+            case ProgramData.State.SettingAIs:
+                return SetupAIs.GetCanvas();
             default:
                 throw new System.Exception("Received unaccountedfor state");
         }
@@ -226,8 +235,17 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
 
 
 
+    // requests a call from transition, true iff. successful
+    internal bool RequestTransition<T>(IAssociatedStateLeave<T> prev, IAssociatedStateEnter<T> next)
+    {
+        // TODO add more checks here later -- or remove for modularity
+        return Transition(prev, next);
+    }
+
+
+
     // transition states: switch canvas, update states, calls OnEnter/OnLeave methods
-    private void Transition<T>(IAssociatedStateLeave<T> prev, IAssociatedStateEnter<T> next) 
+    private bool Transition<T>(IAssociatedStateLeave<T> prev, IAssociatedStateEnter<T> next) 
     {
         // update state
         ProgramData.currentState = next.GetAssociatedState();
@@ -239,7 +257,7 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
         if (abortingTransition) 
         {
             abortingTransition = false; // reset
-            return;
+            return false;
         }
 
         // switch canvas
@@ -253,5 +271,6 @@ public class TransitionHandler : ProcessHandler<TransitionHandler>
         // call corresponding method upon entering state, 
         //   passes arguments returned from previous state
         next.OnEnterState(prev, args);
+        return true;
     }
 }

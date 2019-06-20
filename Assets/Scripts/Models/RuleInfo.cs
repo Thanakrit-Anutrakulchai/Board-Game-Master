@@ -207,6 +207,7 @@ public class RuleInfo
 
         // prepares new Game if rule may succesfully be applied
         Game resGame = new Game(gm.Info, gm.boardState.GetCopy(), nextPlayer);
+        resGame.bots = gm.bots;
 
         // loop through resGame's board, setting all pieces to after rule is applied
         //  2 loops are used in case copying the boardstate was unnecessary
@@ -245,5 +246,34 @@ public class RuleInfo
         List<Game> resList = new List<Game>();
         resList.Add(resGame);
         return resList;
+    }
+
+
+
+    // check if the rule is applicable at that position 
+    public bool IsApplicableAt(Game game, byte rowPos, byte colPos) 
+    {
+        return relChanges.CoversAt
+            (
+                game.boardState.BoardStateRepresentation,
+                rowPos, colPos, 
+                IsApplicableAtCover, 
+                PieceInfo.noSquare
+            );
+    }
+
+
+    // cover for IsApplicableAt
+    private bool IsApplicableAtCover(SquareChange cng, byte pce) 
+    { 
+        switch (cng) 
+        {
+            case SquareChange.Unaffected un:
+                return true;
+            case SquareChange.Changed changed:
+                return (pce == PieceInfo.noSquare) || changed.pieceChangedFrom.Contains(pce);
+        }
+
+        throw new System.ArgumentException("Unaccounted for SquareChange type");
     }
 }

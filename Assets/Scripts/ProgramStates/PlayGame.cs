@@ -39,6 +39,8 @@ internal sealed class PlayGame : Process<PlayGame>, IAssociatedState<Game, Objec
 
     public void OnEnterState(IAssociatedStateLeave<Game> previousState, Game game)
     {
+        SetupUIs();
+
         GamePlayHandler gameHandler = GamePlayHandler.GetHandler();
         gameHandler.StartGame(game);
     }
